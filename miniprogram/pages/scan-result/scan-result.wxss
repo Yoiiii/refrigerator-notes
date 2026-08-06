@@ -1,0 +1,6 @@
+.scan-loading { display: flex; align-items: center; justify-content: center; height: 100vh; }
+.scan-result { display: flex; flex-direction: column; align-items: center; padding: 200rpx 80rpx; text-align: center; }
+.result-icon { font-size: 120rpx; margin-bottom: 40rpx; }
+.result-title { font-size: 40rpx; font-weight: 700; color: rgba(0,0,0,0.88); margin-bottom: 16rpx; }
+.result-desc { font-size: 28rpx; color: rgba(0,0,0,0.55); margin-bottom: 48rpx; line-height: 1.6; }
+.join-btn { width: 400rpx; }

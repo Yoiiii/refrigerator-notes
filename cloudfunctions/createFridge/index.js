@@ -1,0 +1,44 @@
+// cloudfunctions/createFridge/index.js
+const cloud = require('wx-server-sdk')
+cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
+const db = cloud.database()
+
+exports.main = async (event) => {
+  const { OPENID } = cloud.getWXContext()
+  if (!OPENID) return { code: -1, msg: '未登录' }
+
+  const { name, doorType, hasConstantZone, constantZone, zones } = event
+  if (!name || !doorType || !zones || zones.length === 0) {
+    return { code: -2, msg: '缺少必要参数' }
+  }
+
+  const now = db.serverDate()
+  const fridgeData = {
+    _openid: OPENID,
+    name,
+    doorType,
+    hasConstantZone: !!hasConstantZone,
+    zones,
+    createdAt: now,
+    updatedAt: now,
+  }
+
+  if (hasConstantZone && constantZone) {
+    fridgeData.constantZone = constantZone
+  }
+
+  const fridgeRes = await db.collection('fridges').add({ data: fridgeData })
+  const fridgeId = fridgeRes._id
+
+  // 写入 user_fridge 关联表
+  await db.collection('user_fridge').add({
+    data: {
+      userId: OPENID,
+      fridgeId,
+      role: 'owner',
+      joinedAt: now,
+    },
+  })
+
+  return { code: 0, data: { fridgeId, ...fridgeData } }
+}

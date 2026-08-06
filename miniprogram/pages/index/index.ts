@@ -1,54 +1,132 @@
 // index.ts
-// 获取应用实例
-const app = getApp<IAppOption>()
-const defaultAvatarUrl = 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'
+import { call } from '../../utils/cloud'
+import { getIconEmoji } from '../../utils/icons'
+import { Dialog } from 'tdesign-miniprogram'
 
-Component({
+const app = getApp<IAppOption>()
+
+Page({
   data: {
-    motto: 'Hello World',
-    userInfo: {
-      avatarUrl: defaultAvatarUrl,
-      nickName: '',
-    },
-    hasUserInfo: false,
-    canIUseGetUserProfile: wx.canIUse('getUserProfile'),
-    canIUseNicknameComp: wx.canIUse('input.type.nickname'),
+    theme: 'warm',
+    loading: true,
+    hasFridge: false,
+    refreshing: false,
+    currentFridge: {} as any,
+    fridges: [] as any[],
+    expiringItems: [] as any[],
+    swipeRight: [{ text: '删除', className: 'swipe-delete' }],
   },
-  methods: {
-    // 事件处理函数
-    bindViewTap() {
-      wx.navigateTo({
-        url: '../logs/logs',
-      })
-    },
-    onChooseAvatar(e: any) {
-      const { avatarUrl } = e.detail
-      const { nickName } = this.data.userInfo
+
+  onLoad() {
+    this.loadData()
+  },
+
+  onShow() {
+    this.loadData()
+    this.setData({ theme: app.globalData.theme || 'warm' })
+  },
+
+  async onRefresh() {
+    this.setData({ refreshing: true })
+    await this.loadData()
+    this.setData({ refreshing: false })
+  },
+
+  async loadData() {
+    try {
+      const fridges = await call('getFridgeList')
+      if (fridges && fridges.length > 0) {
+        const expiringItems = await call('getExpiringItems')
+        this.setData({
+          loading: false,
+          hasFridge: true,
+          fridges: fridges,
+          currentFridge: fridges[0],
+          expiringItems: (expiringItems || []).map((item: any) => ({
+            ...item,
+            iconEmoji: getIconEmoji(item.icon),
+            status: item.status === 'danger' ? 'danger' : 'warning',
+            statusText: item.statusText || (item.status === 'danger' ? '已过期' : '临期'),
+          })),
+        })
+      } else {
+        this.setData({ loading: false, hasFridge: false, fridges: [], currentFridge: {} })
+      }
+    } catch (e) {
+      // 云函数未部署时使用模拟数据
       this.setData({
-        "userInfo.avatarUrl": avatarUrl,
-        hasUserInfo: nickName && avatarUrl && avatarUrl !== defaultAvatarUrl,
+        loading: false,
+        hasFridge: true,
+        currentFridge: {
+          fridgeId: 'demo_001', name: '客厅冰箱', doorType: 'double',
+          totalItems: 12, expiringCount: 3, expiredCount: 1,
+        },
+        expiringItems: [
+          { _id: 'i1', name: '五花肉', iconEmoji: '🥩', locationText: '冷藏区·第3层', status: 'danger', statusText: '已过期' },
+          { _id: 'i2', name: '鸡蛋', iconEmoji: '🥚', locationText: '冷藏区·第2层', status: 'warning', statusText: '临期2天' },
+          { _id: 'i3', name: '速冻饺子', iconEmoji: '🥟', locationText: '冷冻区·第3层', status: 'warning', statusText: '临期1天' },
+        ],
       })
-    },
-    onInputChange(e: any) {
-      const nickName = e.detail.value
-      const { avatarUrl } = this.data.userInfo
-      this.setData({
-        "userInfo.nickName": nickName,
-        hasUserInfo: nickName && avatarUrl && avatarUrl !== defaultAvatarUrl,
-      })
-    },
-    getUserProfile() {
-      // 推荐使用wx.getUserProfile获取用户信息，开发者每次通过该接口获取用户个人信息均需用户确认，开发者妥善保管用户快速填写的头像昵称，避免重复弹窗
-      wx.getUserProfile({
-        desc: '展示用户信息', // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
-        success: (res) => {
-          console.log(res)
-          this.setData({
-            userInfo: res.userInfo,
-            hasUserInfo: true
-          })
-        }
-      })
-    },
+    }
+  },
+
+  onTabChange(e: any) {
+    if (e.detail.value === 'mine') {
+      wx.redirectTo({ url: '/pages/mine/mine' })
+    }
+  },
+
+  onCreateFridge() {
+    wx.navigateTo({ url: '/pages/fridge-create/fridge-create' })
+  },
+
+  onGoFridge() {
+    wx.navigateTo({ url: `/pages/fridge/fridge?fridgeId=${this.data.currentFridge.fridgeId}` })
+  },
+
+  onSwitchFridge() {
+    const { fridges } = this.data
+    wx.showActionSheet({
+      itemList: fridges.map((f: any) => f.name),
+      success: (res) => {
+        this.setData({ currentFridge: fridges[res.tapIndex] })
+      },
+    })
+  },
+
+  onAddItem() {
+    wx.navigateTo({ url: '/pages/item-edit/item-edit' })
+  },
+
+  onManageFridge() {
+    const { currentFridge } = this.data
+    wx.navigateTo({ url: `/pages/fridge-settings/fridge-settings?fridgeId=${currentFridge.fridgeId}` })
+  },
+
+  onNotification() {
+    wx.showToast({ title: '暂无新通知', icon: 'none' })
+  },
+
+  onItemDetail(e: any) {
+    const itemId = e.currentTarget.dataset.itemId
+    wx.navigateTo({ url: `/pages/item-detail/item-detail?itemId=${itemId}` })
+  },
+
+  onDeleteExpiringItem(e: any) {
+    const itemId = e.currentTarget.dataset.itemId
+    Dialog({
+      title: '删除物品',
+      content: '确定要删除该物品吗？',
+      confirmBtn: '删除',
+      cancelBtn: '取消',
+      selector: '#t-dialog',
+      closeBtn: true,
+    }).then((res: any) => {
+      if (res.confirm) {
+        call('deleteItem', { itemId, fridgeId: this.data.currentFridge.fridgeId }).then(() => {
+          this.loadData()
+        }).catch(() => { })
+      }
+    })
   },
 })

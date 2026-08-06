@@ -1,0 +1,124 @@
+/* 冰箱创建页 */
+.card {
+  background: var(--card-bg, #ffffff);
+  border-radius: var(--td-radius-medium);
+  box-shadow: var(--card-shadow);
+  margin: 16rpx 32rpx;
+  overflow: hidden;
+}
+.form-section-title {
+  padding: 24rpx 32rpx 12rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.55);
+}
+.form-cell {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 32rpx;
+  min-height: 88rpx;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.04);
+}
+.form-cell:last-child {
+  border-bottom: none;
+}
+.cell-label {
+  width: 136rpx;
+  font-size: 28rpx;
+  color: rgba(0, 0, 0, 0.88);
+  flex-shrink: 0;
+}
+
+.preview-header {
+  padding: 24rpx 32rpx 0;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.55);
+}
+.preview-body {
+  padding: 24rpx 32rpx 32rpx;
+}
+.preview-fridge-shell {
+  background: linear-gradient(180deg, #e8e4de 0%, #ddd9d2 100%);
+  border-radius: 24rpx;
+  padding: 4rpx;
+}
+.preview-fridge-inner {
+  border-radius: 20rpx;
+  overflow: hidden;
+  background: #c8c3bc;
+}
+.preview-zones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.preview-zones-single {
+  display: flex;
+  flex-direction: column;
+}
+.preview-zone {
+  padding: 16rpx 12rpx;
+}
+.preview-zones .preview-zone:first-child {
+  border-right: 4rpx solid #b0aba4;
+}
+.preview-zone .pz-title {
+  font-size: 20rpx;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 8rpx;
+}
+.preview-zone.cold .pz-title {
+  color: #3a6ea5;
+}
+.preview-zone.constant .pz-title {
+  color: #8b6d3a;
+}
+.pz-layers {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+.pz-layer {
+  height: 28rpx;
+  border-radius: 8rpx;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16rpx;
+  color: rgba(0, 0, 0, 0.35);
+}
+
+.add-zone {
+  margin: 0 32rpx 32rpx;
+  height: 88rpx;
+  border: 2rpx dashed rgba(0, 0, 0, 0.06);
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  font-size: 28rpx;
+  color: rgba(0, 0, 0, 0.55);
+  background: var(--card-bg, #ffffff);
+}
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24rpx 32rpx 48rpx;
+  background: var(--card-bg, #ffffff);
+  border-top: 1rpx solid rgba(0, 0, 0, 0.04);
+  z-index: 100;
+}
+.save-btn {
+  width: 100%;
+}
+.reset-text {
+  font-size: 28rpx;
+  color: var(--td-brand-color);
+  font-weight: 500;
+}

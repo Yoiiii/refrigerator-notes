@@ -1,23 +1,17 @@
 {
-  "description": "项目配置文件",
+  "description": "冰箱笔记小程序",
   "miniprogramRoot": "miniprogram/",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "cloudDevelopment": true,
   "compileType": "miniprogram",
   "setting": {
-    "useCompilerPlugins": [
-      "typescript"
-    ],
+    "useCompilerPlugins": ["typescript"],
     "packNpmManually": true,
-    "packNpmRelationList": [
-      {
-        "packageJsonPath": "./package.json",
-        "miniprogramNpmDistDir": "./miniprogram/"
-      }
-    ],
-    "babelSetting": {
-      "ignore": [],
-      "disablePlugins": [],
-      "outputPath": ""
-    },
+    "packNpmRelationList": [{
+      "packageJsonPath": "./package.json",
+      "miniprogramNpmDistDir": "./miniprogram/"
+    }],
+    "babelSetting": { "ignore": [], "disablePlugins": [], "outputPath": "" },
     "coverView": false,
     "postcss": false,
     "minified": false,
@@ -40,14 +34,8 @@
   "simulatorPluginLibVersion": {},
   "condition": {},
   "srcMiniprogramRoot": "miniprogram/",
-  "editorSetting": {
-    "tabIndent": "insertSpaces",
-    "tabSize": 2
-  },
-  "libVersion": "trial",
-  "packOptions": {
-    "ignore": [],
-    "include": []
-  },
+  "editorSetting": { "tabIndent": "insertSpaces", "tabSize": 2 },
+  "libVersion": "2.30.0",
+  "packOptions": { "ignore": [], "include": [] },
   "appid": "wx993ca26a9925bc1b"
 }

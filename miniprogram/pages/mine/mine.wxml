@@ -1,0 +1,80 @@
+<t-toast id="t-toast" />
+<t-dialog id="t-dialog" />
+
+<view class="theme-root" data-theme="{{theme}}">
+
+<view class="nav-bar">
+  <text class="nav-title">我的</text>
+</view>
+
+<scroll-view class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
+  <!-- 用户信息 -->
+  <view class="user-card">
+    <image class="user-avatar" wx:if="{{userInfo.avatar}}" src="{{userInfo.avatar}}" mode="aspectFill" />
+    <view class="user-avatar" wx:else>👤</view>
+    <view class="user-meta">
+      <view class="user-name">{{userInfo.nickname || '微信用户'}}</view>
+      <view class="user-id">已授权微信登录</view>
+    </view>
+  </view>
+
+  <!-- 外观设置 / 主题切换 -->
+  <view class="card">
+    <view class="section-title">外观设置</view>
+    <view class="theme-grid">
+      <view
+        class="theme-card {{currentTheme === item.key ? 'selected' : ''}}"
+        wx:for="{{themes}}"
+        wx:key="key"
+        data-theme="{{item.key}}"
+        bind:tap="onThemeChange"
+      >
+        <view class="theme-preview">
+          <view class="theme-dot" style="background:{{item.colors[0]}}"></view>
+          <view class="theme-dot" style="background:{{item.colors[1]}}"></view>
+          <view class="theme-dot" style="background:{{item.colors[2]}}"></view>
+        </view>
+        <view class="theme-name">{{item.name}}</view>
+        <t-icon wx:if="{{currentTheme === item.key}}" name="check-circle-filled" size="28rpx" color="var(--td-brand-color)" />
+      </view>
+    </view>
+  </view>
+
+  <!-- 冰箱管理 -->
+  <view class="card">
+    <view class="section-title">冰箱管理</view>
+    <view class="fridge-cell" wx:for="{{fridges}}" wx:key="fridgeId" bind:tap="onGoFridge" data-fridge-id="{{item.fridgeId}}">
+      <text class="f-icon">🧊</text>
+      <view class="f-info">
+        <view class="f-name">{{item.name}}</view>
+        <view class="f-desc">{{item.doorType === 'double' ? '双开门' : '单开门'}} · {{item.totalItems}} 件物品</view>
+      </view>
+      <t-icon name="chevron-right" size="28rpx" color="rgba(0,0,0,0.35)" />
+    </view>
+    <t-cell title="创建新冰箱" arrow hover bind:tap="onCreateFridge">
+      <t-icon slot="left-icon" name="add" size="28rpx" color="var(--td-brand-color)" />
+    </t-cell>
+  </view>
+
+  <!-- 通知设置 -->
+  <view class="card">
+    <view class="section-title">通知设置</view>
+    <t-cell title="临期提醒" hover>
+      <t-switch slot="right-icon" value="{{notifyEnabled}}" bind:change="onNoticeSwitch" />
+    </t-cell>
+    <t-cell title="提前天数" note="当前：{{notifyDays}}天" arrow hover bind:tap="onNoticeDays" />
+  </view>
+
+  <!-- 关于 -->
+  <view class="card">
+    <t-cell title="关于" note="v1.3.0 · 隐私说明" arrow hover bind:tap="onAbout" />
+  </view>
+</scroll-view>
+
+<!-- TabBar -->
+<t-tab-bar theme="tag" value="mine" bind:change="onTabChange">
+  <t-tab-bar-item value="home" icon="home">首页</t-tab-bar-item>
+  <t-tab-bar-item value="mine" icon="user">我的</t-tab-bar-item>
+</t-tab-bar>
+
+</view>

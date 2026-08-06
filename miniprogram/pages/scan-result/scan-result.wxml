@@ -1,0 +1,24 @@
+<t-toast id="t-toast" />
+<t-dialog id="t-dialog" />
+
+<view class="theme-root" data-theme="{{theme}}">
+
+<scroll-view class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
+  <view class="scan-loading" wx:if="{{loading}}">
+    <t-loading theme="circular" size="large" text="{{loadingText}}" />
+  </view>
+
+  <view class="scan-result" wx:else>
+    <view class="result-icon">{{resultIcon}}</view>
+    <view class="result-title">{{resultTitle}}</view>
+    <view class="result-desc">{{resultDesc}}</view>
+    <t-button wx:if="{{showJoinBtn}}" theme="primary" size="large" class="join-btn" bind:tap="onJoin">
+      加入冰箱
+    </t-button>
+    <t-button wx:elif="{{showGoHome}}" theme="primary" size="large" class="join-btn" bind:tap="onGoHome">
+      返回首页
+    </t-button>
+  </view>
+</scroll-view>
+
+</view>

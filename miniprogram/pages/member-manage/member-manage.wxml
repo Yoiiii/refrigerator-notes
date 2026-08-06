@@ -1,0 +1,37 @@
+<t-toast id="t-toast" />
+<t-dialog id="t-dialog" />
+<t-action-sheet id="t-action-sheet" />
+
+<view class="theme-root" data-theme="{{theme}}">
+
+<view class="nav-bar">
+  <view class="nav-left" bind:tap="onBack">
+    <t-icon name="chevron-left" size="36rpx" color="rgba(0,0,0,0.88)" />
+  </view>
+  <text class="nav-title">成员管理</text>
+</view>
+
+<scroll-view class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
+  <view class="card">
+    <view class="member-card" wx:for="{{members}}" wx:key="userId">
+      <t-avatar size="medium" icon="user" />
+      <view class="member-info">
+        <view class="member-name">
+          {{item.nickname || '微信用户'}}
+          <t-tag wx:if="{{item.role === 'owner'}}" theme="warning" size="small">所有者</t-tag>
+        </view>
+        <view class="member-role">{{item.roleText}}</view>
+      </view>
+      <view class="member-actions" wx:if="{{isOwner && item.role !== 'owner'}}">
+        <t-button size="small" theme="default" data-member="{{item}}" bind:tap="onChangeRole">改角色</t-button>
+        <t-button size="small" theme="danger" data-member="{{item}}" bind:tap="onRemove">移除</t-button>
+      </view>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{isOwner && members.length > 1}}">
+    <t-cell title="转让所有权" note="选择新所有者" arrow hover bind:tap="onTransfer" />
+  </view>
+</scroll-view>
+
+</view>

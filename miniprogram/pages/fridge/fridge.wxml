@@ -1,0 +1,195 @@
+<t-toast id="t-toast" />
+<t-dialog id="t-dialog" />
+
+<view class="theme-root" data-theme="{{theme}}">
+
+<view class="nav-bar">
+    <view class="nav-left" bind:tap="onBack">
+      <t-icon name="chevron-left" size="36rpx" color="rgba(0,0,0,0.88)" />
+    </view>
+    <text class="nav-title">{{fridgeName}}</text>
+  </view>
+
+<scroll-view class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
+  <!-- 拟物冰箱外壳 -->
+  <view class="fridge-shell">
+    <view class="fridge-inner">
+      <view class="fridge-top">
+          <view class="f-label">
+            <text>🧊 {{fridgeName}}</text>
+            <t-tag size="small" theme="warning">{{doorTypeText}}</t-tag>
+          </view>
+          <view class="fridge-settings" bind:tap="onSettings">
+            <t-icon name="setting" size="32rpx" color="rgba(0,0,0,0.55)" />
+          </view>
+        </view>
+
+      <!-- 双开门 -->
+      <view class="zones-grid" wx:if="{{doorType === 'double'}}">
+        <view class="zone-col" wx:for="{{zones}}" wx:key="zoneId">
+          <view class="zone-header {{item.tempType === 'cold' ? 'cold' : 'freeze'}}">
+            {{item.tempType === 'cold' ? '❄' : '❄️'}} {{item.name}}
+          </view>
+          <view class="zone-layers">
+            <view
+              class="layer-row"
+              wx:for="{{item.layers}}"
+              wx:for-item="layer"
+              wx:key="layerId"
+              data-zone-id="{{item.zoneId}}"
+              data-layer-id="{{layer.layerId}}"
+              bind:tap="onLayerTap"
+            >
+              <view class="layer-top">
+                <view class="layer-name">{{layer.emoji || '📦'}} {{layer.name}}</view>
+                <t-tag size="small" theme="{{layer.statusTag}}">{{layer.statusText}}</t-tag>
+              </view>
+              <view class="layer-count">{{layer.itemCount}} 件物品</view>
+
+              <view class="items-expanded" wx:if="{{layer.expanded}}">
+                <t-swipe-cell wx:for="{{layer.items}}" wx:key="_id" right="{{swipeRight}}">
+                  <view class="item-cell" data-item-id="{{item._id}}" bind:tap="onItemDetail">
+                    <view class="item-thumb">
+                      <t-image wx:if="{{item.images && item.images.length > 0}}" src="{{item.images[0]}}" width="64rpx" height="64rpx" shape="round" />
+                      <text wx:else>{{item.iconEmoji || '📦'}}</text>
+                    </view>
+                    <view class="item-info">
+                      <view class="item-name">{{item.name}}</view>
+                      <view class="item-expire {{item.status}}">{{item.expireDate}}{{item.expireText ? ' · ' + item.expireText : ''}}</view>
+                    </view>
+                    <t-badge count="{{item.quantity}}" size="small" />
+                  </view>
+                  <view slot="right" class="swipe-delete" data-item-id="{{item._id}}" catch:tap="onDeleteItem">删除</view>
+                </t-swipe-cell>
+                <view class="add-item-row" catch:tap="onAddItemFromLayer" data-zone-id="{{item.zoneId}}" data-layer-id="{{layer.layerId}}">
+                  <t-icon name="add" size="24rpx" color="var(--td-brand-color)" />
+                  <text>添加物品</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 单开门 -->
+      <view class="zones-single" wx:else>
+        <view class="zone-col" wx:for="{{zones}}" wx:key="zoneId">
+          <view class="zone-header {{item.tempType === 'cold' ? 'cold' : 'freeze'}}">
+            {{item.tempType === 'cold' ? '❄' : '❄️'}} {{item.name}}
+          </view>
+          <view class="zone-layers">
+            <view
+              class="layer-row"
+              wx:for="{{item.layers}}"
+              wx:for-item="layer"
+              wx:key="layerId"
+              data-zone-id="{{item.zoneId}}"
+              data-layer-id="{{layer.layerId}}"
+              bind:tap="onLayerTap"
+            >
+              <view class="layer-top">
+                <view class="layer-name">{{layer.emoji || '📦'}} {{layer.name}}</view>
+                <t-tag size="small" theme="{{layer.statusTag}}">{{layer.statusText}}</t-tag>
+              </view>
+              <view class="layer-count">{{layer.itemCount}} 件物品</view>
+
+              <view class="items-expanded" wx:if="{{layer.expanded}}">
+                <t-swipe-cell wx:for="{{layer.items}}" wx:key="_id" right="{{swipeRight}}">
+                  <view class="item-cell" data-item-id="{{item._id}}" bind:tap="onItemDetail">
+                    <view class="item-thumb">
+                      <t-image wx:if="{{item.images && item.images.length > 0}}" src="{{item.images[0]}}" width="64rpx" height="64rpx" shape="round" />
+                      <text wx:else>{{item.iconEmoji || '📦'}}</text>
+                    </view>
+                    <view class="item-info">
+                      <view class="item-name">{{item.name}}</view>
+                      <view class="item-expire {{item.status}}">{{item.expireDate}}{{item.expireText ? ' · ' + item.expireText : ''}}</view>
+                    </view>
+                    <t-badge count="{{item.quantity}}" size="small" />
+                  </view>
+                  <view slot="right" class="swipe-delete" data-item-id="{{item._id}}" catch:tap="onDeleteItem">删除</view>
+                </t-swipe-cell>
+                <view class="add-item-row" catch:tap="onAddItemFromLayer" data-zone-id="{{item.zoneId}}" data-layer-id="{{layer.layerId}}">
+                  <t-icon name="add" size="24rpx" color="var(--td-brand-color)" />
+                  <text>添加物品</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 恒温层 -->
+      <view class="constant-zone" wx:if="{{hasConstantZone && constantZone}}">
+        <view class="zone-header constant">🌡 {{constantZone.name}}</view>
+        <view class="zone-layers">
+          <view
+            class="layer-row"
+            wx:for="{{constantZone.layers}}"
+            wx:for-item="layer"
+            wx:key="layerId"
+            data-zone-id="{{constantZone.zoneId}}"
+            data-layer-id="{{layer.layerId}}"
+            bind:tap="onLayerTap"
+          >
+            <view class="layer-top">
+              <view class="layer-name">{{layer.emoji || '📦'}} {{layer.name}}</view>
+              <t-tag size="small" theme="{{layer.statusTag}}">{{layer.statusText}}</t-tag>
+            </view>
+            <view class="layer-count">{{layer.itemCount}} 件物品</view>
+
+            <view class="items-expanded" wx:if="{{layer.expanded}}">
+              <t-swipe-cell wx:for="{{layer.items}}" wx:key="_id" right="{{swipeRight}}">
+                <view class="item-cell" data-item-id="{{item._id}}" bind:tap="onItemDetail">
+                  <view class="item-thumb">
+                    <t-image wx:if="{{item.images && item.images.length > 0}}" src="{{item.images[0]}}" width="64rpx" height="64rpx" shape="round" />
+                    <text wx:else>{{item.iconEmoji || '📦'}}</text>
+                  </view>
+                  <view class="item-info">
+                    <view class="item-name">{{item.name}}</view>
+                    <view class="item-expire {{item.status}}">{{item.expireDate}}</view>
+                  </view>
+                  <t-badge count="{{item.quantity}}" size="small" />
+                </view>
+                <view slot="right" class="swipe-delete" data-item-id="{{item._id}}" catch:tap="onDeleteItem">删除</view>
+              </t-swipe-cell>
+              <view class="add-item-row" catch:tap="onAddItemFromLayer" data-zone-id="{{constantZone.zoneId}}" data-layer-id="{{layer.layerId}}">
+                <t-icon name="add" size="24rpx" color="var(--td-brand-color)" />
+                <text>添加物品</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+    <!-- 添加物品按钮 -->
+    <view class="add-item-global">
+      <t-button theme="primary" size="large" block bind:tap="onAddItem">
+        <t-icon name="add" slot="icon" />
+        添加物品
+      </t-button>
+    </view>
+
+    <!-- 统计栏 -->
+  <view class="stats-bar card">
+    <view class="stats-item">
+      <text class="s-num">{{stats.total}}</text>
+      <text class="s-label">物品总数</text>
+    </view>
+    <view class="stats-item">
+      <text class="s-num warning">{{stats.expiring}}</text>
+      <text class="s-label">临期</text>
+    </view>
+    <view class="stats-item">
+      <text class="s-num danger">{{stats.expired}}</text>
+      <text class="s-label">已过期</text>
+    </view>
+    <view class="stats-item">
+      <text class="s-num safe">{{stats.safe}}</text>
+      <text class="s-label">安全</text>
+    </view>
+  </view>
+</scroll-view>
+
+</view>

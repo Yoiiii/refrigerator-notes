@@ -1,0 +1,84 @@
+<t-toast id="t-toast" />
+<t-dialog id="t-dialog" />
+
+<view class="theme-root" data-theme="{{theme}}">
+
+<view class="nav-bar">
+  <view class="nav-left" bind:tap="onBack">
+    <t-icon name="chevron-left" size="36rpx" color="rgba(0,0,0,0.88)" />
+  </view>
+  <text class="nav-title">{{isEdit ? '编辑物品' : '添加物品'}}</text>
+</view>
+
+<scroll-view class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
+  <view class="card">
+    <t-input label="名称" placeholder="最多20字" value="{{itemName}}" bind:change="onNameChange" maxlength="20" required borderless />
+    <view class="form-cell">
+      <text class="cell-label">数量</text>
+      <t-stepper value="{{quantity}}" min="1" max="999" bind:change="onQuantityChange" />
+    </view>
+    <view class="form-cell">
+      <text class="cell-label">保质期</text>
+      <view class="picker-val" bind:tap="onDatePicker">
+        <text>{{expireDate || '请选择日期'}}</text>
+        <t-icon name="chevron-right" size="28rpx" color="rgba(0,0,0,0.35)" />
+      </view>
+    </view>
+  </view>
+
+  <!-- 存放位置 -->
+  <view class="card">
+    <view class="form-cell">
+      <text class="cell-label">位置</text>
+      <view class="cascade-group" bind:tap="onLocationPicker">
+        <view class="cascade-chip">
+          <text>{{selectedZoneName || '选择分区'}}</text>
+        </view>
+        <t-icon name="chevron-right" size="24rpx" color="rgba(0,0,0,0.35)" />
+        <view class="cascade-chip" wx:if="{{selectedZoneName}}">
+          <text>{{selectedLayerName || '选择层'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 图片/图标 Tab -->
+  <view class="card">
+    <t-tabs value="{{activeTab}}" bind:change="onTabChange">
+      <t-tab-panel label="上传图片" value="image" />
+      <t-tab-panel label="选择图标" value="icon" />
+    </t-tabs>
+
+    <view class="tab-content" wx:if="{{activeTab === 'image'}}">
+      <t-upload mediaType="{{['image']}}" max="{{3}}" files="{{images}}" bind:add="onUploadAdd" bind:remove="onUploadRemove" />
+    </view>
+
+    <view class="tab-content icon-panel" wx:if="{{activeTab === 'icon'}}">
+      <scroll-view scroll-x class="icon-categories" wx:for="{{iconCategories}}" wx:key="key">
+        <view class="icon-cat-name">{{item.name}}</view>
+        <view class="icon-grid">
+          <view
+            class="icon-item {{selectedIcon === icon.key ? 'selected' : ''}}"
+            wx:for="{{item.icons}}"
+            wx:for-item="icon"
+            wx:key="key"
+            data-key="{{icon.key}}"
+            bind:tap="onIconSelect"
+          >
+            <text class="icon-emoji">{{icon.emoji}}</text>
+            <text class="icon-label">{{icon.name}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</scroll-view>
+
+<view class="bottom-bar">
+  <t-button theme="primary" size="large" class="save-btn" loading="{{saving}}" bind:tap="onSave">
+    <t-icon name="check" slot="icon" />
+    {{isEdit ? '保存修改' : '保存物品'}}
+  </t-button>
+</view>
+
+</view>

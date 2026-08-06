@@ -1,0 +1,108 @@
+/* 我的 */
+.user-card {
+  background: var(--card-bg, #ffffff);
+  padding: 48rpx 40rpx;
+  display: flex;
+  align-items: center;
+  gap: 32rpx;
+}
+.user-avatar {
+  width: 128rpx;
+  height: 128rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fff0e0 0%, #ffe0c0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64rpx;
+  flex-shrink: 0;
+}
+.user-meta {
+  flex: 1;
+}
+.user-name {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.88);
+}
+.user-id {
+  font-size: 24rpx;
+  color: rgba(0, 0, 0, 0.35);
+  margin-top: 8rpx;
+}
+
+.card {
+  background: var(--card-bg, #ffffff);
+  border-radius: var(--td-radius-medium);
+  box-shadow: var(--card-shadow);
+  margin: 16rpx 32rpx;
+  overflow: hidden;
+}
+.section-title {
+  padding: 24rpx 32rpx 8rpx;
+  font-size: 24rpx;
+  color: rgba(0, 0, 0, 0.35);
+  font-weight: 500;
+}
+
+/* 主题网格 */
+.theme-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+  padding: 16rpx 32rpx 24rpx;
+}
+.theme-card {
+  padding: 24rpx;
+  border-radius: 16rpx;
+  border: 2rpx solid rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  transition: all 0.2s;
+  position: relative;
+}
+.theme-card.selected {
+  border-color: var(--td-brand-color);
+  background: rgba(255, 159, 69, 0.04);
+}
+.theme-preview {
+  display: flex;
+  gap: 8rpx;
+}
+.theme-dot {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+}
+.theme-name {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.fridge-cell {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 32rpx;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.04);
+}
+.f-icon {
+  font-size: 56rpx;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+.f-info {
+  flex: 1;
+}
+.f-name {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.88);
+}
+.f-desc {
+  font-size: 24rpx;
+  color: rgba(0, 0, 0, 0.55);
+  margin-top: 4rpx;
+}

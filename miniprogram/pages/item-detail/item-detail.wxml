@@ -1,0 +1,68 @@
+<t-toast id="t-toast" />
+<t-dialog id="t-dialog" />
+
+<view class="theme-root" data-theme="{{theme}}">
+
+<view class="nav-bar">
+  <view class="nav-left" bind:tap="onBack">
+    <t-icon name="chevron-left" size="36rpx" color="rgba(0,0,0,0.88)" />
+  </view>
+  <text class="nav-title">物品详情</text>
+  <t-tag wx:if="{{editing}}" theme="warning" size="small" class="edit-tag">编辑中</t-tag>
+</view>
+
+<scroll-view class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
+  <!-- 头部 -->
+  <view class="card detail-header">
+    <view class="detail-thumb">
+      <t-image wx:if="{{item.images && item.images.length > 0}}" src="{{item.images[0]}}" width="200rpx" height="200rpx" shape="round" />
+      <text wx:else class="detail-emoji">{{item.iconEmoji || '📦'}}</text>
+    </view>
+    <view class="detail-meta">
+      <view class="detail-name">{{item.name}}</view>
+      <t-badge count="{{item.quantity}}" size="medium" />
+    </view>
+  </view>
+
+  <!-- 信息卡片 -->
+  <view class="card">
+    <t-cell title="存放位置" note="{{item.locationText}}" hover />
+    <t-cell title="保质期" note="{{item.expireDate}}" hover />
+    <t-cell title="剩余天数" hover>
+      <t-tag slot="note" theme="{{item.statusTag}}" size="small">{{item.statusText}}</t-tag>
+    </t-cell>
+    <t-cell title="数量" note="{{item.quantity}} {{item.unit || '件'}}" hover />
+    <t-cell title="添加时间" note="{{item.createdAt}}" hover />
+    <t-cell title="更新时间" note="{{item.updatedAt}}" hover />
+  </view>
+
+  <!-- 编辑模式表单 -->
+  <view class="card" wx:if="{{editing}}">
+    <t-input label="名称" value="{{item.name}}" bind:change="onNameChange" maxlength="20" borderless />
+    <view class="form-cell">
+      <text class="cell-label">数量</text>
+      <t-stepper value="{{item.quantity}}" min="1" max="999" bind:change="onQuantityChange" />
+    </view>
+    <view class="form-cell">
+      <text class="cell-label">保质期</text>
+      <view class="picker-val" bind:tap="onDatePicker">
+        <text>{{item.expireDate || '请选择'}}</text>
+        <t-icon name="chevron-right" size="28rpx" color="rgba(0,0,0,0.35)" />
+      </view>
+    </view>
+  </view>
+</scroll-view>
+
+<view class="bottom-bar">
+  <t-button wx:if="{{!editing}}" theme="primary" size="large" class="bar-btn" bind:tap="onEdit">
+    <t-icon name="edit" slot="icon" />编辑保存
+  </t-button>
+  <t-button wx:else theme="primary" size="large" class="bar-btn" bind:tap="onSave" loading="{{saving}}">
+    <t-icon name="check" slot="icon" />保存
+  </t-button>
+  <t-button theme="danger" size="large" class="bar-btn" bind:tap="onDelete">
+    <t-icon name="delete" slot="icon" />删除物品
+  </t-button>
+</view>
+
+</view>

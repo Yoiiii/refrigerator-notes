@@ -1,10 +1,201 @@
 /**app.wxss**/
-.container {
+/* ============================================
+   冰箱笔记 - 全局样式 + 4套主题系统
+   主题通过各页面 WXML 中 <view data-theme="{{theme}}">
+   配合 data-theme 属性选择器实现可靠的主题切换
+   ============================================ */
+
+/* 基础变量（默认 warm） */
+page {
   height: 100%;
+  background-color: #faf8f5;
+  color: rgba(0, 0, 0, 0.88);
+  font-family:
+    "PingFang SC",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Helvetica Neue",
+    sans-serif;
+  font-size: 28rpx;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+/* 主题根容器默认变量（warm） */
+.theme-root {
+  --td-brand-color: #ff9f45;
+  --td-brand-color-hover: #ff8a1f;
+  --td-bg-color-page: #faf8f5;
+  --td-bg-color-container: #ffffff;
+  --td-font-family:
+    "PingFang SC", -apple-system, BlinkMacSystemFont, "Helvetica Neue",
+    sans-serif;
+  --td-radius-small: 12rpx;
+  --td-radius-default: 16rpx;
+  --td-radius-medium: 24rpx;
+  --td-radius-large: 32rpx;
+  --td-shadow-1: 0 8rpx 24rpx rgba(255, 159, 69, 0.1);
+  /* 状态色（全局统一，不随主题变化） */
+  --td-safe-color: #52c41a;
+  --td-safe-bg: rgba(82, 196, 26, 0.12);
+  --td-warning-color: #faad14;
+  --td-warning-bg: rgba(250, 173, 20, 0.15);
+  --td-error-color: #ff4d4f;
+  --td-error-bg: rgba(255, 77, 79, 0.15);
+  --nav-bg: #faf8f5;
+  --card-bg: #ffffff;
+  --card-shadow: 0 8rpx 24rpx rgba(255, 159, 69, 0.1);
+  --page-bg: #faf8f5;
+  min-height: 100vh;
+}
+
+/* ============================================
+   主题1: 温暖家居（默认）
+   ============================================ */
+.theme-root[data-theme="warm"] {
+  --td-brand-color: #ff9f45;
+  --td-bg-color-page: #faf8f5;
+  --td-bg-color-container: #ffffff;
+  --td-radius-default: 24rpx;
+  --td-radius-medium: 24rpx;
+  --td-shadow-1: 0 8rpx 24rpx rgba(255, 159, 69, 0.1);
+  --nav-bg: #faf8f5;
+  --card-bg: #ffffff;
+  --card-shadow: 0 8rpx 24rpx rgba(255, 159, 69, 0.1);
+  --page-bg: #faf8f5;
+  background-color: #faf8f5;
+}
+
+/* ============================================
+   主题2: 清新健康
+   ============================================ */
+.theme-root[data-theme="fresh"] {
+  --td-brand-color: #00b96b;
+  --td-bg-color-page: #f7faf8;
+  --td-bg-color-container: #ffffff;
+  --td-radius-default: 16rpx;
+  --td-radius-medium: 16rpx;
+  --td-shadow-1: 0 4rpx 16rpx rgba(0, 185, 107, 0.08);
+  --nav-bg: #f7faf8;
+  --card-bg: #ffffff;
+  --card-shadow: 0 4rpx 16rpx rgba(0, 185, 107, 0.08);
+  --page-bg: #f7faf8;
+  background-color: #f7faf8;
+}
+
+/* ============================================
+   主题3: 现代简约
+   ============================================ */
+.theme-root[data-theme="modern"] {
+  --td-brand-color: #007aff;
+  --td-bg-color-page: #f2f2f7;
+  --td-bg-color-container: #ffffff;
+  --td-radius-default: 20rpx;
+  --td-radius-medium: 20rpx;
+  --td-shadow-1: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+  --nav-bg: rgba(242, 242, 247, 0.8);
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --card-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+  --page-bg: #f2f2f7;
+  background-color: #f2f2f7;
+}
+
+/* ============================================
+   主题4: 可爱圆润
+   ============================================ */
+.theme-root[data-theme="cute"] {
+  --td-brand-color: #ff6b9d;
+  --td-bg-color-page: #fff0f5;
+  --td-bg-color-container: #ffffff;
+  --td-radius-default: 32rpx;
+  --td-radius-medium: 32rpx;
+  --td-shadow-1: 0 8rpx 24rpx rgba(255, 107, 157, 0.1);
+  --nav-bg: #fff0f5;
+  --card-bg: #ffffff;
+  --card-shadow: 0 8rpx 24rpx rgba(255, 107, 157, 0.1);
+  --page-bg: #fff0f5;
+  background-color: #fff0f5;
+}
+
+/* ============================================
+   全局通用样式
+   ============================================ */
+
+/* 安全区域 */
+.safe-area-bottom {
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* 页面容器 */
+.page-container {
+  min-height: 100vh;
+  background-color: var(--td-bg-color-page);
+  padding-bottom: 120rpx;
+}
+
+/* 自定义导航栏 */
+.nav-bar {
+  position: sticky;
+  top: 0;
+  z-index: 99;
+  background-color: var(--nav-bg);
+  padding: 80rpx 32rpx 20rpx;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-bar .nav-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.nav-bar .nav-left {
+  position: absolute;
+  left: 32rpx;
+  top: 80rpx;
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  color: rgba(0, 0, 0, 0.88);
+  padding: 8rpx;
+}
+
+.nav-bar .nav-right {
+  position: absolute;
+  right: 32rpx;
+  top: 80rpx;
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+
+/* 卡片容器 */
+.card {
+  background-color: var(--card-bg, #ffffff);
+  border-radius: var(--td-radius-medium);
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+  margin: 16rpx 32rpx;
+}
+
+/* 分段标题 */
+.section-header {
+  display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 200rpx 0;
-  box-sizing: border-box;
-} 
+  padding: 20rpx 32rpx 12rpx;
+}
+
+.section-header .s-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.section-header .s-more {
+  font-size: 26rpx;
+  color: rgba(0, 0, 0, 0.55);
+}

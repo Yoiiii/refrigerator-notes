@@ -1,0 +1,220 @@
+/* 冰箱页样式 */
+
+.fridge-shell {
+  margin: 16rpx 24rpx;
+  background: linear-gradient(180deg, #e8e4de 0%, #ddd9d2 100%);
+  border-radius: 32rpx;
+  padding: 6rpx;
+  box-shadow:
+    0 8rpx 24rpx rgba(255, 159, 69, 0.1),
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.7);
+}
+.fridge-inner {
+  border-radius: 28rpx;
+  overflow: hidden;
+  background: #c8c3bc;
+}
+.fridge-top {
+  background: linear-gradient(180deg, #b8b3ac 0%, #c8c3bc 100%);
+  padding: 16rpx 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.06);
+}
+.fridge-top .f-label {
+  font-size: 30rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+.fridge-settings {
+  padding: 8rpx;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+}
+
+.zones-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.zones-single {
+  display: flex;
+  flex-direction: column;
+}
+.zones-grid .zone-col:first-child {
+  border-right: 4rpx solid #b0aba4;
+}
+
+.zone-header {
+  padding: 16rpx 20rpx;
+  text-align: center;
+  font-size: 24rpx;
+  font-weight: 600;
+  letter-spacing: 0.5rpx;
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
+}
+.zone-header.cold {
+  background: linear-gradient(180deg, #e8f4fd 0%, #d6ebfa 100%);
+  color: #3a6ea5;
+}
+.zone-header.freeze {
+  background: linear-gradient(180deg, #dceefb 0%, #bbddf5 100%);
+  color: #4a5fa0;
+}
+.zone-header.constant {
+  background: linear-gradient(180deg, #fff6e9 0%, #fff0d9 100%);
+  color: #8b6d3a;
+}
+
+.constant-zone {
+  border-top: 4rpx solid #b0aba4;
+}
+
+.layer-row {
+  border-bottom: 1rpx solid rgba(0, 0, 0, 0.04);
+  padding: 12rpx 16rpx 16rpx;
+  margin: 6rpx 12rpx;
+  border-radius: 20rpx;
+  background: rgba(255, 255, 255, 0.5);
+}
+.layer-row:first-child {
+  margin-top: 8rpx;
+}
+.layer-row:last-child {
+  margin-bottom: 8rpx;
+  border-bottom: none;
+}
+
+.layer-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.layer-name {
+  font-size: 26rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+.layer-count {
+  font-size: 22rpx;
+  color: rgba(0, 0, 0, 0.55);
+  margin-top: 4rpx;
+}
+
+.items-expanded {
+  margin-top: 12rpx;
+  border-top: 1rpx dashed rgba(0, 0, 0, 0.06);
+  padding-top: 12rpx;
+}
+
+.item-cell {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 12rpx 8rpx;
+  border-radius: 12rpx;
+  background: rgba(255, 255, 255, 0.6);
+}
+.item-cell + .item-cell {
+  margin-top: 4rpx;
+}
+.item-thumb {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 12rpx;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  flex-shrink: 0;
+}
+.item-info {
+  flex: 1;
+  min-width: 0;
+}
+.item-name {
+  font-size: 26rpx;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.item-expire {
+  font-size: 22rpx;
+  color: rgba(0, 0, 0, 0.55);
+  margin-top: 2rpx;
+}
+.item-expire.danger {
+  color: var(--td-error-color);
+}
+.item-expire.warning {
+  color: var(--td-warning-color);
+}
+
+.add-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  padding: 16rpx 8rpx 4rpx;
+  font-size: 24rpx;
+  color: var(--td-brand-color);
+  font-weight: 500;
+  border-top: 1rpx dashed rgba(0, 0, 0, 0.06);
+  margin-top: 8rpx;
+}
+
+.add-item-global {
+  margin: 24rpx 24rpx 0;
+}
+
+.swipe-delete {
+  background: var(--td-error-color);
+  color: #fff;
+  font-size: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 40rpx;
+}
+
+.stats-bar {
+  margin: 0 24rpx 32rpx;
+  padding: 24rpx 0;
+  display: flex;
+}
+.stats-item {
+  flex: 1;
+  text-align: center;
+  border-right: 1rpx solid rgba(0, 0, 0, 0.04);
+}
+.stats-item:last-child {
+  border-right: none;
+}
+.stats-item .s-num {
+  font-size: 36rpx;
+  font-weight: 700;
+  display: block;
+  color: rgba(0, 0, 0, 0.88);
+}
+.stats-item .s-num.warning {
+  color: var(--td-warning-color);
+}
+.stats-item .s-num.danger {
+  color: var(--td-error-color);
+}
+.stats-item .s-num.safe {
+  color: var(--td-safe-color);
+}
+.stats-item .s-label {
+  font-size: 22rpx;
+  color: rgba(0, 0, 0, 0.55);
+  margin-top: 4rpx;
+  display: block;
+}

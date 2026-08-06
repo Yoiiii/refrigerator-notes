@@ -1,0 +1,1 @@
+.card { background: var(--card-bg,#FFFFFF); border-radius: var(--td-radius-medium); box-shadow: var(--card-shadow); margin: 16rpx 32rpx; overflow: hidden; }

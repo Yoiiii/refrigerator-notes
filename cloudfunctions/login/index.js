@@ -1,0 +1,44 @@
+// cloudfunctions/login/index.js
+const cloud = require('wx-server-sdk')
+cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
+const db = cloud.database()
+
+exports.main = async (event) => {
+  const { OPENID } = cloud.getWXContext()
+  if (!OPENID) return { code: -1, msg: '登录失败，未获取到 openid' }
+
+  const now = db.serverDate()
+  const exist = await db.collection('users').where({ _openid: OPENID }).get()
+
+  if (exist.data.length === 0) {
+    const res = await db.collection('users').add({
+      data: {
+        _openid: OPENID,
+        nickname: event.nickname || '微信用户',
+        avatarUrl: event.avatarUrl || '',
+        theme: 'warm',
+        notifyEnabled: true,
+        notifyDays: 3,
+        createdAt: now,
+        updatedAt: now,
+      },
+    })
+    return {
+      code: 0,
+      data: {
+        _id: res._id,
+        _openid: OPENID,
+        nickname: '微信用户',
+        avatarUrl: '',
+        theme: 'warm',
+        notifyEnabled: true,
+        notifyDays: 3,
+      },
+    }
+  }
+
+  await db.collection('users').doc(exist.data[0]._id).update({
+    data: { updatedAt: now },
+  })
+  return { code: 0, data: exist.data[0] }
+}

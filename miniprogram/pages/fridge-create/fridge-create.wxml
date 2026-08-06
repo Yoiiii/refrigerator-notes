@@ -1,0 +1,108 @@
+<t-toast id="t-toast" />
+<t-dialog id="t-dialog" />
+
+<view class="theme-root" data-theme="{{theme}}">
+
+<view class="nav-bar">
+  <view class="nav-left" bind:tap="onBack">
+    <t-icon name="chevron-left" size="36rpx" color="rgba(0,0,0,0.88)" />
+  </view>
+  <text class="nav-title">{{isEdit ? '编辑冰箱' : '创建冰箱'}}</text>
+  <view class="nav-right" bind:tap="onReset">
+    <text class="reset-text">重置</text>
+  </view>
+</view>
+
+<scroll-view class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
+  <!-- 基本信息 -->
+  <view class="card">
+    <view class="form-section-title">基本信息</view>
+    <t-input label="名称" placeholder="如：客厅冰箱" value="{{fridgeName}}" bind:change="onNameChange" required borderless />
+    <view class="form-cell">
+      <text class="cell-label">门型</text>
+      <t-radio-group value="{{doorType}}" bind:change="onDoorTypeChange">
+        <t-radio label="单开门" value="single" />
+        <t-radio label="双开门" value="double" />
+      </t-radio-group>
+    </view>
+  </view>
+
+  <!-- 恒温层开关 -->
+  <view class="card">
+    <view class="form-cell">
+      <text class="cell-label">恒温层</text>
+      <t-switch value="{{hasConstantZone}}" bind:change="onConstantZoneSwitch" />
+    </view>
+    <block wx:if="{{hasConstantZone}}">
+      <t-input label="名称" placeholder="恒温区" value="{{constantZone.name}}" bind:change="onConstantZoneName" borderless />
+      <view class="form-cell">
+        <text class="cell-label">层数</text>
+        <t-stepper value="{{constantZone.layers.length}}" min="1" max="2" bind:change="onConstantZoneLayers" />
+      </view>
+    </block>
+  </view>
+
+  <!-- 分区配置 -->
+  <view class="card" wx:for="{{zones}}" wx:for-item="zone" wx:for-index="zi" wx:key="zoneId">
+    <view class="form-section-title">{{zone.name}}</view>
+    <t-input label="名称" value="{{zone.name}}" data-zi="{{zi}}" bind:change="onZoneNameChange" borderless />
+    <view class="form-cell">
+      <text class="cell-label">温度类型</text>
+      <t-radio-group value="{{zone.tempType}}" data-zi="{{zi}}" bind:change="onZoneTempTypeChange">
+        <t-radio label="冷藏" value="cold" />
+        <t-radio label="冷冻" value="freeze" />
+      </t-radio-group>
+    </view>
+    <view class="form-cell">
+      <text class="cell-label">层数</text>
+      <t-stepper value="{{zone.layers.length}}" min="1" max="6" data-zi="{{zi}}" bind:change="onZoneLayersChange" />
+    </view>
+  </view>
+
+  <view class="add-zone" bind:tap="onAddZone">
+    <t-icon name="add" size="28rpx" color="rgba(0,0,0,0.55)" />
+    <text>添加分区</text>
+  </view>
+
+  <!-- 预览 -->
+  <view class="card">
+    <view class="preview-header">📐 实时预览</view>
+    <view class="preview-body">
+      <view class="preview-fridge-shell">
+        <view class="preview-fridge-inner">
+          <view class="preview-zones" wx:if="{{doorType === 'double'}}">
+            <view class="preview-zone cold" wx:for="{{zones}}" wx:key="zoneId">
+              <text class="pz-title">{{item.tempType === 'cold' ? '❄' : '❄️'}} {{item.name}}</text>
+              <view class="pz-layers">
+                <view class="pz-layer" wx:for="{{item.layers}}" wx:key="layerId">{{item.name}}</view>
+              </view>
+            </view>
+          </view>
+          <view class="preview-zones-single" wx:else>
+            <view class="preview-zone cold" wx:for="{{zones}}" wx:key="zoneId">
+              <text class="pz-title">{{item.tempType === 'cold' ? '❄' : '❄️'}} {{item.name}}</text>
+              <view class="pz-layers">
+                <view class="pz-layer" wx:for="{{item.layers}}" wx:key="layerId">{{item.name}}</view>
+              </view>
+            </view>
+          </view>
+          <view class="preview-zone constant" wx:if="{{hasConstantZone}}">
+            <text class="pz-title">🌡 {{constantZone.name}}</text>
+            <view class="pz-layers">
+              <view class="pz-layer" wx:for="{{constantZone.layers}}" wx:key="layerId">{{item.name}}</view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</scroll-view>
+
+<view class="bottom-bar">
+  <t-button theme="primary" size="large" class="save-btn" loading="{{saving}}" bind:tap="onSave">
+    <t-icon name="check" slot="icon" />
+    {{isEdit ? '保存修改' : '保存冰箱'}}
+  </t-button>
+</view>
+
+</view>

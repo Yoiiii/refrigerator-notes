@@ -1,0 +1,36 @@
+<t-toast id="t-toast" />
+<t-dialog id="t-dialog" />
+
+<view class="theme-root" data-theme="{{theme}}">
+
+<view class="nav-bar">
+  <view class="nav-left" bind:tap="onBack">
+    <t-icon name="chevron-left" size="36rpx" color="rgba(0,0,0,0.88)" />
+  </view>
+  <text class="nav-title">冰箱设置</text>
+</view>
+
+<scroll-view class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
+  <view class="card">
+    <t-cell title="冰箱名称" note="{{fridgeName}}" arrow hover bind:tap="onEditFridge" />
+    <t-cell title="门型" note="{{doorTypeText}}" hover />
+    <t-cell title="恒温层" note="{{hasConstantZone ? '已开启' : '未开启'}}" hover />
+  </view>
+
+  <view class="card">
+    <t-cell title="成员管理" arrow hover bind:tap="onMemberManage">
+      <t-icon slot="left-icon" name="user" size="28rpx" color="var(--td-brand-color)" />
+    </t-cell>
+    <t-cell title="分享冰箱" arrow hover bind:tap="onShare">
+      <t-icon slot="left-icon" name="share" size="28rpx" color="var(--td-brand-color)" />
+    </t-cell>
+  </view>
+
+  <view class="card">
+    <t-cell title="删除冰箱" note="删除后不可恢复" hover bind:tap="onDeleteFridge">
+      <t-icon slot="left-icon" name="delete" size="28rpx" color="var(--td-error-color)" />
+    </t-cell>
+  </view>
+</scroll-view>
+
+</view>

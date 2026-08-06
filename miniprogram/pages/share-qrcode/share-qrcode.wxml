@@ -1,0 +1,36 @@
+<t-toast id="t-toast" />
+
+<view class="theme-root" data-theme="{{theme}}">
+
+<view class="nav-bar">
+  <view class="nav-left" bind:tap="onBack">
+    <t-icon name="chevron-left" size="36rpx" color="rgba(0,0,0,0.88)" />
+  </view>
+  <text class="nav-title">分享冰箱</text>
+</view>
+
+<scroll-view class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
+  <view class="card">
+    <view class="form-section-title">分享权限</view>
+    <t-radio-group value="{{role}}" bind:change="onRoleChange" class="role-group">
+      <t-radio label="只读（仅查看）" value="readonly" />
+      <t-radio label="可读写（可添加/修改物品）" value="readwrite" />
+    </t-radio-group>
+  </view>
+
+  <view class="card qr-card" wx:if="{{qrUrl}}">
+    <t-image src="{{qrUrl}}" width="400rpx" height="400rpx" mode="aspectFit" />
+    <view class="qr-tip">有效期7天，扫描即可加入</view>
+    <t-button theme="primary" size="medium" bind:tap="onSaveQR">
+      <t-icon name="download" slot="icon" />保存到相册
+    </t-button>
+  </view>
+
+  <view class="generate-area" wx:else>
+    <t-button theme="primary" size="large" loading="{{generating}}" bind:tap="onGenerate">
+      <t-icon name="qrcode" slot="icon" />生成分享码
+    </t-button>
+  </view>
+</scroll-view>
+
+</view>
