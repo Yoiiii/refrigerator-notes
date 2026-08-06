@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>冰箱笔记 · 原型预览</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #1a1a2e;
+      font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+
+    .page-header {
+      text-align: center;
+      color: #fff;
+      margin-bottom: 40px;
+    }
+
+    .page-header h1 {
+      font-size: 30px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: 2px;
+    }
+
+    .page-header h1 .accent {
+      color: #FF9F45;
+    }
+
+    .page-header p {
+      color: #8899aa;
+      font-size: 14px;
+    }
+
+    .section-label {
+      text-align: center;
+      color: #667788;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin: 40px 0 20px;
+    }
+
+    .prototype-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 40px;
+      max-width: 1700px;
+      margin: 0 auto;
+    }
+
+    .phone-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .phone-label {
+      color: #aabbcc;
+      font-size: 13px;
+      margin-top: 14px;
+      font-weight: 500;
+    }
+
+    .phone-label-sub {
+      color: #667788;
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .phone-frame {
+      width: 393px;
+      height: 852px;
+      border-radius: 50px;
+      border: 4px solid #3a3a55;
+      overflow: hidden;
+      position: relative;
+      background: #000;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.04);
+    }
+
+    .phone-frame::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 46px;
+      border: 1.5px solid rgba(255,255,255,0.06);
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .phone-frame iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      border-radius: 46px;
+    }
+
+    .dynamic-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 36px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 8;
+      pointer-events: none;
+    }
+
+    .side-btn {
+      position: absolute;
+      width: 3px;
+      background: #3a3a55;
+      z-index: 5;
+    }
+
+    .side-btn.power { right: -4px; top: 200px; height: 80px; border-radius: 0 2px 2px 0; }
+    .side-btn.vol-up { left: -4px; top: 170px; height: 36px; border-radius: 2px 0 0 2px; }
+    .side-btn.vol-down { left: -4px; top: 216px; height: 36px; border-radius: 2px 0 0 2px; }
+
+    @media (max-width: 900px) {
+      .phone-frame { width: 320px; height: 694px; border-radius: 42px; }
+      .phone-frame iframe { border-radius: 38px; }
+      .phone-frame::after { border-radius: 38px; }
+      .dynamic-island { width: 100px; height: 29px; top: 10px; }
+      .prototype-grid { gap: 30px; }
+    }
+
+    @media (max-width: 700px) {
+      .phone-frame { width: 280px; height: 607px; border-radius: 38px; }
+      .phone-frame iframe { border-radius: 34px; }
+      .phone-frame::after { border-radius: 34px; }
+      .dynamic-island { width: 88px; height: 25px; top: 8px; }
+      .prototype-grid { gap: 24px; }
+      body { padding: 24px 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <h1>🧊 冰箱<span class="accent">笔记</span></h1>
+    <p>PRD V1.0 · iPhone 15 Pro · 温暖家居风</p>
+  </div>
+
+  <!-- 核心页面 -->
+  <div class="section-label">核心页面</div>
+  <div class="prototype-grid">
+    <div class="phone-wrapper">
+      <div class="phone-frame">
+        <div class="dynamic-island"></div>
+        <div class="side-btn power"></div>
+        <div class="side-btn vol-up"></div>
+        <div class="side-btn vol-down"></div>
+        <iframe src="home.html" title="首页"></iframe>
+      </div>
+      <span class="phone-label">首页</span>
+      <span class="phone-label-sub">pages/index</span>
+    </div>
+
+    <div class="phone-wrapper">
+      <div class="phone-frame">
+        <div class="dynamic-island"></div>
+        <div class="side-btn power"></div>
+        <div class="side-btn vol-up"></div>
+        <div class="side-btn vol-down"></div>
+        <iframe src="fridge.html" title="冰箱页"></iframe>
+      </div>
+      <span class="phone-label">冰箱页</span>
+      <span class="phone-label-sub">pages/fridge</span>
+    </div>
+
+    <div class="phone-wrapper">
+      <div class="phone-frame">
+        <div class="dynamic-island"></div>
+        <div class="side-btn power"></div>
+        <div class="side-btn vol-up"></div>
+        <div class="side-btn vol-down"></div>
+        <iframe src="home-empty.html" title="首页-空状态"></iframe>
+      </div>
+      <span class="phone-label">首页（空状态）</span>
+      <span class="phone-label-sub">pages/index · empty</span>
+    </div>
+  </div>
+
+  <!-- 功能页面 -->
+  <div class="section-label">功能页面</div>
+  <div class="prototype-grid">
+    <div class="phone-wrapper">
+      <div class="phone-frame">
+        <div class="dynamic-island"></div>
+        <div class="side-btn power"></div>
+        <div class="side-btn vol-up"></div>
+        <div class="side-btn vol-down"></div>
+        <iframe src="fridge-create.html" title="创建冰箱"></iframe>
+      </div>
+      <span class="phone-label">创建冰箱</span>
+      <span class="phone-label-sub">pages/fridge-create</span>
+    </div>
+
+    <div class="phone-wrapper">
+      <div class="phone-frame">
+        <div class="dynamic-island"></div>
+        <div class="side-btn power"></div>
+        <div class="side-btn vol-up"></div>
+        <div class="side-btn vol-down"></div>
+        <iframe src="item-edit.html" title="添加物品"></iframe>
+      </div>
+      <span class="phone-label">添加物品</span>
+      <span class="phone-label-sub">pages/item-edit</span>
+    </div>
+
+    <div class="phone-wrapper">
+      <div class="phone-frame">
+        <div class="dynamic-island"></div>
+        <div class="side-btn power"></div>
+        <div class="side-btn vol-up"></div>
+        <div class="side-btn vol-down"></div>
+        <iframe src="mine.html" title="我的"></iframe>
+      </div>
+      <span class="phone-label">我的</span>
+      <span class="phone-label-sub">pages/mine</span>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>我的 - 冰箱笔记</title>
+  <style>
+    :root {
+      --brand: #FF9F45;
+      --brand-hover: #FF8A1F;
+      --brand-light: rgba(255,159,69,0.08);
+      --brand-lighter: rgba(255,159,69,0.04);
+      --success: #00A870;
+      --warning: #E37318;
+      --error: #D54941;
+      --error-bg: rgba(213,73,65,0.08);
+      --bg: #FAF8F5;
+      --card: #FFFFFF;
+      --text: rgba(0,0,0,0.88);
+      --text-secondary: rgba(0,0,0,0.55);
+      --text-placeholder: rgba(0,0,0,0.35);
+      --separator: rgba(0,0,0,0.04);
+      --radius-card: 12px;
+      --radius-btn: 8px;
+      --radius-round: 999px;
+      --shadow-card: 0 4px 12px rgba(255,159,69,0.10);
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+    body {
+      font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .status-bar {
+      height: 54px;
+      background: var(--bg);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 28px 8px;
+      font-size: 15px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .nav-bar {
+      height: 48px;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      flex-shrink: 0;
+    }
+
+    .nav-title { font-size: 18px; font-weight: 700; }
+
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* 用户卡 */
+    .user-card {
+      background: var(--card);
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 8px solid var(--bg);
+    }
+
+    .user-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FFF0E0 0%, #FFE0C0 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(255,159,69,0.12);
+    }
+
+    .user-meta { flex: 1; }
+
+    .user-meta .user-name {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .user-meta .user-id {
+      font-size: 12px;
+      color: var(--text-placeholder);
+      margin-top: 4px;
+    }
+
+    .user-meta .login-tag {
+      display: inline-block;
+      font-size: 11px;
+      color: var(--brand);
+      background: var(--brand-light);
+      padding: 2px 10px;
+      border-radius: var(--radius-round);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    /* 菜单区块 */
+    .menu-section {
+      background: var(--card);
+      margin-bottom: 8px;
+    }
+
+    .menu-section:last-of-type { margin-bottom: 0; }
+
+    .menu-section-title {
+      padding: 12px 16px 4px;
+      font-size: 12px;
+      color: var(--text-placeholder);
+      font-weight: 500;
+    }
+
+    .menu-cell {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 0.5px solid var(--separator);
+    }
+
+    .menu-cell:last-child { border-bottom: none; }
+
+    .menu-cell .cell-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+
+    .menu-cell .cell-content { flex: 1; }
+
+    .menu-cell .cell-title {
+      font-size: 15px;
+      font-weight: 400;
+    }
+
+    .menu-cell .cell-note {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .menu-cell .cell-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .menu-cell .cell-arrow {
+      color: var(--text-placeholder);
+      font-size: 16px;
+    }
+
+    /* Switch */
+    .switch {
+      width: 44px;
+      height: 26px;
+      border-radius: 13px;
+      background: var(--brand);
+      position: relative;
+    }
+
+    .switch::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    }
+
+    /* 冰箱管理项 */
+    .fridge-cell {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 0.5px solid var(--separator);
+    }
+
+    .fridge-cell:last-of-type { border-bottom: none; }
+
+    .fridge-cell .f-icon {
+      font-size: 28px;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+
+    .fridge-cell .f-info { flex: 1; }
+
+    .fridge-cell .f-name {
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .fridge-cell .f-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .fridge-cell .f-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .action-chip {
+      padding: 4px 12px;
+      border-radius: var(--radius-round);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .action-chip.edit {
+      color: var(--brand);
+      background: var(--brand-light);
+    }
+
+    .action-chip.delete {
+      color: var(--error);
+      background: var(--error-bg);
+    }
+
+    /* TabBar */
+    .tab-bar {
+      height: 56px;
+      background: var(--card);
+      border-top: 0.5px solid var(--separator);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-around;
+      flex-shrink: 0;
+      padding-top: 6px;
+      padding-bottom: 28px;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      font-size: 10px;
+      color: var(--text-placeholder);
+    }
+
+    .tab-item .tab-icon { font-size: 20px; line-height: 1; }
+    .tab-item.active { color: var(--brand); }
+  </style>
+</head>
+<body>
+  <div class="status-bar">
+    <span>9:41</span>
+    <span style="font-size:13px;">🔋 100%</span>
+  </div>
+
+  <div class="nav-bar">
+    <span class="nav-title">我的</span>
+  </div>
+
+  <div class="content">
+    <!-- 用户信息 -->
+    <div class="user-card">
+      <div class="user-avatar">👤</div>
+      <div class="user-meta">
+        <div class="user-name">微信用户</div>
+        <div class="user-id">已授权微信登录</div>
+        <span class="login-tag">已登录</span>
+      </div>
+    </div>
+
+    <!-- 冰箱管理 -->
+    <div class="menu-section">
+      <div class="menu-section-title">冰箱管理</div>
+      <div class="fridge-cell">
+        <span class="f-icon">🧊</span>
+        <div class="f-info">
+          <div class="f-name">客厅冰箱</div>
+          <div class="f-desc">双开门 · 12 件物品</div>
+        </div>
+        <div class="f-actions">
+          <span class="action-chip edit">编辑</span>
+          <span class="action-chip delete">删除</span>
+        </div>
+      </div>
+      <div class="fridge-cell">
+        <span class="f-icon">🧊</span>
+        <div class="f-info">
+          <div class="f-name">厨房冰箱</div>
+          <div class="f-desc">单开门 · 8 件物品</div>
+        </div>
+        <div class="f-actions">
+          <span class="action-chip edit">编辑</span>
+          <span class="action-chip delete">删除</span>
+        </div>
+      </div>
+      <div class="menu-cell">
+        <div class="cell-icon" style="background: var(--brand-light);">➕</div>
+        <div class="cell-content">
+          <div class="cell-title">创建新冰箱</div>
+        </div>
+        <div class="cell-right">
+          <span class="cell-arrow">›</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 通知设置 -->
+    <div class="menu-section">
+      <div class="menu-section-title">通知设置</div>
+      <div class="menu-cell">
+        <div class="cell-icon" style="background: rgba(227,115,24,0.08);">🔔</div>
+        <div class="cell-content">
+          <div class="cell-title">临期提醒</div>
+          <div class="cell-note">过期前 3 天推送提醒</div>
+        </div>
+        <div class="cell-right">
+          <div class="switch"></div>
+        </div>
+      </div>
+      <div class="menu-cell">
+        <div class="cell-icon" style="background: rgba(0,168,112,0.08);">📅</div>
+        <div class="cell-content">
+          <div class="cell-title">提前天数</div>
+          <div class="cell-note">当前设置：3 天</div>
+        </div>
+        <div class="cell-right">
+          <span class="cell-arrow">›</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 其他 -->
+    <div class="menu-section" style="margin-bottom: 0;">
+      <div class="menu-section-title">其他</div>
+      <div class="menu-cell">
+        <div class="cell-icon" style="background: rgba(255,159,69,0.06);">ℹ️</div>
+        <div class="cell-content">
+          <div class="cell-title">关于</div>
+          <div class="cell-note">版本 1.0.0 · 隐私说明</div>
+        </div>
+        <div class="cell-right">
+          <span class="cell-arrow">›</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab-item">
+      <span class="tab-icon">🏠</span>
+      <span>首页</span>
+    </div>
+    <div class="tab-item active">
+      <span class="tab-icon">👤</span>
+      <span>我的</span>
+    </div>
+  </div>
+</body>
+</html>

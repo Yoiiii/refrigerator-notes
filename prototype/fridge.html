@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>冰箱页 - 冰箱笔记</title>
+  <style>
+    :root {
+      --brand: #FF9F45;
+      --brand-hover: #FF8A1F;
+      --brand-light: rgba(255,159,69,0.08);
+      --success: #00A870;
+      --success-bg: rgba(0,168,112,0.08);
+      --warning: #E37318;
+      --warning-bg: rgba(227,115,24,0.08);
+      --error: #D54941;
+      --error-bg: rgba(213,73,65,0.08);
+      --bg: #FAF8F5;
+      --card: #FFFFFF;
+      --text: rgba(0,0,0,0.88);
+      --text-secondary: rgba(0,0,0,0.55);
+      --text-placeholder: rgba(0,0,0,0.35);
+      --separator: rgba(0,0,0,0.04);
+      --border: rgba(0,0,0,0.06);
+      --radius-card: 12px;
+      --radius-btn: 8px;
+      --radius-round: 999px;
+      --shadow-card: 0 4px 12px rgba(255,159,69,0.10);
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+    body {
+      font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .status-bar {
+      height: 54px;
+      background: var(--bg);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 28px 8px;
+      font-size: 15px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .nav-bar {
+      height: 48px;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .nav-title { font-size: 18px; font-weight: 700; }
+
+    .nav-left {
+      position: absolute;
+      left: 12px;
+      display: flex;
+      align-items: center;
+      font-size: 22px;
+    }
+
+    .nav-right {
+      position: absolute;
+      right: 12px;
+      display: flex;
+      gap: 16px;
+      font-size: 18px;
+    }
+
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* 拟物冰箱外壳 */
+    .fridge-shell {
+      margin: 12px;
+      background: linear-gradient(180deg, #E8E4DE 0%, #DDD9D2 100%);
+      border-radius: 16px;
+      padding: 3px;
+      box-shadow: var(--shadow-card), inset 0 2px 0 rgba(255,255,255,0.7);
+    }
+
+    .fridge-inner {
+      border-radius: 14px;
+      overflow: hidden;
+      background: #C8C3BC;
+      position: relative;
+    }
+
+    .fridge-top {
+      background: linear-gradient(180deg, #B8B3AC 0%, #C8C3BC 100%);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .fridge-top .f-label {
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .fridge-top .f-tag {
+      font-size: 11px;
+      padding: 2px 10px;
+      border-radius: var(--radius-round);
+      background: var(--brand-light);
+      color: var(--brand);
+      font-weight: 500;
+    }
+
+    /* 分区 */
+    .zones-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .zone-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .zone-col:first-child {
+      border-right: 2px solid #B0ABA4;
+    }
+
+    .zone-header {
+      padding: 8px 10px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .zone-header.cold {
+      background: linear-gradient(180deg, #D6EAF5 0%, #DEEEFF 100%);
+      color: #3A6EA5;
+    }
+
+    .zone-header.freeze {
+      background: linear-gradient(180deg, #D0DCF2 0%, #DAE4F8 100%);
+      color: #4A5FA0;
+    }
+
+    /* 层 - 大圆角抽屉造型 */
+    .layer-row {
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+      padding: 6px 8px 8px;
+      transition: background 0.15s;
+      margin: 3px 6px;
+      border-radius: 10px;
+    }
+
+    .layer-row:first-child { margin-top: 4px; }
+    .layer-row:last-child { margin-bottom: 4px; border-bottom: none; }
+
+    .layer-row.safe { background: rgba(0,168,112,0.06); }
+    .layer-row.warning { background: rgba(227,115,24,0.08); }
+    .layer-row.danger { background: rgba(213,73,65,0.08); }
+
+    .layer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .layer-name {
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .layer-tag {
+      font-size: 10px;
+      padding: 1px 7px;
+      border-radius: var(--radius-round);
+      font-weight: 600;
+      line-height: 17px;
+    }
+
+    .layer-tag.safe { background: rgba(0,168,112,0.12); color: #008858; }
+    .layer-tag.warning { background: rgba(227,115,24,0.12); color: #B85D10; }
+    .layer-tag.danger { background: rgba(213,73,65,0.12); color: #B3372F; }
+
+    .layer-count {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    /* 展开物品 */
+    .items-expanded {
+      margin-top: 6px;
+      border-top: 1px dashed rgba(0,0,0,0.06);
+      padding-top: 6px;
+    }
+
+    .item-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 4px;
+      border-radius: 6px;
+    }
+
+    .item-cell + .item-cell { margin-top: 2px; }
+
+    .item-cell.safe { background: rgba(0,168,112,0.04); }
+    .item-cell.warning { background: rgba(227,115,24,0.05); }
+    .item-cell.danger { background: rgba(213,73,65,0.05); }
+
+    .item-thumb {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .item-info { flex: 1; min-width: 0; }
+
+    .item-name {
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-expire {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+
+    .item-expire.danger { color: var(--error); }
+    .item-expire.warning { color: var(--warning); }
+
+    .item-qty {
+      font-size: 10px;
+      background: rgba(0,0,0,0.04);
+      padding: 1px 6px;
+      border-radius: var(--radius-round);
+      flex-shrink: 0;
+      color: var(--text-secondary);
+    }
+
+    .add-item-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 8px 4px 2px;
+      font-size: 12px;
+      color: var(--brand);
+      font-weight: 500;
+      border-top: 1px dashed rgba(0,0,0,0.06);
+      margin-top: 4px;
+    }
+
+    /* 统计栏 */
+    .stats-bar {
+      margin: 0 12px 16px;
+      background: var(--card);
+      border-radius: var(--radius-card);
+      padding: 14px 0;
+      display: flex;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .stats-item {
+      flex: 1;
+      text-align: center;
+      border-right: 0.5px solid var(--separator);
+    }
+
+    .stats-item:last-child { border-right: none; }
+
+    .stats-item .s-num {
+      font-size: 18px;
+      font-weight: 700;
+      display: block;
+    }
+
+    .stats-item .s-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="status-bar">
+    <span>9:41</span>
+    <span style="font-size:13px;">🔋 100%</span>
+  </div>
+
+  <div class="nav-bar">
+    <div class="nav-left">←</div>
+    <span class="nav-title">客厅冰箱</span>
+    <div class="nav-right">
+      <span>✏️</span>
+      <span>➕</span>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- 拟物冰箱 -->
+    <div class="fridge-shell">
+      <div class="fridge-inner">
+        <div class="fridge-top">
+          <div class="f-label">
+            🧊 客厅冰箱
+            <span class="f-tag">双开门</span>
+          </div>
+        </div>
+
+        <div class="zones-grid">
+          <!-- 冷藏区 → 浅蓝渐变 -->
+          <div class="zone-col">
+            <div class="zone-header cold">❄ 冷藏区</div>
+            <div class="zone-layers">
+              <!-- 第1层 - 安全（展开） -->
+              <div class="layer-row safe">
+                <div class="layer-top">
+                  <span class="layer-name">🥬 第1层</span>
+                  <span class="layer-tag safe">安全</span>
+                </div>
+                <div class="layer-count">2 件物品</div>
+                <div class="items-expanded">
+                  <div class="item-cell safe">
+                    <div class="item-thumb">🥛</div>
+                    <div class="item-info">
+                      <div class="item-name">鲜牛奶</div>
+                      <div class="item-expire">2026-08-15</div>
+                    </div>
+                    <span class="item-qty">×2</span>
+                  </div>
+                  <div class="item-cell safe">
+                    <div class="item-thumb">🧃</div>
+                    <div class="item-info">
+                      <div class="item-name">橙汁</div>
+                      <div class="item-expire">2026-08-20</div>
+                    </div>
+                    <span class="item-qty">×1</span>
+                  </div>
+                  <div class="add-item-row">➕ 添加物品</div>
+                </div>
+              </div>
+
+              <!-- 第2层 - 临期 -->
+              <div class="layer-row warning">
+                <div class="layer-top">
+                  <span class="layer-name">🥚 第2层</span>
+                  <span class="layer-tag warning">临期2天</span>
+                </div>
+                <div class="layer-count">3 件物品</div>
+              </div>
+
+              <!-- 第3层 - 过期 -->
+              <div class="layer-row danger">
+                <div class="layer-top">
+                  <span class="layer-name">🥩 第3层</span>
+                  <span class="layer-tag danger">已过期</span>
+                </div>
+                <div class="layer-count">1 件物品</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 冷冻区 → 深蓝渐变 -->
+          <div class="zone-col">
+            <div class="zone-header freeze">❄️ 冷冻区</div>
+            <div class="zone-layers">
+              <div class="layer-row safe">
+                <div class="layer-top">
+                  <span class="layer-name">🍖 第1层</span>
+                  <span class="layer-tag safe">安全</span>
+                </div>
+                <div class="layer-count">3 件物品</div>
+              </div>
+
+              <div class="layer-row safe">
+                <div class="layer-top">
+                  <span class="layer-name">🍦 第2层</span>
+                  <span class="layer-tag safe">安全</span>
+                </div>
+                <div class="layer-count">2 件物品</div>
+              </div>
+
+              <div class="layer-row warning">
+                <div class="layer-top">
+                  <span class="layer-name">🥟 第3层</span>
+                  <span class="layer-tag warning">临期1天</span>
+                </div>
+                <div class="layer-count">1 件物品</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 统计 -->
+    <div class="stats-bar">
+      <div class="stats-item">
+        <span class="s-num">12</span>
+        <span class="s-label">物品总数</span>
+      </div>
+      <div class="stats-item">
+        <span class="s-num" style="color: var(--warning);">3</span>
+        <span class="s-label">临期</span>
+      </div>
+      <div class="stats-item">
+        <span class="s-num" style="color: var(--error);">1</span>
+        <span class="s-label">已过期</span>
+      </div>
+      <div class="stats-item">
+        <span class="s-num" style="color: var(--success);">8</span>
+        <span class="s-label">安全</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

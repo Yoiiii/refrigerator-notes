@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>添加物品 - 冰箱笔记</title>
+  <style>
+    :root {
+      --brand: #FF9F45;
+      --brand-hover: #FF8A1F;
+      --brand-light: rgba(255,159,69,0.08);
+      --success: #00A870;
+      --warning: #E37318;
+      --error: #D54941;
+      --bg: #FAF8F5;
+      --card: #FFFFFF;
+      --text: rgba(0,0,0,0.88);
+      --text-secondary: rgba(0,0,0,0.55);
+      --text-placeholder: rgba(0,0,0,0.35);
+      --border: rgba(0,0,0,0.06);
+      --separator: rgba(0,0,0,0.04);
+      --radius-card: 12px;
+      --radius-btn: 8px;
+      --radius-input: 6px;
+      --radius-round: 999px;
+      --shadow-card: 0 4px 12px rgba(255,159,69,0.10);
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+    body {
+      font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .status-bar {
+      height: 54px;
+      background: var(--bg);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 28px 8px;
+      font-size: 15px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .nav-bar {
+      height: 48px;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .nav-title { font-size: 18px; font-weight: 700; }
+
+    .nav-left {
+      position: absolute;
+      left: 12px;
+      display: flex;
+      align-items: center;
+      font-size: 22px;
+    }
+
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 88px;
+    }
+
+    .form-section {
+      margin: 12px 16px;
+      background: var(--card);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .form-cell {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 0.5px solid var(--separator);
+      min-height: 48px;
+    }
+
+    .form-cell:last-child { border-bottom: none; }
+
+    .form-cell .cell-label {
+      width: 68px;
+      font-size: 14px;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+
+    .form-cell .cell-label .required {
+      color: var(--error);
+      margin-left: 2px;
+    }
+
+    .form-cell .cell-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      min-width: 0;
+    }
+
+    .form-input {
+      width: 100%;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      text-align: right;
+      color: var(--text);
+      background: transparent;
+    }
+
+    .form-input::placeholder { color: var(--text-placeholder); }
+
+    .picker-val {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .picker-val .arrow {
+      color: var(--text-placeholder);
+      font-size: 14px;
+    }
+
+    /* 图片上传 */
+    .upload-section {
+      margin: 0 16px;
+      background: var(--card);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      padding: 16px;
+    }
+
+    .upload-label {
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .upload-label .optional {
+      font-size: 12px;
+      color: var(--text-placeholder);
+      font-weight: 400;
+    }
+
+    .upload-grid {
+      display: flex;
+      gap: 10px;
+    }
+
+    .upload-item {
+      width: 76px;
+      height: 76px;
+      border-radius: var(--radius-input);
+      overflow: hidden;
+      position: relative;
+      border: 0.5px solid var(--border);
+    }
+
+    .upload-item .img-placeholder {
+      width: 100%;
+      height: 100%;
+      background: #FFF8F0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+
+    .upload-item .remove-btn {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 11px;
+    }
+
+    .upload-btn {
+      width: 76px;
+      height: 76px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-input);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      background: #FAFBFC;
+    }
+
+    .upload-btn .u-icon { font-size: 24px; color: var(--text-placeholder); }
+    .upload-btn .u-text { font-size: 10px; color: var(--text-placeholder); }
+
+    /* Stepper */
+    .stepper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      background: var(--card);
+      color: var(--text);
+    }
+
+    .step-btn.disabled { opacity: 0.3; }
+
+    .step-val {
+      font-size: 16px;
+      font-weight: 600;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    /* 级联 */
+    .cascade-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .cascade-group .picker-val {
+      padding: 6px 12px;
+      background: var(--bg);
+      border-radius: var(--radius-input);
+      font-size: 13px;
+    }
+
+    /* 底部 */
+    .bottom-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 16px 36px;
+      background: var(--card);
+      border-top: 0.5px solid var(--separator);
+    }
+
+    .save-btn {
+      width: 100%;
+      height: 48px;
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-btn);
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(255,159,69,0.25);
+    }
+  </style>
+</head>
+<body>
+  <div class="status-bar">
+    <span>9:41</span>
+    <span style="font-size:13px;">🔋 100%</span>
+  </div>
+
+  <div class="nav-bar">
+    <div class="nav-left">←</div>
+    <span class="nav-title">添加物品</span>
+  </div>
+
+  <div class="content">
+    <!-- 基本信息 -->
+    <div class="form-section">
+      <div class="form-cell">
+        <span class="cell-label">名称<span class="required">*</span></span>
+        <div class="cell-content">
+          <input class="form-input" type="text" placeholder="最多20字" value="鲜牛奶" />
+        </div>
+      </div>
+      <div class="form-cell">
+        <span class="cell-label">数量<span class="required">*</span></span>
+        <div class="cell-content">
+          <div class="stepper">
+            <span class="step-btn disabled">−</span>
+            <span class="step-val">2</span>
+            <span class="step-btn">+</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-cell">
+        <span class="cell-label">保质期<span class="required">*</span></span>
+        <div class="cell-content">
+          <div class="picker-val">
+            <span>2026-08-15</span>
+            <span class="arrow">›</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 图片上传 -->
+    <div class="upload-section">
+      <div class="upload-label">
+        物品图片 <span class="optional">选填 · 最多3张</span>
+      </div>
+      <div class="upload-grid">
+        <div class="upload-item">
+          <div class="img-placeholder">🥛</div>
+          <div class="remove-btn">✕</div>
+        </div>
+        <div class="upload-btn">
+          <span class="u-icon">📷</span>
+          <span class="u-text">上传</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 存放位置 -->
+    <div class="form-section" style="margin-top: 16px;">
+      <div class="form-cell">
+        <span class="cell-label">位置<span class="required">*</span></span>
+        <div class="cell-content">
+          <div class="cascade-group">
+            <div class="picker-val">🧊 冷藏区</div>
+            <div class="picker-val">第1层</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <div class="save-btn">💾 保存物品</div>
+  </div>
+</body>
+</html>

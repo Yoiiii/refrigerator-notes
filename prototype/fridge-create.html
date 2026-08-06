@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>创建冰箱 - 冰箱笔记</title>
+  <style>
+    :root {
+      --brand: #FF9F45;
+      --brand-hover: #FF8A1F;
+      --brand-light: rgba(255,159,69,0.08);
+      --brand-lighter: rgba(255,159,69,0.04);
+      --success: #00A870;
+      --success-bg: rgba(0,168,112,0.08);
+      --warning: #E37318;
+      --warning-bg: rgba(227,115,24,0.08);
+      --error: #D54941;
+      --bg: #FAF8F5;
+      --card: #FFFFFF;
+      --text: rgba(0,0,0,0.88);
+      --text-secondary: rgba(0,0,0,0.55);
+      --text-placeholder: rgba(0,0,0,0.35);
+      --border: rgba(0,0,0,0.06);
+      --separator: rgba(0,0,0,0.04);
+      --radius-card: 12px;
+      --radius-btn: 8px;
+      --radius-input: 6px;
+      --radius-round: 999px;
+      --shadow-card: 0 4px 12px rgba(255,159,69,0.10);
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+    body {
+      font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .status-bar {
+      height: 54px;
+      background: var(--bg);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 28px 8px;
+      font-size: 15px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .nav-bar {
+      height: 48px;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .nav-title { font-size: 18px; font-weight: 700; }
+
+    .nav-left {
+      position: absolute;
+      left: 12px;
+      display: flex;
+      align-items: center;
+      font-size: 22px;
+    }
+
+    .nav-btn {
+      position: absolute;
+      right: 16px;
+      font-size: 14px;
+      color: var(--brand);
+      font-weight: 500;
+    }
+
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 88px;
+    }
+
+    /* 表单区块 */
+    .form-section {
+      margin: 12px 16px;
+      background: var(--card);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .form-section-title {
+      padding: 14px 16px 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: 0.5px;
+    }
+
+    .form-cell {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 0.5px solid var(--separator);
+      min-height: 48px;
+    }
+
+    .form-cell:last-child { border-bottom: none; }
+
+    .form-cell .cell-label {
+      width: 68px;
+      font-size: 14px;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+
+    .form-cell .cell-label .required {
+      color: var(--error);
+      margin-left: 2px;
+    }
+
+    .form-cell .cell-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      min-width: 0;
+    }
+
+    .form-input {
+      width: 100%;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      text-align: right;
+      color: var(--text);
+      background: transparent;
+    }
+
+    .form-input::placeholder { color: var(--text-placeholder); }
+
+    /* Radio Chip */
+    .radio-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .radio-chip {
+      height: 32px;
+      padding: 0 16px;
+      border-radius: var(--radius-round);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--text-secondary);
+      background: var(--card);
+    }
+
+    .radio-chip.active {
+      border-color: var(--brand);
+      background: var(--brand-lighter);
+      color: var(--brand);
+      font-weight: 500;
+    }
+
+    /* Stepper */
+    .stepper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      background: var(--card);
+      color: var(--text);
+    }
+
+    .step-btn.disabled { opacity: 0.3; }
+
+    .step-val {
+      font-size: 16px;
+      font-weight: 600;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    /* 预览区 */
+    .preview-section {
+      margin: 0 16px 16px;
+      background: var(--card);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .preview-header {
+      padding: 12px 16px 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .preview-body { padding: 12px 16px 16px; }
+
+    .preview-fridge-shell {
+      background: linear-gradient(180deg, #E8E4DE 0%, #DDD9D2 100%);
+      border-radius: 12px;
+      padding: 2px;
+    }
+
+    .preview-fridge-inner {
+      border-radius: 10px;
+      overflow: hidden;
+      background: #C8C3BC;
+    }
+
+    .preview-zones {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .preview-zone {
+      padding: 8px 6px;
+    }
+
+    .preview-zone:first-child {
+      border-right: 2px solid #B0ABA4;
+    }
+
+    .preview-zone .pz-title {
+      font-size: 10px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .preview-zone.cold .pz-title { color: #3A6EA5; }
+    .preview-zone.freeze .pz-title { color: #4A5FA0; }
+
+    .pz-layers { display: flex; flex-direction: column; gap: 2px; }
+
+    .pz-layer {
+      height: 14px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.6);
+      border: 0.5px solid rgba(0,0,0,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      color: var(--text-placeholder);
+    }
+
+    /* 添加分区 */
+    .add-zone {
+      margin: 0 16px 16px;
+      height: 48px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-input);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      background: var(--card);
+    }
+
+    /* 底部固定 */
+    .bottom-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 16px 36px;
+      background: var(--card);
+      border-top: 0.5px solid var(--separator);
+    }
+
+    .save-btn {
+      width: 100%;
+      height: 48px;
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-btn);
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(255,159,69,0.25);
+    }
+  </style>
+</head>
+<body>
+  <div class="status-bar">
+    <span>9:41</span>
+    <span style="font-size:13px;">🔋 100%</span>
+  </div>
+
+  <div class="nav-bar">
+    <div class="nav-left">←</div>
+    <span class="nav-title">创建冰箱</span>
+    <span class="nav-btn">重置</span>
+  </div>
+
+  <div class="content">
+    <!-- 基本信息 -->
+    <div class="form-section">
+      <div class="form-section-title">基本信息</div>
+      <div class="form-cell">
+        <span class="cell-label">名称<span class="required">*</span></span>
+        <div class="cell-content">
+          <input class="form-input" type="text" placeholder="如：客厅冰箱" value="客厅冰箱" />
+        </div>
+      </div>
+      <div class="form-cell">
+        <span class="cell-label">门型<span class="required">*</span></span>
+        <div class="cell-content">
+          <div class="radio-group">
+            <div class="radio-chip">单开门</div>
+            <div class="radio-chip active">双开门</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 实时预览 -->
+    <div class="preview-section">
+      <div class="preview-header">📐 实时预览</div>
+      <div class="preview-body">
+        <div class="preview-fridge-shell">
+          <div class="preview-fridge-inner">
+            <div class="preview-zones">
+              <div class="preview-zone cold">
+                <div class="pz-title">❄ 冷藏区</div>
+                <div class="pz-layers">
+                  <div class="pz-layer">第1层</div>
+                  <div class="pz-layer">第2层</div>
+                  <div class="pz-layer">第3层</div>
+                </div>
+              </div>
+              <div class="preview-zone freeze">
+                <div class="pz-title">❄️ 冷冻区</div>
+                <div class="pz-layers">
+                  <div class="pz-layer">第1层</div>
+                  <div class="pz-layer">第2层</div>
+                  <div class="pz-layer">第3层</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 冷藏区配置 -->
+    <div class="form-section">
+      <div class="form-section-title">🧊 冷藏区</div>
+      <div class="form-cell">
+        <span class="cell-label">分区名称</span>
+        <div class="cell-content">
+          <input class="form-input" type="text" value="冷藏区" />
+        </div>
+      </div>
+      <div class="form-cell">
+        <span class="cell-label">温度类型</span>
+        <div class="cell-content">
+          <div class="radio-group">
+            <div class="radio-chip active">冷藏</div>
+            <div class="radio-chip">冷冻</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-cell">
+        <span class="cell-label">层数</span>
+        <div class="cell-content">
+          <div class="stepper">
+            <span class="step-btn disabled">−</span>
+            <span class="step-val">3</span>
+            <span class="step-btn">+</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 冷冻区配置 -->
+    <div class="form-section">
+      <div class="form-section-title">❄️ 冷冻区</div>
+      <div class="form-cell">
+        <span class="cell-label">分区名称</span>
+        <div class="cell-content">
+          <input class="form-input" type="text" value="冷冻区" />
+        </div>
+      </div>
+      <div class="form-cell">
+        <span class="cell-label">温度类型</span>
+        <div class="cell-content">
+          <div class="radio-group">
+            <div class="radio-chip">冷藏</div>
+            <div class="radio-chip active">冷冻</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-cell">
+        <span class="cell-label">层数</span>
+        <div class="cell-content">
+          <div class="stepper">
+            <span class="step-btn disabled">−</span>
+            <span class="step-val">3</span>
+            <span class="step-btn">+</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="add-zone">➕ 添加分区</div>
+  </div>
+
+  <div class="bottom-bar">
+    <div class="save-btn">💾 保存冰箱</div>
+  </div>
+</body>
+</html>
