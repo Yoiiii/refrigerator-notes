@@ -47,7 +47,7 @@
               <view class="layer-count">{{layer.itemCount}} 件物品</view>
 
               <view class="items-expanded" wx:if="{{layer.expanded}}">
-                <t-swipe-cell wx:for="{{layer.items}}" wx:key="_id" right="{{swipeRight}}">
+                <t-swipe-cell wx:for="{{layer.items}}" wx:for-item="item" wx:key="_id">
                   <view class="item-cell" data-item-id="{{item._id}}" bind:tap="onItemDetail">
                     <view class="item-thumb">
                       <t-image wx:if="{{item.images && item.images.length > 0}}" src="{{item.images[0]}}" width="64rpx" height="64rpx" shape="round" />
@@ -94,7 +94,7 @@
               <view class="layer-count">{{layer.itemCount}} 件物品</view>
 
               <view class="items-expanded" wx:if="{{layer.expanded}}">
-                <t-swipe-cell wx:for="{{layer.items}}" wx:key="_id" right="{{swipeRight}}">
+                <t-swipe-cell wx:for="{{layer.items}}" wx:key="_id">
                   <view class="item-cell" data-item-id="{{item._id}}" bind:tap="onItemDetail">
                     <view class="item-thumb">
                       <t-image wx:if="{{item.images && item.images.length > 0}}" src="{{item.images[0]}}" width="64rpx" height="64rpx" shape="round" />
@@ -138,7 +138,7 @@
             <view class="layer-count">{{layer.itemCount}} 件物品</view>
 
             <view class="items-expanded" wx:if="{{layer.expanded}}">
-              <t-swipe-cell wx:for="{{layer.items}}" wx:key="_id" right="{{swipeRight}}">
+              <t-swipe-cell wx:for="{{layer.items}}" wx:key="_id">
                 <view class="item-cell" data-item-id="{{item._id}}" bind:tap="onItemDetail">
                   <view class="item-thumb">
                     <t-image wx:if="{{item.images && item.images.length > 0}}" src="{{item.images[0]}}" width="64rpx" height="64rpx" shape="round" />
@@ -164,12 +164,12 @@
   </view>
 
     <!-- 添加物品按钮 -->
-    <view class="add-item-global">
+    <!-- <view class="add-item-global">
       <t-button theme="primary" size="large" block bind:tap="onAddItem">
         <t-icon name="add" slot="icon" />
         添加物品
       </t-button>
-    </view>
+    </view> -->
 
     <!-- 统计栏 -->
   <view class="stats-bar card">

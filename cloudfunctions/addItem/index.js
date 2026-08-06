@@ -1,6 +1,6 @@
 // cloudfunctions/addItem/index.js
 const cloud = require('wx-server-sdk')
-const { checkFridgePermission } = require('../_shared/auth')
+const { checkFridgePermission } = require('./shared/auth')
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 

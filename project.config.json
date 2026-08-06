@@ -5,13 +5,21 @@
   "cloudDevelopment": true,
   "compileType": "miniprogram",
   "setting": {
-    "useCompilerPlugins": ["typescript"],
+    "useCompilerPlugins": [
+      "typescript"
+    ],
     "packNpmManually": true,
-    "packNpmRelationList": [{
-      "packageJsonPath": "./package.json",
-      "miniprogramNpmDistDir": "./miniprogram/"
-    }],
-    "babelSetting": { "ignore": [], "disablePlugins": [], "outputPath": "" },
+    "packNpmRelationList": [
+      {
+        "packageJsonPath": "./package.json",
+        "miniprogramNpmDistDir": "./miniprogram/"
+      }
+    ],
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    },
     "coverView": false,
     "postcss": false,
     "minified": false,
@@ -28,14 +36,23 @@
     "condition": false,
     "compileWorklet": false,
     "disableUseStrict": false,
-    "minifyWXML": true
+    "minifyWXML": true,
+    "swc": false,
+    "disableSWC": true
   },
   "simulatorType": "wechat",
   "simulatorPluginLibVersion": {},
   "condition": {},
   "srcMiniprogramRoot": "miniprogram/",
-  "editorSetting": { "tabIndent": "insertSpaces", "tabSize": 2 },
-  "libVersion": "2.30.0",
-  "packOptions": { "ignore": [], "include": [] },
-  "appid": "wx993ca26a9925bc1b"
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
+  },
+  "libVersion": "3.17.1",
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "appid": "wx993ca26a9925bc1b",
+  "cloudfunctionTemplateRoot": "cloudfunctionTemplate/"
 }
