@@ -48,7 +48,7 @@
 
               <view class="items-expanded" wx:if="{{layer.expanded}}">
                 <t-swipe-cell wx:for="{{layer.items}}" wx:for-item="item" wx:key="_id">
-                  <view class="item-cell" data-item-id="{{item._id}}" bind:tap="onItemDetail">
+                  <view class="item-cell" data-item-id="{{item._id}}" catch:tap="onItemDetail">
                     <view class="item-thumb">
                       <t-image wx:if="{{item.images && item.images.length > 0}}" src="{{item.images[0]}}" width="64rpx" height="64rpx" shape="round" />
                       <text wx:else>{{item.iconEmoji || '📦'}}</text>
@@ -95,7 +95,7 @@
 
               <view class="items-expanded" wx:if="{{layer.expanded}}">
                 <t-swipe-cell wx:for="{{layer.items}}" wx:key="_id">
-                  <view class="item-cell" data-item-id="{{item._id}}" bind:tap="onItemDetail">
+                  <view class="item-cell" data-item-id="{{item._id}}" catch:tap="onItemDetail">
                     <view class="item-thumb">
                       <t-image wx:if="{{item.images && item.images.length > 0}}" src="{{item.images[0]}}" width="64rpx" height="64rpx" shape="round" />
                       <text wx:else>{{item.iconEmoji || '📦'}}</text>
@@ -139,7 +139,7 @@
 
             <view class="items-expanded" wx:if="{{layer.expanded}}">
               <t-swipe-cell wx:for="{{layer.items}}" wx:key="_id">
-                <view class="item-cell" data-item-id="{{item._id}}" bind:tap="onItemDetail">
+                <view class="item-cell" data-item-id="{{item._id}}" catch:tap="onItemDetail">
                   <view class="item-thumb">
                     <t-image wx:if="{{item.images && item.images.length > 0}}" src="{{item.images[0]}}" width="64rpx" height="64rpx" shape="round" />
                     <text wx:else>{{item.iconEmoji || '📦'}}</text>

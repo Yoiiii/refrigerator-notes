@@ -14,57 +14,7 @@
 </view>
 
 <scroll-view class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
-  <!-- 基本信息 -->
-  <view class="card">
-    <view class="form-section-title">基本信息</view>
-    <t-input label="名称" placeholder="如：客厅冰箱" value="{{fridgeName}}" bind:change="onNameChange" required borderless />
-    <view class="form-cell">
-      <text class="cell-label">门型</text>
-      <t-radio-group value="{{doorType}}" bind:change="onDoorTypeChange">
-        <t-radio label="单开门" value="single" />
-        <t-radio label="双开门" value="double" />
-      </t-radio-group>
-    </view>
-  </view>
-
-  <!-- 恒温层开关 -->
-  <view class="card">
-    <view class="form-cell">
-      <text class="cell-label">恒温层</text>
-      <t-switch value="{{hasConstantZone}}" bind:change="onConstantZoneSwitch" />
-    </view>
-    <block wx:if="{{hasConstantZone}}">
-      <t-input label="名称" placeholder="恒温区" value="{{constantZone.name}}" bind:change="onConstantZoneName" borderless />
-      <view class="form-cell">
-        <text class="cell-label">层数</text>
-        <t-stepper value="{{constantZone.layers.length}}" min="1" max="2" bind:change="onConstantZoneLayers" />
-      </view>
-    </block>
-  </view>
-
-  <!-- 分区配置 -->
-  <view class="card" wx:for="{{zones}}" wx:for-item="zone" wx:for-index="zi" wx:key="zoneId">
-    <view class="form-section-title">{{zone.name}}</view>
-    <t-input label="名称" value="{{zone.name}}" data-zi="{{zi}}" bind:change="onZoneNameChange" borderless />
-    <view class="form-cell">
-      <text class="cell-label">温度类型</text>
-      <t-radio-group value="{{zone.tempType}}" data-zi="{{zi}}" bind:change="onZoneTempTypeChange">
-        <t-radio label="冷藏" value="cold" />
-        <t-radio label="冷冻" value="freeze" />
-      </t-radio-group>
-    </view>
-    <view class="form-cell">
-      <text class="cell-label">层数</text>
-      <t-stepper value="{{zone.layers.length}}" min="1" max="6" data-zi="{{zi}}" bind:change="onZoneLayersChange" />
-    </view>
-  </view>
-
-  <view class="add-zone" bind:tap="onAddZone">
-    <t-icon name="add" size="28rpx" color="rgba(0,0,0,0.55)" />
-    <text>添加分区</text>
-  </view>
-
-  <!-- 预览 -->
+  <!-- 实时预览（最上面） -->
   <view class="card">
     <view class="preview-header">📐 实时预览</view>
     <view class="preview-body">
@@ -95,6 +45,61 @@
         </view>
       </view>
     </view>
+  </view>
+
+  <!-- 基本信息 -->
+  <view class="card">
+    <view class="form-section-title">基本信息</view>
+    <t-input label="名称" placeholder="如：客厅冰箱" value="{{fridgeName}}" bind:change="onNameChange" required borderless />
+    <view class="form-cell">
+      <text class="cell-label">门型</text>
+      <t-radio-group value="{{doorType}}" bind:change="onDoorTypeChange">
+        <t-radio label="单开门" value="single" />
+        <t-radio label="双开门" value="double" />
+      </t-radio-group>
+    </view>
+  </view>
+
+  <!-- 恒温层开关 -->
+  <view class="card">
+    <view class="form-cell">
+      <text class="cell-label">恒温层</text>
+      <t-switch value="{{hasConstantZone}}" bind:change="onConstantZoneSwitch" />
+    </view>
+    <block wx:if="{{hasConstantZone}}">
+      <t-input label="名称" placeholder="恒温区" value="{{constantZone.name}}" bind:change="onConstantZoneName" borderless />
+      <view class="form-cell">
+        <text class="cell-label">层数</text>
+        <t-stepper value="{{constantZone.layers.length}}" min="1" max="2" bind:change="onConstantZoneLayers" />
+      </view>
+    </block>
+  </view>
+
+  <!-- 分区配置 -->
+  <view class="card zone-card" wx:for="{{zones}}" wx:for-item="zone" wx:for-index="zi" wx:key="zoneId">
+    <view class="zone-card-header">
+      <view class="form-section-title">{{zone.name}}</view>
+      <view class="zone-delete-btn" data-zi="{{zi}}" bind:tap="onDeleteZone">
+        <t-icon name="close" size="28rpx" color="rgba(0,0,0,0.35)" />
+      </view>
+    </view>
+    <t-input label="名称" value="{{zone.name}}" data-zi="{{zi}}" bind:change="onZoneNameChange" borderless />
+    <view class="form-cell">
+      <text class="cell-label">温度类型</text>
+      <t-radio-group value="{{zone.tempType}}" data-zi="{{zi}}" bind:change="onZoneTempTypeChange">
+        <t-radio label="冷藏" value="cold" />
+        <t-radio label="冷冻" value="freeze" />
+      </t-radio-group>
+    </view>
+    <view class="form-cell">
+      <text class="cell-label">层数</text>
+      <t-stepper value="{{zone.layers.length}}" min="1" max="6" data-zi="{{zi}}" bind:change="onZoneLayersChange" />
+    </view>
+  </view>
+
+  <view class="add-zone" bind:tap="onAddZone">
+    <t-icon name="add" size="28rpx" color="rgba(0,0,0,0.55)" />
+    <text>添加分区</text>
   </view>
 </scroll-view>
 

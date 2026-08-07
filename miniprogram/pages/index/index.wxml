@@ -7,7 +7,6 @@
 <view class="nav-bar">
   <view class="nav-left">
     <t-icon name="notification" size="36rpx" color="rgba(0,0,0,0.88)" bind:tap="onNotification" />
-    <t-icon name="add" size="36rpx" color="rgba(0,0,0,0.88)" bind:tap="onCreateFridge" />
   </view>
   <text class="nav-title">冰箱笔记</text>
 </view>
@@ -124,5 +123,10 @@
   <t-tab-bar-item value="home" icon="home">首页</t-tab-bar-item>
   <t-tab-bar-item value="mine" icon="user">我的</t-tab-bar-item>
 </t-tab-bar>
+
+<!-- 浮动添加按钮 -->
+<view class="fab" bind:tap="onCreateFridge">
+  <t-icon name="add" size="40rpx" color="#FFFFFF" />
+</view>
 
 </view>

@@ -19,26 +19,34 @@
     </view>
     <view class="form-cell">
       <text class="cell-label">保质期</text>
-      <view class="picker-val" bind:tap="onDatePicker">
-        <text>{{expireDate || '请选择日期'}}</text>
-        <t-icon name="chevron-right" size="28rpx" color="rgba(0,0,0,0.35)" />
-      </view>
+      <picker mode="date" value="{{expireDate}}" start="2026-01-01" end="2030-12-31" bind:change="onDateChange">
+        <view class="picker-val">
+          <text>{{expireDate || '请选择日期'}}</text>
+          <t-icon name="chevron-right" size="28rpx" color="rgba(0,0,0,0.35)" />
+        </view>
+      </picker>
     </view>
   </view>
 
   <!-- 存放位置 -->
   <view class="card">
     <view class="form-cell">
-      <text class="cell-label">位置</text>
-      <view class="cascade-group" bind:tap="onLocationPicker">
-        <view class="cascade-chip">
+      <text class="cell-label">分区</text>
+      <picker mode="selector" range="{{zoneNames}}" value="{{zoneIndex}}" bind:change="onZoneChange">
+        <view class="picker-val">
           <text>{{selectedZoneName || '选择分区'}}</text>
+          <t-icon name="chevron-right" size="28rpx" color="rgba(0,0,0,0.35)" />
         </view>
-        <t-icon name="chevron-right" size="24rpx" color="rgba(0,0,0,0.35)" />
-        <view class="cascade-chip" wx:if="{{selectedZoneName}}">
+      </picker>
+    </view>
+    <view class="form-cell">
+      <text class="cell-label">层</text>
+      <picker mode="selector" range="{{layerNames}}" value="{{layerIndex}}" bind:change="onLayerChange">
+        <view class="picker-val">
           <text>{{selectedLayerName || '选择层'}}</text>
+          <t-icon name="chevron-right" size="28rpx" color="rgba(0,0,0,0.35)" />
         </view>
-      </view>
+      </picker>
     </view>
   </view>
 

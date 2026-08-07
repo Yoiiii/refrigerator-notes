@@ -12,6 +12,22 @@
   font-weight: 600;
   color: rgba(0, 0, 0, 0.55);
 }
+.zone-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 16rpx;
+}
+.zone-delete-btn {
+  padding: 16rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.zone-delete-btn:active {
+  background: rgba(0,0,0,0.05);
+}
 .form-cell {
   display: flex;
   align-items: center;

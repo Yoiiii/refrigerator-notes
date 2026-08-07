@@ -95,7 +95,7 @@ Page({
   },
 
   onAddItem() {
-    wx.navigateTo({ url: '/pages/item-edit/item-edit' })
+    wx.navigateTo({ url: `/pages/item-edit/item-edit?fridgeId=${this.data.currentFridge.fridgeId}` })
   },
 
   onManageFridge() {

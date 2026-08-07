@@ -109,6 +109,17 @@ Page({
     this.setData({ zones })
   },
 
+  onDeleteZone(e: any) {
+    const zi = e.currentTarget.dataset.zi
+    const zones = this.data.zones
+    if (zones.length <= 1) {
+      Toast({ message: '至少保留一个分区', selector: '#t-toast' })
+      return
+    }
+    zones.splice(zi, 1)
+    this.setData({ zones })
+  },
+
   async onSave() {
     if (!this.data.fridgeName) { Toast({ message: '请输入冰箱名称', selector: '#t-toast' }); return }
     this.setData({ saving: true })
