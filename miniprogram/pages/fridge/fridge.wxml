@@ -10,13 +10,21 @@
     <text class="nav-title">{{fridgeName}}</text>
   </view>
 
-<scroll-view class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
+<!-- 加载中 -->
+<view class="page-container loading-wrapper" wx:if="{{loading}}">
+  <t-loading theme="circular" size="64rpx" />
+  <text class="loading-text">加载中...</text>
+</view>
+
+<scroll-view wx:else class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
   <!-- 拟物冰箱外壳 -->
   <view class="fridge-shell">
     <view class="fridge-inner">
       <view class="fridge-top">
           <view class="f-label">
-            <text>🧊 {{fridgeName}}</text>
+            <image wx:if="{{fridgeImage}}" src="{{fridgeImage}}" class="fridge-top-img" />
+            <text wx:else>🧊</text>
+            <text>{{fridgeName}}</text>
             <t-tag size="small" theme="warning">{{doorTypeText}}</t-tag>
           </view>
           <view class="fridge-settings" bind:tap="onSettings">

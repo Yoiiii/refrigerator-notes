@@ -5,7 +5,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 
 exports.main = async (event) => {
-  const { fridgeId, name, doorType, hasConstantZone, constantZone, zones } = event
+  const { fridgeId, name, doorType, hasConstantZone, constantZone, zones, image } = event
   if (!fridgeId) return { code: -2, msg: '缺少 fridgeId' }
 
   await checkFridgePermission(fridgeId, ['owner'])
@@ -16,6 +16,7 @@ exports.main = async (event) => {
   if (hasConstantZone !== undefined) updateData.hasConstantZone = hasConstantZone
   if (constantZone !== undefined) updateData.constantZone = constantZone
   if (zones !== undefined) updateData.zones = zones
+  if (image !== undefined) updateData.image = image
 
   await db.collection('fridges').doc(fridgeId).update({ data: updateData })
   return { code: 0, data: { fridgeId } }

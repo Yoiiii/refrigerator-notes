@@ -7,7 +7,7 @@ exports.main = async (event) => {
   const { OPENID } = cloud.getWXContext()
   if (!OPENID) return { code: -1, msg: '未登录' }
 
-  const { name, doorType, hasConstantZone, constantZone, zones } = event
+  const { name, doorType, hasConstantZone, constantZone, zones, image } = event
   if (!name || !doorType || !zones || zones.length === 0) {
     return { code: -2, msg: '缺少必要参数' }
   }
@@ -19,6 +19,7 @@ exports.main = async (event) => {
     doorType,
     hasConstantZone: !!hasConstantZone,
     zones,
+    image: image || '',
     createdAt: now,
     updatedAt: now,
   }
@@ -39,6 +40,14 @@ exports.main = async (event) => {
       joinedAt: now,
     },
   })
+
+  // 如果用户的 defaultFridgeId 为空，则设置为新创建的冰箱 ID
+  const userRes = await db.collection('users').where({ _openid: OPENID }).get()
+  if (userRes.data.length > 0 && !userRes.data[0].defaultFridgeId) {
+    await db.collection('users').doc(userRes.data[0]._id).update({
+      data: { defaultFridgeId: fridgeId, updatedAt: now },
+    })
+  }
 
   return { code: 0, data: { fridgeId, ...fridgeData } }
 }

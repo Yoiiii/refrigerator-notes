@@ -10,7 +10,12 @@
   <text class="nav-title">冰箱设置</text>
 </view>
 
-<scroll-view class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
+<view class="page-container loading-wrapper" wx:if="{{loading}}">
+    <t-loading theme="circular" size="64rpx" />
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <scroll-view class="page-container" wx:else scroll-y enhanced show-scrollbar="{{false}}">
   <view class="card">
     <t-cell title="冰箱名称" note="{{fridgeName}}" arrow hover bind:tap="onEditFridge" />
     <t-cell title="门型" note="{{doorTypeText}}" hover />

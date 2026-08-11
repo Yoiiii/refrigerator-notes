@@ -13,6 +13,7 @@ Page({
     refreshing: false,
     currentFridge: {} as any,
     fridges: [] as any[],
+    defaultFridgeId: '',
     expiringItems: [] as any[],
     swipeRight: [{ text: '删除', className: 'swipe-delete' }],
   },
@@ -23,7 +24,8 @@ Page({
 
   onShow() {
     this.loadData()
-    this.setData({ theme: app.globalData.theme || 'warm' })
+    console.log('app.globalData.userInfo',app.globalData.userInfo)
+    this.setData({ theme: app.globalData.theme || 'warm'})
   },
 
   async onRefresh() {
@@ -34,14 +36,25 @@ Page({
 
   async loadData() {
     try {
-      const fridges = await call('getFridgeList')
-      if (fridges && fridges.length > 0) {
+      const res = await call('getFridgeList')
+      const defaultFridgeId = res.defaultFridgeId
+      const fridges = res?.fridges || []
+
+      if (fridges.length > 0) {
+
+        let currentFridge = fridges.find((f: any) => f.fridgeId === defaultFridgeId)
+        if (!currentFridge) currentFridge = fridges[0]
+        if (defaultFridgeId && app.globalData.userInfo) {
+          app.globalData.userInfo.defaultFridgeId = defaultFridgeId
+        }
+
         const expiringItems = await call('getExpiringItems')
         this.setData({
           loading: false,
           hasFridge: true,
           fridges: fridges,
-          currentFridge: fridges[0],
+          defaultFridgeId,
+          currentFridge,
           expiringItems: (expiringItems || []).map((item: any) => ({
             ...item,
             iconEmoji: getIconEmoji(item.icon),
@@ -89,7 +102,14 @@ Page({
     wx.showActionSheet({
       itemList: fridges.map((f: any) => f.name),
       success: (res) => {
-        this.setData({ currentFridge: fridges[res.tapIndex] })
+        const selected = fridges[res.tapIndex]
+        this.setData({ currentFridge: selected, defaultFridgeId: selected.fridgeId })
+        // 同步 globalData
+        if (app.globalData.userInfo) {
+          app.globalData.userInfo.defaultFridgeId = selected.fridgeId
+        }
+        // 更新服务端的 defaultFridgeId
+        call('updateDefaultFridge', { fridgeId: selected.fridgeId }).catch(() => {})
       },
     })
   },

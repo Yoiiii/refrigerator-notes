@@ -54,8 +54,8 @@ Page({
 
   async loadData() {
     try {
-      const fridges = await call('getFridgeList')
-      this.setData({ fridges: fridges || [] })
+      const res = await call('getFridgeList')
+      this.setData({ fridges: res?.fridges || [] })
     } catch (e) {
       this.setData({
         fridges: [

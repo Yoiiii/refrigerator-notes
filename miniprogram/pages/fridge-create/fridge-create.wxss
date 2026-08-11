@@ -120,6 +120,44 @@
   color: rgba(0, 0, 0, 0.55);
   background: var(--card-bg, #ffffff);
 }
+/* Tab 内容 */
+.tab-content {
+  padding: 24rpx 32rpx;
+}
+
+/* 预设图标网格 */
+.preset-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+.preset-item {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  position: relative;
+  border: 2rpx solid rgba(0,0,0,0.06);
+  flex-shrink: 0;
+}
+.preset-item.selected {
+  border-color: var(--td-brand-color);
+}
+.preset-item:active {
+  opacity: 0.8;
+}
+.preset-img {
+  width: 100%;
+  height: 100%;
+}
+.preset-selected-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .bottom-bar {
   position: fixed;
   bottom: 0;

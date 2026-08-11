@@ -4,6 +4,14 @@ import { Toast } from 'tdesign-miniprogram'
 
 const app = getApp<IAppOption>()
 
+// 预设冰箱图标
+const PRESET_IMAGES = [
+  '/assets/images/refrigerator1.png',
+  '/assets/images/refrigerator2.png',
+  '/assets/images/refrigerator3.png',
+  '/assets/images/refrigerator4.png',
+]
+
 Page({
   data: {
     theme: 'warm',
@@ -15,6 +23,12 @@ Page({
     } as any,
     zones: [] as any[],
     saving: false,
+    // 图标/图片 Tab
+    activeTab: 'icon',
+    presetImages: PRESET_IMAGES,
+    selectedImage: '',
+    selectedImageIndex: -1,
+    images: [] as any[],
   },
 
   onLoad(options: any) {
@@ -46,11 +60,17 @@ Page({
     try {
       const data = await call('getFridgeDetail', { fridgeId: this.data.fridgeId })
       if (data) {
+        const image = data.image || ''
+        const imageIndex = image ? PRESET_IMAGES.indexOf(image) : -1
+        const images = image && imageIndex === -1 ? [{ url: image }] : []
         this.setData({
           fridgeName: data.name, doorType: data.doorType,
           hasConstantZone: data.hasConstantZone || false,
           constantZone: data.constantZone || this.data.constantZone,
           zones: data.zones || [],
+          selectedImage: image,
+          selectedImageIndex: imageIndex,
+          images,
         })
       }
     } catch (e) { }
@@ -120,6 +140,24 @@ Page({
     this.setData({ zones })
   },
 
+  onTabChange(e: any) { this.setData({ activeTab: e.detail.value }) },
+
+  onSelectPresetImage(e: any) {
+    const index = e.currentTarget.dataset.index
+    this.setData({
+      selectedImage: this.data.presetImages[index],
+      selectedImageIndex: index,
+      images: [],
+    })
+  },
+
+  onUploadAdd(e: any) {
+    this.setData({ images: e.detail.files, selectedImageIndex: -1 })
+  },
+  onUploadRemove(e: any) {
+    this.setData({ images: e.detail.files, selectedImageIndex: -1 })
+  },
+
   async onSave() {
     if (!this.data.fridgeName) { Toast({ message: '请输入冰箱名称', selector: '#t-toast' }); return }
     this.setData({ saving: true })
@@ -130,6 +168,7 @@ Page({
         hasConstantZone: this.data.hasConstantZone,
         constantZone: this.data.hasConstantZone ? this.data.constantZone : undefined,
         zones: this.data.zones,
+        image: this.data.images[0]?.url || this.data.images[0]?.fileID || this.data.selectedImage || '',
       }
       if (this.data.isEdit) {
         await call('updateFridge', { fridgeId: this.data.fridgeId, ...payload })

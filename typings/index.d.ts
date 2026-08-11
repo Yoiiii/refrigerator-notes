@@ -2,7 +2,10 @@
 
 interface IAppOption {
   globalData: {
-    userInfo?: WechatMiniprogram.UserInfo,
+    userInfo: any
+    theme: string
+    fridges: any[]
+    currentFridgeId: string
   }
   userInfoReadyCallback?: WechatMiniprogram.GetUserInfoSuccessCallback,
 }

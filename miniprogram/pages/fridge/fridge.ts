@@ -8,8 +8,10 @@ const app = getApp<IAppOption>();
 Page({
   data: {
     theme: "warm",
+    loading: true,
     fridgeId: "",
     fridgeName: "客厅冰箱",
+    fridgeImage: "",
     doorType: "double",
     doorTypeText: "双开门",
     hasConstantZone: false,
@@ -30,6 +32,7 @@ Page({
   },
 
   async loadFridgeData() {
+    this.setData({ loading: true })
     try {
       const data = await call("getFridgeDetail", {
         fridgeId: this.data.fridgeId,
@@ -109,6 +112,7 @@ Page({
 
         this.setData({
           fridgeName: data.name || "冰箱",
+          fridgeImage: data.image || "",
           doorType: data.doorType || "double",
           doorTypeText: data.doorType === "double" ? "双开门" : "单开门",
           hasConstantZone: data.hasConstantZone || false,
@@ -119,6 +123,8 @@ Page({
       }
     } catch (e) {
       console.error("loadFridgeData error:", e);
+    } finally {
+      this.setData({ loading: false });
     }
   },
 
@@ -190,7 +196,7 @@ Page({
           .then(() => {
             this.loadFridgeData();
           })
-          .catch(() => {});
+          .catch(() => { });
       }
     });
   },

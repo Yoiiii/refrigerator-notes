@@ -40,7 +40,8 @@
     <!-- 冰箱卡片 -->
     <view class="card fridge-card" bind:tap="onGoFridge" data-fridge-id="{{currentFridge.fridgeId}}">
       <view class="fridge-card-head">
-        <view class="fridge-avatar">🧊</view>
+        <image wx:if="{{currentFridge.image}}" src="{{currentFridge.image}}" class="fridge-avatar-img" />
+        <view wx:else class="fridge-avatar">🧊</view>
         <view class="fridge-info">
           <view class="fridge-name">{{currentFridge.name}}</view>
           <view class="fridge-desc">{{currentFridge.doorType === 'double' ? '双开门' : '单开门'}} · {{currentFridge.totalItems}} 件物品</view>

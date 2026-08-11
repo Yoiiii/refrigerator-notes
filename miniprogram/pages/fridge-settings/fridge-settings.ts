@@ -5,7 +5,7 @@ import { Toast, Dialog } from 'tdesign-miniprogram'
 const app = getApp<IAppOption>()
 
 Page({
-  data: { theme: 'warm', fridgeId: '', fridgeName: '', doorTypeText: '', hasConstantZone: false, isOwner: false },
+  data: { theme: 'warm', loading: true, fridgeId: '', fridgeName: '', doorTypeText: '', hasConstantZone: false, isOwner: false },
 
   onLoad(options: any) {
     this.setData({ fridgeId: options.fridgeId || '', theme: app.globalData.theme || 'warm' })
@@ -17,13 +17,16 @@ Page({
       const data = await call('getFridgeDetail', { fridgeId: this.data.fridgeId })
       if (data) {
         this.setData({
+          loading: false,
           fridgeName: data.name,
           doorTypeText: data.doorType === 'double' ? '双开门' : '单开门',
           hasConstantZone: data.hasConstantZone || false,
           isOwner: data.role === 'owner',
         })
       }
-    } catch (e) { }
+    } catch (e) {
+      this.setData({ loading: false })
+    }
   },
 
   onBack() { wx.navigateBack() },

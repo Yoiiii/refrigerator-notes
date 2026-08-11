@@ -58,6 +58,32 @@
         <t-radio label="双开门" value="double" />
       </t-radio-group>
     </view>
+    <!-- 图标/图片 -->
+    <t-tabs value="{{activeTab}}" bind:change="onTabChange">
+      <t-tab-panel label="选择图标" value="icon" />
+      <t-tab-panel label="上传图片" value="image" />
+    </t-tabs>
+
+    <view class="tab-content" wx:if="{{activeTab === 'icon'}}">
+      <view class="preset-grid">
+        <view
+          class="preset-item {{selectedImageIndex === index ? 'selected' : ''}}"
+          wx:for="{{presetImages}}"
+          wx:key="index"
+          data-index="{{index}}"
+          bind:tap="onSelectPresetImage"
+        >
+          <image src="{{item}}" mode="aspectFill" class="preset-img" />
+          <view wx:if="{{selectedImageIndex === index}}" class="preset-selected-overlay">
+            <t-icon name="check" size="28rpx" color="#fff" />
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="tab-content" wx:if="{{activeTab === 'image'}}">
+      <t-upload mediaType="{{['image']}}" max="{{1}}" files="{{images}}" bind:add="onUploadAdd" bind:remove="onUploadRemove" />
+    </view>
   </view>
 
   <!-- 恒温层开关 -->

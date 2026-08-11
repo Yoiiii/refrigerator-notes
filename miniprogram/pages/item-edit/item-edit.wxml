@@ -53,8 +53,8 @@
   <!-- 图片/图标 Tab -->
   <view class="card">
     <t-tabs value="{{activeTab}}" bind:change="onTabChange">
-      <t-tab-panel label="上传图片" value="image" />
       <t-tab-panel label="选择图标" value="icon" />
+      <t-tab-panel label="上传图片" value="image" />
     </t-tabs>
 
     <view class="tab-content" wx:if="{{activeTab === 'image'}}">

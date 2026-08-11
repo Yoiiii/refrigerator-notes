@@ -22,7 +22,7 @@ Page({
     zoneId: '',
     layerId: '',
     // 图标
-    activeTab: 'image',
+    activeTab: 'icon',
     selectedIcon: 'milk',
     iconCategories: ICON_CATEGORIES,
     saving: false,

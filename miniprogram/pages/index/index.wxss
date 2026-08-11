@@ -70,6 +70,13 @@
   font-size: 52rpx;
   flex-shrink: 0;
 }
+.fridge-avatar-img {
+  width: 104rpx;
+  height: 104rpx;
+  border-radius: 24rpx;
+  flex-shrink: 0;
+  object-fit: cover;
+}
 .fridge-info {
   flex: 1;
   min-width: 0;

@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l cloudfunctions/*/index.js cloudfunctions/_shared/auth.js)"
+    ]
+  }
+}

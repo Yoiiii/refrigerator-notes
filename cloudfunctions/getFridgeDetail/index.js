@@ -35,6 +35,7 @@ exports.main = async (event) => {
     code: 0,
     data: {
       ...fridge.data,
+      image: fridge.data.image || '',
       items: itemsWithStatus,
       role: relation.data[0].role,
     },

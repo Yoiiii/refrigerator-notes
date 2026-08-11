@@ -7,9 +7,13 @@ exports.main = async () => {
   const { OPENID } = cloud.getWXContext()
   if (!OPENID) return { code: -1, msg: '未登录' }
 
+  // 获取用户信息（含 defaultFridgeId）
+  const userRes = await db.collection('users').where({ _openid: OPENID }).get()
+  const defaultFridgeId = userRes.data.length > 0 ? (userRes.data[0].defaultFridgeId || '') : ''
+
   // 通过 user_fridge 关联表查询用户所有冰箱
   const relations = await db.collection('user_fridge').where({ userId: OPENID }).get()
-  if (relations.data.length === 0) return { code: 0, data: [] }
+  if (relations.data.length === 0) return { code: 0, data: { defaultFridgeId, fridges: [] } }
 
   const fridgeIds = relations.data.map((r) => r.fridgeId)
   const fridges = await db.collection('fridges').where({ _id: db.command.in(fridgeIds) }).get()
@@ -32,6 +36,7 @@ exports.main = async () => {
         doorType: f.doorType,
         hasConstantZone: f.hasConstantZone,
         zones: f.zones,
+        image: f.image || '',
         totalItems: items.data.length,
         expiringCount,
         expiredCount,
@@ -40,5 +45,5 @@ exports.main = async () => {
     }),
   )
 
-  return { code: 0, data: result }
+  return { code: 0, data: { defaultFridgeId, fridges: result } }
 }
