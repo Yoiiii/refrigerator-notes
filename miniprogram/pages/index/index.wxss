@@ -232,23 +232,3 @@
   padding: 0 40rpx;
   height: 100%;
 }
-
-/* 浮动添加按钮 */
-.fab {
-  position: fixed;
-  right: 32rpx;
-  bottom: 180rpx;
-  width: 112rpx;
-  height: 112rpx;
-  border-radius: 50%;
-  background: var(--td-brand-color);
-  box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.15), 0 0 0 8rpx rgba(255,159,69,0.12);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-  transition: transform 0.2s;
-}
-.fab:active {
-  transform: scale(0.92);
-}

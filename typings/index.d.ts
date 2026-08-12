@@ -6,6 +6,7 @@ interface IAppOption {
     theme: string
     fridges: any[]
     currentFridgeId: string
+    homeDataDirty:boolean
   }
   userInfoReadyCallback?: WechatMiniprogram.GetUserInfoSuccessCallback,
 }

@@ -93,6 +93,14 @@
   margin-right: 24rpx;
   flex-shrink: 0;
 }
+.f-icon-img {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 12rpx;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+  object-fit: cover;
+}
 .f-info {
   flex: 1;
 }

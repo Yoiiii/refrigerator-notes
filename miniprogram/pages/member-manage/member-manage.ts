@@ -1,11 +1,12 @@
 // member-manage.ts
 import { call } from '../../utils/cloud'
-import { Toast, Dialog, ActionSheet } from 'tdesign-miniprogram'
+import Toast from 'tdesign-miniprogram/toast'
+import { ActionSheet } from 'tdesign-miniprogram'
 
 const app = getApp<IAppOption>()
 
 Page({
-  data: { theme: 'warm', fridgeId: '', isOwner: false, members: [] as any[], currentMember: null as any },
+  data: { theme: 'warm', fridgeId: '', isOwner: false, members: [] as any[], currentMember: null as any, removeVisible: false, removeMember: null as any, removeMemberText: '' },
 
   onLoad(options: any) {
     this.setData({ fridgeId: options.fridgeId || '', theme: app.globalData.theme || 'warm' })
@@ -48,7 +49,8 @@ Page({
           fridgeId: this.data.fridgeId, action: 'changeRole',
           targetUserId: member.userId, newRole,
         }).then(() => {
-          Toast({ message: '角色已更新', selector: '#t-toast' })
+          app.globalData.homeDataDirty = true
+          Toast({ context: this, message: '角色已更新', selector: '#t-toast' })
           this.loadMembers()
         }).catch(() => { })
       }
@@ -57,16 +59,27 @@ Page({
 
   onRemove(e: any) {
     const member = e.currentTarget.dataset.member
-    Dialog({
-      title: '移除成员', content: `确定要移除 ${member.nickname || '该成员'} 吗？`,
-      confirmBtn: '移除', cancelBtn: '取消', selector: '#t-dialog', closeBtn: true,
-    }).then((res: any) => {
-      if (res.confirm) {
-        call('manageMember', {
-          fridgeId: this.data.fridgeId, action: 'remove', targetUserId: member.userId,
-        }).then(() => { this.loadMembers() }).catch(() => { })
-      }
+    this.setData({
+      removeVisible: true,
+      removeMember: member,
+      removeMemberText: `确定要移除 ${member.nickname || '该成员'} 吗？`,
     })
+  },
+
+  onRemoveConfirm() {
+    const member = this.data.removeMember
+    this.setData({ removeVisible: false })
+    if (!member) return
+    call('manageMember', {
+      fridgeId: this.data.fridgeId, action: 'remove', targetUserId: member.userId,
+    }).then(() => {
+      app.globalData.homeDataDirty = true
+      this.loadMembers()
+    }).catch(() => { })
+  },
+
+  onRemoveCancel() {
+    this.setData({ removeVisible: false })
   },
 
   onTransfer() {
@@ -82,7 +95,8 @@ Page({
         call('manageMember', {
           fridgeId: this.data.fridgeId, action: 'transfer', targetUserId: target.userId,
         }).then(() => {
-          Toast({ message: '所有权已转让', selector: '#t-toast' })
+          app.globalData.homeDataDirty = true
+          Toast({ context: this, message: '所有权已转让', selector: '#t-toast' })
           this.loadMembers()
         }).catch(() => { })
       }

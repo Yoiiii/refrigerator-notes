@@ -1,7 +1,6 @@
 // fridge.ts
 import { call } from "../../utils/cloud";
 import { getIconEmoji } from "../../utils/icons";
-import { Dialog } from "tdesign-miniprogram";
 
 const app = getApp<IAppOption>();
 
@@ -19,6 +18,8 @@ Page({
     zones: [] as any[],
     stats: { total: 0, expiring: 0, expired: 0, safe: 0 },
     swipeRight: [{ text: "删除", className: "swipe-delete" }],
+    deleteVisible: false,
+    deleteItemId: "",
   },
 
   onLoad(options: any) {
@@ -178,26 +179,25 @@ Page({
 
   onItemDetail(e: any) {
     const itemId = e.currentTarget.dataset.itemId;
-    wx.navigateTo({ url: `/pages/item-detail/item-detail?itemId=${itemId}` });
+    wx.navigateTo({ url: `/pages/item-detail/item-detail?itemId=${itemId}&fridgeId=${this.data.fridgeId}` });
   },
 
   onDeleteItem(e: any) {
     const itemId = e.currentTarget.dataset.itemId;
-    Dialog({
-      title: "删除物品",
-      content: "确定要删除该物品吗？",
-      confirmBtn: "删除",
-      cancelBtn: "取消",
-      selector: "#t-dialog",
-      closeBtn: true,
-    }).then((res: any) => {
-      if (res.confirm) {
-        call("deleteItem", { itemId, fridgeId: this.data.fridgeId })
-          .then(() => {
-            this.loadFridgeData();
-          })
-          .catch(() => { });
-      }
-    });
+    this.setData({ deleteVisible: true, deleteItemId: itemId });
+  },
+
+  onDeleteConfirm() {
+    this.setData({ deleteVisible: false });
+    call("deleteItem", { itemId: this.data.deleteItemId, fridgeId: this.data.fridgeId })
+      .then(() => {
+        app.globalData.homeDataDirty = true;
+        this.loadFridgeData();
+      })
+      .catch(() => { });
+  },
+
+  onDeleteCancel() {
+    this.setData({ deleteVisible: false });
   },
 });

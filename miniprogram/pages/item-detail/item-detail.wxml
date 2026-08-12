@@ -1,5 +1,15 @@
 <t-toast id="t-toast" />
-<t-dialog id="t-dialog" />
+<t-dialog
+  visible="{{deleteVisible}}"
+  title="删除物品"
+  content="删除后不可恢复，确定要删除吗？"
+  confirm-btn="删除"
+  cancel-btn="取消"
+  close-btn="{{true}}"
+  bind:confirm="onDeleteConfirm"
+  bind:cancel="onDeleteCancel"
+  bind:close="onDeleteCancel"
+/>
 
 <view class="theme-root" data-theme="{{theme}}">
 
@@ -53,15 +63,18 @@
   </view>
 </scroll-view>
 
-<view class="bottom-bar">
+<view class="bottom-bar" wx:if="{{canEdit}}">
   <t-button wx:if="{{!editing}}" theme="primary" size="large" class="bar-btn" bind:tap="onEdit">
     <t-icon name="edit" slot="icon" />编辑保存
   </t-button>
   <t-button wx:else theme="primary" size="large" class="bar-btn" bind:tap="onSave" loading="{{saving}}">
     <t-icon name="check" slot="icon" />保存
   </t-button>
-  <t-button theme="danger" size="large" class="bar-btn" bind:tap="onDelete">
+  <t-button wx:if="{{!editing}}" theme="danger" size="large" class="bar-btn" bind:tap="onDelete">
     <t-icon name="delete" slot="icon" />删除物品
+  </t-button>
+  <t-button wx:else theme="default" size="large" class="bar-btn" bind:tap="onCancelEdit">
+    <t-icon name="close" slot="icon" />取消编辑
   </t-button>
 </view>
 

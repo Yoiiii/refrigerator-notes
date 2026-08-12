@@ -1,7 +1,7 @@
 // item-edit.ts
 import { call, uploadFile } from '../../utils/cloud'
 import { ICON_CATEGORIES } from '../../utils/icons'
-import { Toast } from 'tdesign-miniprogram'
+import Toast from 'tdesign-miniprogram/toast'
 
 const app = getApp<IAppOption>()
 
@@ -140,8 +140,8 @@ Page({
   },
 
   async onSave() {
-    if (!this.data.itemName) { Toast({ message: '请输入物品名称', selector: '#t-toast' }); return }
-    if (!this.data.expireDate) { Toast({ message: '请选择保质期', selector: '#t-toast' }); return }
+    if (!this.data.itemName) { Toast({ context: this, message: '请输入物品名称', selector: '#t-toast' }); return }
+    if (!this.data.expireDate) { Toast({ context: this, message: '请选择保质期', selector: '#t-toast' }); return }
     this.setData({ saving: true })
     try {
       const payload: any = {
@@ -157,7 +157,8 @@ Page({
       } else {
         await call('addItem', payload)
       }
-      Toast({ message: '保存成功', selector: '#t-toast' })
+      app.globalData.homeDataDirty = true
+      Toast({ context: this, message: '保存成功', selector: '#t-toast' })
       setTimeout(() => wx.navigateBack(), 300)
     } catch (e) {
       this.setData({ saving: false })

@@ -50,11 +50,18 @@ exports.main = async () => {
 
   const allItems = [...expiredItems.data, ...items.data]
 
-  // 获取所有相关冰箱，构建 zone/layer 名称映射
+  // 获取所有相关冰箱，构建冰箱/zone/layer 名称映射
+  const roleMap = {} // fridgeId -> role
+  relations.data.forEach((r) => {
+    roleMap[r.fridgeId] = r.role
+  })
+
   const fridgesRes = await db.collection('fridges').where({ _id: _.in(fridgeIds) }).get()
+  const fridgeMap = {} // fridgeId -> fridgeName
   const zoneMap = {}  // zoneId -> zoneName
   const layerMap = {} // layerId -> layerName
   fridgesRes.data.forEach((f) => {
+    fridgeMap[f._id] = f.name || ''
     const allZones = [...(f.zones || [])]
     if (f.hasConstantZone && f.constantZone) {
       allZones.push(f.constantZone)
@@ -73,8 +80,11 @@ exports.main = async () => {
     if (d < now) status = 'danger'
     const diffDays = Math.ceil((d.getTime() - now.getTime()) / 86400000)
     const statusText = status === 'danger' ? '已过期' : `临期${diffDays}天`
-    const locationText = `${zoneMap[item.zoneId] || ''}·${layerMap[item.layerId] || ''}`
-    return { ...item, status, statusText, diffDays, locationText }
+    const zoneLayerText = [zoneMap[item.zoneId], layerMap[item.layerId]].filter(Boolean).join('·')
+    const fridgeName = fridgeMap[item.fridgeId] || ''
+    const locationText = [fridgeName, zoneLayerText].filter(Boolean).join(' · ')
+    const role = roleMap[item.fridgeId] || 'readonly'
+    return { ...item, status, statusText, diffDays, locationText, fridgeName, role }
   })
 
   return { code: 0, data: itemsWithStatus }

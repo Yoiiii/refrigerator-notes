@@ -916,7 +916,7 @@ function call(name, data = {}) {
         const result = res.result || {}
         if (result.code === 0) resolve(result.data)
         else {
-          wx.showToast({ title: result.msg || '操作失败', icon: 'none' })
+         c({ title: result.msg || '操作失败', icon: 'none' })
           reject(result)
         }
       },

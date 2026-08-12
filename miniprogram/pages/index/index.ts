@@ -1,7 +1,6 @@
 // index.ts
 import { call } from '../../utils/cloud'
 import { getIconEmoji } from '../../utils/icons'
-import { Dialog } from 'tdesign-miniprogram'
 
 const app = getApp<IAppOption>()
 
@@ -16,6 +15,9 @@ Page({
     defaultFridgeId: '',
     expiringItems: [] as any[],
     swipeRight: [{ text: '删除', className: 'swipe-delete' }],
+    deleteVisible: false,
+    deleteItemId: '',
+    deleteFridgeId: '',
   },
 
   onLoad() {
@@ -23,8 +25,10 @@ Page({
   },
 
   onShow() {
-    this.loadData()
-    console.log('app.globalData.userInfo',app.globalData.userInfo)
+    if (app.globalData.homeDataDirty) {
+      app.globalData.homeDataDirty = false
+      this.loadData()
+    }
     this.setData({ theme: app.globalData.theme || 'warm'})
   },
 
@@ -60,6 +64,7 @@ Page({
             iconEmoji: getIconEmoji(item.icon),
             status: item.status === 'danger' ? 'danger' : 'warning',
             statusText: item.statusText || (item.status === 'danger' ? '已过期' : '临期'),
+            swipeRight: item.role === 'readonly' ? [] : this.data.swipeRight,
           })),
         })
       } else {
@@ -75,9 +80,9 @@ Page({
           totalItems: 12, expiringCount: 3, expiredCount: 1,
         },
         expiringItems: [
-          { _id: 'i1', name: '五花肉', iconEmoji: '🥩', locationText: '冷藏区·第3层', status: 'danger', statusText: '已过期' },
-          { _id: 'i2', name: '鸡蛋', iconEmoji: '🥚', locationText: '冷藏区·第2层', status: 'warning', statusText: '临期2天' },
-          { _id: 'i3', name: '速冻饺子', iconEmoji: '🥟', locationText: '冷冻区·第3层', status: 'warning', statusText: '临期1天' },
+          { _id: 'i1', fridgeId: 'demo_001', fridgeName: '客厅冰箱', name: '五花肉', iconEmoji: '🥩', locationText: '客厅冰箱 · 冷藏区·第3层', status: 'danger', statusText: '已过期', role: 'owner', swipeRight: this.data.swipeRight },
+          { _id: 'i2', fridgeId: 'demo_001', fridgeName: '客厅冰箱', name: '鸡蛋', iconEmoji: '🥚', locationText: '客厅冰箱 · 冷藏区·第2层', status: 'warning', statusText: '临期2天', role: 'owner', swipeRight: this.data.swipeRight },
+          { _id: 'i3', fridgeId: 'demo_001', fridgeName: '客厅冰箱', name: '速冻饺子', iconEmoji: '🥟', locationText: '客厅冰箱 · 冷冻区·第3层', status: 'warning', statusText: '临期1天', role: 'owner', swipeRight: this.data.swipeRight },
         ],
       })
     }
@@ -85,7 +90,7 @@ Page({
 
   onTabChange(e: any) {
     if (e.detail.value === 'mine') {
-      wx.redirectTo({ url: '/pages/mine/mine' })
+      wx.navigateTo({ url: '/pages/mine/mine' })
     }
   },
 
@@ -129,24 +134,25 @@ Page({
 
   onItemDetail(e: any) {
     const itemId = e.currentTarget.dataset.itemId
-    wx.navigateTo({ url: `/pages/item-detail/item-detail?itemId=${itemId}` })
+    console.log('e.currentTarget.dataset',e.currentTarget.dataset)
+    const fridgeId = e.currentTarget.dataset.fridgeId
+    wx.navigateTo({ url: `/pages/item-detail/item-detail?itemId=${itemId}&fridgeId=${fridgeId}` })
   },
 
   onDeleteExpiringItem(e: any) {
-    const itemId = e.currentTarget.dataset.itemId
-    Dialog({
-      title: '删除物品',
-      content: '确定要删除该物品吗？',
-      confirmBtn: '删除',
-      cancelBtn: '取消',
-      selector: '#t-dialog',
-      closeBtn: true,
-    }).then((res: any) => {
-      if (res.confirm) {
-        call('deleteItem', { itemId, fridgeId: this.data.currentFridge.fridgeId }).then(() => {
-          this.loadData()
-        }).catch(() => { })
-      }
-    })
+    const { itemId, fridgeId } = e.currentTarget.dataset
+    if (!itemId || !fridgeId) return
+    this.setData({ deleteVisible: true, deleteItemId: itemId, deleteFridgeId: fridgeId })
+  },
+
+  onDeleteExpiringConfirm() {
+    this.setData({ deleteVisible: false })
+    call('deleteItem', { itemId: this.data.deleteItemId, fridgeId: this.data.deleteFridgeId }).then(() => {
+      this.loadData()
+    }).catch(() => { })
+  },
+
+  onDeleteExpiringCancel() {
+    this.setData({ deleteVisible: false })
   },
 })

@@ -1,6 +1,6 @@
 // fridge-create.ts
 import { call } from '../../utils/cloud'
-import { Toast } from 'tdesign-miniprogram'
+import Toast from 'tdesign-miniprogram/toast'
 
 const app = getApp<IAppOption>()
 
@@ -119,7 +119,7 @@ Page({
 
   onAddZone() {
     const zones = this.data.zones
-    if (zones.length >= 4) { Toast({ message: '最多4个分区', selector: '#t-toast' }); return }
+    if (zones.length >= 4) { Toast({ context: this, message: '最多4个分区', selector: '#t-toast' }); return }
     const idx = zones.length
     zones.push({
       zoneId: `z${Date.now()}`, name: idx === 0 ? '冷藏区' : '冷冻区',
@@ -133,7 +133,7 @@ Page({
     const zi = e.currentTarget.dataset.zi
     const zones = this.data.zones
     if (zones.length <= 1) {
-      Toast({ message: '至少保留一个分区', selector: '#t-toast' })
+      Toast({ context: this, message: '至少保留一个分区', selector: '#t-toast' })
       return
     }
     zones.splice(zi, 1)
@@ -159,7 +159,7 @@ Page({
   },
 
   async onSave() {
-    if (!this.data.fridgeName) { Toast({ message: '请输入冰箱名称', selector: '#t-toast' }); return }
+    if (!this.data.fridgeName) { Toast({ context: this, message: '请输入冰箱名称', selector: '#t-toast' }); return }
     this.setData({ saving: true })
     try {
       const payload = {
@@ -175,7 +175,8 @@ Page({
       } else {
         await call('createFridge', payload)
       }
-      Toast({ message: '保存成功', selector: '#t-toast' })
+      app.globalData.homeDataDirty = true
+      Toast({ context: this, message: '保存成功', selector: '#t-toast' })
       wx.navigateBack()
     } catch (e) {
       this.setData({ saving: false })

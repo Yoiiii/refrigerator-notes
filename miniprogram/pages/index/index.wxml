@@ -1,5 +1,15 @@
 <t-toast id="t-toast" />
-<t-dialog id="t-dialog" />
+<t-dialog
+  visible="{{deleteVisible}}"
+  title="删除物品"
+  content="确定要删除该物品吗？"
+  confirm-btn="删除"
+  cancel-btn="取消"
+  close-btn="{{true}}"
+  bind:confirm="onDeleteExpiringConfirm"
+  bind:cancel="onDeleteExpiringCancel"
+  bind:close="onDeleteExpiringCancel"
+/>
 
 <view class="theme-root" data-theme="{{theme}}">
 
@@ -98,8 +108,8 @@
     </view>
 
     <view class="card" wx:if="{{expiringItems.length > 0}}">
-      <t-swipe-cell wx:for="{{expiringItems}}" wx:key="itemId" right="{{swipeRight}}">
-        <view class="expire-item" data-item-id="{{item._id}}" bind:tap="onItemDetail">
+      <t-swipe-cell wx:for="{{expiringItems}}" wx:key="_id" right="{{item.swipeRight}}">
+        <view class="expire-item" data-item-id="{{item._id}}" data-fridge-id="{{item.fridgeId}}" bind:tap="onItemDetail">
           <view class="item-emoji">{{item.iconEmoji || '📦'}}</view>
           <view class="item-info">
             <view class="item-name">{{item.name}}</view>
@@ -109,7 +119,7 @@
             {{item.statusText}}
           </t-tag>
         </view>
-        <view slot="right" class="swipe-delete" data-item-id="{{item._id}}" catch:tap="onDeleteExpiringItem">
+        <view slot="right" class="swipe-delete" data-item-id="{{item._id}}" data-fridge-id="{{item.fridgeId}}" catch:tap="onDeleteExpiringItem">
           删除
         </view>
       </t-swipe-cell>
@@ -124,10 +134,5 @@
   <t-tab-bar-item value="home" icon="home">首页</t-tab-bar-item>
   <t-tab-bar-item value="mine" icon="user">我的</t-tab-bar-item>
 </t-tab-bar>
-
-<!-- 浮动添加按钮 -->
-<view class="fab" bind:tap="onCreateFridge">
-  <t-icon name="add" size="40rpx" color="#FFFFFF" />
-</view>
 
 </view>

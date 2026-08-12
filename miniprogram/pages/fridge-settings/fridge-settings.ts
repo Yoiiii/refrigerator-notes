@@ -1,11 +1,11 @@
 // fridge-settings.ts
 import { call } from '../../utils/cloud'
-import { Toast, Dialog } from 'tdesign-miniprogram'
+import Toast from 'tdesign-miniprogram/toast'
 
 const app = getApp<IAppOption>()
 
 Page({
-  data: { theme: 'warm', loading: true, fridgeId: '', fridgeName: '', doorTypeText: '', hasConstantZone: false, isOwner: false },
+  data: { theme: 'warm', loading: true, fridgeId: '', fridgeName: '', doorTypeText: '', hasConstantZone: false, isOwner: false, deleteVisible: false },
 
   onLoad(options: any) {
     this.setData({ fridgeId: options.fridgeId || '', theme: app.globalData.theme || 'warm' })
@@ -40,16 +40,19 @@ Page({
     wx.navigateTo({ url: `/pages/share-qrcode/share-qrcode?fridgeId=${this.data.fridgeId}` })
   },
   onDeleteFridge() {
-    Dialog({
-      title: '删除冰箱', content: '删除后所有物品和成员数据将同时清除，不可恢复！',
-      confirmBtn: '确定删除', cancelBtn: '取消', selector: '#t-dialog', closeBtn: true,
-    }).then((res: any) => {
-      if (res.confirm) {
-        call('deleteFridge', { fridgeId: this.data.fridgeId }).then(() => {
-          Toast({ message: '已删除', selector: '#t-toast' })
-          wx.navigateBack({ delta: 2 })
-        }).catch(() => { })
-      }
-    })
+    this.setData({ deleteVisible: true })
+  },
+
+  onDeleteConfirm() {
+    this.setData({ deleteVisible: false })
+    call('deleteFridge', { fridgeId: this.data.fridgeId }).then(() => {
+      app.globalData.homeDataDirty = true
+      Toast({ context: this, message: '已删除', selector: '#t-toast' })
+      wx.navigateBack({ delta: 2 })
+    }).catch(() => { })
+  },
+
+  onDeleteCancel() {
+    this.setData({ deleteVisible: false })
   },
 })

@@ -1,6 +1,6 @@
 // share-qrcode.ts
 import { call } from '../../utils/cloud'
-import { Toast } from 'tdesign-miniprogram'
+import Toast from 'tdesign-miniprogram/toast'
 
 const app = getApp<IAppOption>()
 
@@ -22,7 +22,7 @@ Page({
         this.setData({ qrUrl: data.url })
       }
     } catch (e) {
-      Toast({ message: '生成失败，请重试', selector: '#t-toast' })
+      Toast({ context: this, message: '生成失败，请重试', selector: '#t-toast' })
     }
     this.setData({ generating: false })
   },
@@ -30,8 +30,8 @@ Page({
   onSaveQR() {
     wx.saveImageToPhotosAlbum({
       filePath: this.data.qrUrl,
-      success: () => { Toast({ message: '已保存到相册', selector: '#t-toast' }) },
-      fail: () => { Toast({ message: '保存失败', selector: '#t-toast' }) },
+      success: () => { Toast({ context: this, message: '已保存到相册', selector: '#t-toast' }) },
+      fail: () => { Toast({ context: this, message: '保存失败', selector: '#t-toast' }) },
     })
   },
 })

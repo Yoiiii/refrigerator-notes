@@ -1,5 +1,15 @@
 <t-toast id="t-toast" />
-<t-dialog id="t-dialog" />
+<t-dialog
+  visible="{{removeVisible}}"
+  title="移除成员"
+  content="{{removeMemberText}}"
+  confirm-btn="移除"
+  cancel-btn="取消"
+  close-btn="{{true}}"
+  bind:confirm="onRemoveConfirm"
+  bind:cancel="onRemoveCancel"
+  bind:close="onRemoveCancel"
+/>
 <t-action-sheet id="t-action-sheet" />
 
 <view class="theme-root" data-theme="{{theme}}">

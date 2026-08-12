@@ -7,6 +7,7 @@ App<IAppOption>({
     theme: 'warm',
     fridges: [] as any[],
     currentFridgeId: '',
+    homeDataDirty: false,
   },
 
   onLaunch() {

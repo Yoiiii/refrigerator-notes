@@ -1,6 +1,5 @@
 // scan-result.ts
 import { call } from '../../utils/cloud'
-import { Toast } from 'tdesign-miniprogram'
 
 const app = getApp<IAppOption>()
 
@@ -42,6 +41,7 @@ Page({
   async verifyJoin() {
     try {
       await call('joinFridge', { fridgeId: this.data.fridgeId, role: this.data.role })
+      app.globalData.homeDataDirty = true
       this.setData({
         loading: false, resultIcon: '✅', resultTitle: '加入成功',
         resultDesc: `你已成功加入该冰箱`, showGoHome: true,
@@ -66,6 +66,6 @@ Page({
     this.verifyJoin()
   },
   onGoHome() {
-    wx.switchTab({ url: '/pages/index/index' })
+    wx.reLaunch({ url: '/pages/index/index' })
   },
 })

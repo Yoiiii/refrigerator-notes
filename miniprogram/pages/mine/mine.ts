@@ -1,7 +1,7 @@
 // mine.ts
 import { call } from '../../utils/cloud'
 import { getThemeName, getThemePreviewColors } from '../../utils/theme'
-import { Toast, Dialog } from 'tdesign-miniprogram'
+import Toast from 'tdesign-miniprogram/toast'
 
 const app = getApp<IAppOption>()
 
@@ -14,6 +14,7 @@ Page({
     fridges: [] as any[],
     notifyEnabled: true,
     notifyDays: 3,
+    aboutVisible: false,
   },
 
   onLoad() {
@@ -67,7 +68,12 @@ Page({
 
   onTabChange(e: any) {
     if (e.detail.value === 'home') {
-      wx.redirectTo({ url: '/pages/index/index' })
+      const pages = getCurrentPages()
+      if (pages.length > 1) {
+        wx.navigateBack()
+      } else {
+        wx.redirectTo({ url: '/pages/index/index' })
+      }
     }
   },
 
@@ -77,9 +83,9 @@ Page({
       app.refreshTheme(theme)
       this.setData({ currentTheme: theme })
       wx.setStorageSync('theme', theme)
-      Toast({ message: '主题已切换', selector: '#t-toast' })
+      Toast({ context: this, message: '主题已切换', selector: '#t-toast' })
     }).catch(() => {
-      Toast({ message: '切换失败，请重试', selector: '#t-toast' })
+      Toast({ context: this, message: '切换失败，请重试', selector: '#t-toast' })
     })
   },
 
@@ -94,7 +100,7 @@ Page({
 
   onNoticeSwitch(e: any) {
     this.setData({ notifyEnabled: e.detail.value })
-    Toast({ message: e.detail.value ? '已开启' : '已关闭', selector: '#t-toast' })
+    Toast({ context: this, message: e.detail.value ? '已开启' : '已关闭', selector: '#t-toast' })
   },
 
   onNoticeDays() {
@@ -108,10 +114,10 @@ Page({
   },
 
   onAbout() {
-    Dialog({
-      title: '关于',
-      content: '冰箱笔记 v1.3.0\n\n帮助您记录冰箱内物品存放位置与保质期，减少因遗忘导致的食品过期浪费。\n\n我们重视您的隐私，不会收集任何敏感信息。',
-      selector: '#t-dialog', closeBtn: true, confirmBtn: '知道了', cancelBtn: '',
-    })
+    this.setData({ aboutVisible: true })
+  },
+
+  onAboutClose() {
+    this.setData({ aboutVisible: false })
   },
 })
