@@ -1,6 +1,5 @@
 // fridge-settings.ts
 import { call } from '../../utils/cloud'
-import Toast from 'tdesign-miniprogram/toast'
 
 const app = getApp<IAppOption>()
 
@@ -45,11 +44,18 @@ Page({
 
   onDeleteConfirm() {
     this.setData({ deleteVisible: false })
-    call('deleteFridge', { fridgeId: this.data.fridgeId }).then(() => {
-      app.globalData.homeDataDirty = true
-      Toast({ context: this, message: '已删除', selector: '#t-toast' })
-      wx.navigateBack({ delta: 2 })
-    }).catch(() => { })
+    call('deleteFridge', { fridgeId: this.data.fridgeId })
+      .then(() => {
+        app.globalData.homeDataDirty = true
+        wx.showToast({ title: '删除成功', icon: 'success' })
+        // 等成功提示停留片刻再返回，避免页面卸载时 toast 被同部销毁
+        setTimeout(() => {
+          wx.navigateBack({ delta: 2 })
+        }, 600)
+      })
+      .catch(() => {
+        wx.showToast({ title: '删除失败', icon: 'none' })
+      })
   },
 
   onDeleteCancel() {

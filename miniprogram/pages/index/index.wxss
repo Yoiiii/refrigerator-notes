@@ -1,19 +1,5 @@
 /* 首页样式 */
 
-/* 加载中 */
-.loading-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 60vh;
-  gap: 24rpx;
-}
-.loading-text {
-  font-size: 28rpx;
-  color: rgba(0, 0, 0, 0.35);
-}
-
 /* 空状态 */
 .empty-wrapper {
   display: flex;
@@ -231,4 +217,9 @@
   justify-content: center;
   padding: 0 40rpx;
   height: 100%;
+}
+
+/* 原生页面滚动容器：给底部固定 tab-bar 留出空间 */
+.page-body {
+  padding-bottom: calc(140rpx + env(safe-area-inset-bottom));
 }

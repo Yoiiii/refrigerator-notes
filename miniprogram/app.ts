@@ -8,6 +8,7 @@ App<IAppOption>({
     fridges: [] as any[],
     currentFridgeId: '',
     homeDataDirty: false,
+    fridgesReady: false,
   },
 
   onLaunch() {

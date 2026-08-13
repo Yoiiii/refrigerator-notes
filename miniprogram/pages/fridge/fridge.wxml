@@ -20,11 +20,61 @@
     <text class="nav-title">{{fridgeName}}</text>
   </view>
 
-<!-- 加载中 -->
-<view class="page-container loading-wrapper" wx:if="{{loading}}">
-  <t-loading theme="circular" size="64rpx" />
-  <text class="loading-text">加载中...</text>
-</view>
+<!-- 加载中：冰箱结构骨架屏 -->
+<scroll-view wx:if="{{loading}}" class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
+  <view class="fridge-shell">
+    <view class="fridge-inner">
+      <view class="fridge-top">
+        <view class="sk-block" style="width:240rpx;height:30rpx;border-radius:8rpx"></view>
+        <view class="sk-block" style="width:40rpx;height:40rpx;border-radius:10rpx"></view>
+      </view>
+      <view class="zones-grid">
+        <view class="zone-col">
+          <view class="zone-header"><view class="sk-block" style="width:120rpx;height:24rpx;margin:0 auto"></view></view>
+          <view class="zone-layers">
+            <view class="layer-row">
+              <view class="sk-block" style="width:50%;height:26rpx"></view>
+              <view class="sk-block" style="width:30%;height:20rpx;margin-top:10rpx"></view>
+              <view class="items-expanded">
+                <view class="item-cell"><view class="sk-block" style="width:64rpx;height:64rpx;border-radius:12rpx"></view><view class="sk-block" style="width:60%;height:24rpx"></view></view>
+                <view class="item-cell"><view class="sk-block" style="width:64rpx;height:64rpx;border-radius:12rpx"></view><view class="sk-block" style="width:60%;height:24rpx"></view></view>
+                <view class="add-item-row" style="color:transparent">添加物品</view>
+              </view>
+            </view>
+            <view class="layer-row">
+              <view class="sk-block" style="width:50%;height:26rpx"></view>
+              <view class="sk-block" style="width:30%;height:20rpx;margin-top:10rpx"></view>
+              <view class="items-expanded">
+                <view class="item-cell"><view class="sk-block" style="width:64rpx;height:64rpx;border-radius:12rpx"></view><view class="sk-block" style="width:60%;height:24rpx"></view></view>
+                <view class="add-item-row" style="color:transparent">添加物品</view>
+              </view>
+            </view>
+          </view>
+        </view>
+        <view class="zone-col">
+          <view class="zone-header"><view class="sk-block" style="width:120rpx;height:24rpx;margin:0 auto"></view></view>
+          <view class="zone-layers">
+            <view class="layer-row">
+              <view class="sk-block" style="width:50%;height:26rpx"></view>
+              <view class="sk-block" style="width:30%;height:20rpx;margin-top:10rpx"></view>
+              <view class="items-expanded">
+                <view class="item-cell"><view class="sk-block" style="width:64rpx;height:64rpx;border-radius:12rpx"></view><view class="sk-block" style="width:60%;height:24rpx"></view></view>
+                <view class="add-item-row" style="color:transparent">添加物品</view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="stats-bar card">
+    <view class="stats-item"><view class="sk-block" style="width:70rpx;height:36rpx;margin:0 auto 10rpx"></view><view class="sk-block" style="width:50rpx;height:20rpx;margin:0 auto"></view></view>
+    <view class="stats-item"><view class="sk-block" style="width:70rpx;height:36rpx;margin:0 auto 10rpx"></view><view class="sk-block" style="width:50rpx;height:20rpx;margin:0 auto"></view></view>
+    <view class="stats-item"><view class="sk-block" style="width:70rpx;height:36rpx;margin:0 auto 10rpx"></view><view class="sk-block" style="width:50rpx;height:20rpx;margin:0 auto"></view></view>
+    <view class="stats-item"><view class="sk-block" style="width:70rpx;height:36rpx;margin:0 auto 10rpx"></view><view class="sk-block" style="width:50rpx;height:20rpx;margin:0 auto"></view></view>
+  </view>
+</scroll-view>
 
 <scroll-view wx:else class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
   <!-- 拟物冰箱外壳 -->
@@ -65,7 +115,7 @@
               <view class="layer-count">{{layer.itemCount}} 件物品</view>
 
               <view class="items-expanded" wx:if="{{layer.expanded}}">
-                <t-swipe-cell wx:for="{{layer.items}}" wx:for-item="item" wx:key="_id">
+                <my-swipe-cell wx:for="{{layer.items}}" wx:for-item="item" wx:key="_id">
                   <view class="item-cell" data-item-id="{{item._id}}" catch:tap="onItemDetail">
                     <view class="item-thumb">
                       <t-image wx:if="{{item.images && item.images.length > 0}}" src="{{item.images[0]}}" width="64rpx" height="64rpx" shape="round" />
@@ -78,7 +128,7 @@
                     <t-badge count="{{item.quantity}}" size="small" />
                   </view>
                   <view slot="right" class="swipe-delete" data-item-id="{{item._id}}" catch:tap="onDeleteItem">删除</view>
-                </t-swipe-cell>
+                </my-swipe-cell>
                 <view class="add-item-row" catch:tap="onAddItemFromLayer" data-zone-id="{{item.zoneId}}" data-layer-id="{{layer.layerId}}">
                   <t-icon name="add" size="24rpx" color="var(--td-brand-color)" />
                   <text>添加物品</text>
@@ -112,7 +162,7 @@
               <view class="layer-count">{{layer.itemCount}} 件物品</view>
 
               <view class="items-expanded" wx:if="{{layer.expanded}}">
-                <t-swipe-cell wx:for="{{layer.items}}" wx:key="_id">
+                <my-swipe-cell wx:for="{{layer.items}}" wx:key="_id">
                   <view class="item-cell" data-item-id="{{item._id}}" catch:tap="onItemDetail">
                     <view class="item-thumb">
                       <t-image wx:if="{{item.images && item.images.length > 0}}" src="{{item.images[0]}}" width="64rpx" height="64rpx" shape="round" />
@@ -125,7 +175,7 @@
                     <t-badge count="{{item.quantity}}" size="small" />
                   </view>
                   <view slot="right" class="swipe-delete" data-item-id="{{item._id}}" catch:tap="onDeleteItem">删除</view>
-                </t-swipe-cell>
+                </my-swipe-cell>
                 <view class="add-item-row" catch:tap="onAddItemFromLayer" data-zone-id="{{item.zoneId}}" data-layer-id="{{layer.layerId}}">
                   <t-icon name="add" size="24rpx" color="var(--td-brand-color)" />
                   <text>添加物品</text>
@@ -156,7 +206,7 @@
             <view class="layer-count">{{layer.itemCount}} 件物品</view>
 
             <view class="items-expanded" wx:if="{{layer.expanded}}">
-              <t-swipe-cell wx:for="{{layer.items}}" wx:key="_id">
+              <my-swipe-cell wx:for="{{layer.items}}" wx:key="_id">
                 <view class="item-cell" data-item-id="{{item._id}}" catch:tap="onItemDetail">
                   <view class="item-thumb">
                     <t-image wx:if="{{item.images && item.images.length > 0}}" src="{{item.images[0]}}" width="64rpx" height="64rpx" shape="round" />
@@ -169,7 +219,7 @@
                   <t-badge count="{{item.quantity}}" size="small" />
                 </view>
                 <view slot="right" class="swipe-delete" data-item-id="{{item._id}}" catch:tap="onDeleteItem">删除</view>
-              </t-swipe-cell>
+              </my-swipe-cell>
               <view class="add-item-row" catch:tap="onAddItemFromLayer" data-zone-id="{{constantZone.zoneId}}" data-layer-id="{{layer.layerId}}">
                 <t-icon name="add" size="24rpx" color="var(--td-brand-color)" />
                 <text>添加物品</text>

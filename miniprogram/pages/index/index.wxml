@@ -21,16 +21,8 @@
   <text class="nav-title">冰箱笔记</text>
 </view>
 
-<!-- 加载中 -->
-<view class="page-container" wx:if="{{loading}}">
-  <view class="loading-wrapper">
-    <t-loading theme="circular" size="64rpx" />
-    <text class="loading-text">加载中...</text>
-  </view>
-</view>
-
 <!-- 空状态：无冰箱（不滚动） -->
-<view class="page-container" wx:elif="{{!hasFridge}}">
+<view class="page-container" wx:if="{{!pageLoading && !hasFridge}}">
   <view class="empty-wrapper">
     <view class="empty-illustration">
       <text class="empty-emoji">🧊</text>
@@ -44,9 +36,10 @@
   </view>
 </view>
 
-<!-- 有冰箱状态（可滚动+下拉刷新） -->
-<t-pull-down-refresh wx:else value="{{refreshing}}" bind:refresh="onRefresh" loading-texts="{{['下拉刷新', '松手刷新', '正在刷新']}}">
-  <scroll-view class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
+<!-- 有冰箱状态（TDesign 下拉刷新） -->
+<t-pull-down-refresh wx:else value="{{refreshing}}" bind:refresh="onRefresh" disabled="{{swiping}}" loading-texts="{{['下拉刷新', '松手刷新', '正在刷新']}}">
+  <!-- 真实内容 -->
+  <view class="page-body" wx:if="{{!pageLoading}}">
     <!-- 冰箱卡片 -->
     <view class="card fridge-card" bind:tap="onGoFridge" data-fridge-id="{{currentFridge.fridgeId}}">
       <view class="fridge-card-head">
@@ -108,7 +101,7 @@
     </view>
 
     <view class="card" wx:if="{{expiringItems.length > 0}}">
-      <t-swipe-cell wx:for="{{expiringItems}}" wx:key="_id" right="{{item.swipeRight}}">
+      <my-swipe-cell wx:for="{{expiringItems}}" wx:key="_id" bind:lock="onSwipeLock">
         <view class="expire-item" data-item-id="{{item._id}}" data-fridge-id="{{item.fridgeId}}" bind:tap="onItemDetail">
           <view class="item-emoji">{{item.iconEmoji || '📦'}}</view>
           <view class="item-info">
@@ -119,14 +112,53 @@
             {{item.statusText}}
           </t-tag>
         </view>
-        <view slot="right" class="swipe-delete" data-item-id="{{item._id}}" data-fridge-id="{{item.fridgeId}}" catch:tap="onDeleteExpiringItem">
+        <view slot="right" wx:if="{{item.role !== 'readonly'}}" class="swipe-delete" data-item-id="{{item._id}}" data-fridge-id="{{item.fridgeId}}" catch:tap="onDeleteExpiringItem">
           删除
         </view>
-      </t-swipe-cell>
+      </my-swipe-cell>
     </view>
 
     <t-empty wx:elif="{{hasFridge && expiringItems.length === 0}}" description="暂无临期物品 🎉" />
-  </scroll-view>
+  </view>
+
+  <!-- 整页骨架屏（首次加载 / 删除重载时显示，避免数据突跳） -->
+  <view class="page-body" wx:else>
+    <!-- 冰箱卡片骨架 -->
+    <view class="card fridge-card">
+      <view class="fridge-card-head">
+        <view class="sk-avatar"></view>
+        <view class="sk-lines">
+          <view class="sk-line" style="width:45%"></view>
+          <view class="sk-line sk-line-2"></view>
+        </view>
+      </view>
+      <view class="fridge-stats">
+        <view class="fridge-stat"><view class="sk-num"></view><view class="sk-label"></view></view>
+        <view class="fridge-stat"><view class="sk-num"></view><view class="sk-label"></view></view>
+        <view class="fridge-stat"><view class="sk-num"></view><view class="sk-label"></view></view>
+      </view>
+    </view>
+
+    <view class="sk-switch"></view>
+    <view class="sk-banner"></view>
+
+    <view class="sk-actions">
+      <view class="sk-action"></view>
+      <view class="sk-action"></view>
+    </view>
+
+    <!-- 临期列表骨架 -->
+    <view class="card">
+      <view class="sk-row" wx:for="{{[1,2,3]}}" wx:key="*this">
+        <view class="sk-emoji"></view>
+        <view class="sk-lines">
+          <view class="sk-line sk-line-1"></view>
+          <view class="sk-line sk-line-2"></view>
+        </view>
+        <view class="sk-tag"></view>
+      </view>
+    </view>
+  </view>
 </t-pull-down-refresh>
 
 <!-- TabBar -->

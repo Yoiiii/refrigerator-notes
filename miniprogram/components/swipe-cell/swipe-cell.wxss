@@ -1,0 +1,23 @@
+.sc {
+  overflow: hidden;
+  width: 100%;
+}
+.sc-wrapper {
+  position: relative;
+  width: 100%;
+  will-change: transform;
+  box-sizing: border-box;
+}
+.sc-content {
+  width: 100%;
+  box-sizing: border-box;
+}
+/* 右侧操作区：默认隐藏在屏幕右侧外，左滑时随 wrapper 进入视野 */
+.sc-right {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  transform: translateX(100%);
+  display: flex;
+}

@@ -1,4 +1,3 @@
-<t-toast id="t-toast" />
 <t-dialog
   visible="{{deleteVisible}}"
   title="删除冰箱"

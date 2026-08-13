@@ -1,18 +1,5 @@
 /* 冰箱页样式 */
 
-.loading-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-}
-.loading-text {
-  font-size: 26rpx;
-  color: rgba(0, 0, 0, 0.45);
-  margin-top: 16rpx;
-}
-
 .fridge-shell {
   margin: 16rpx 24rpx;
   background: linear-gradient(180deg, #e8e4de 0%, #ddd9d2 100%);

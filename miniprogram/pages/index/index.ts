@@ -7,9 +7,10 @@ const app = getApp<IAppOption>()
 Page({
   data: {
     theme: 'warm',
-    loading: true,
-    hasFridge: false,
+    pageLoading: true,
     refreshing: false,
+    swiping: false,
+    hasFridge: false,
     currentFridge: {} as any,
     fridges: [] as any[],
     defaultFridgeId: '',
@@ -34,11 +35,12 @@ Page({
 
   async onRefresh() {
     this.setData({ refreshing: true })
-    await this.loadData()
+    await this.loadData(false)
     this.setData({ refreshing: false })
   },
 
-  async loadData() {
+  async loadData(showSkeleton = true) {
+    if (showSkeleton) this.setData({ pageLoading: true })
     try {
       const res = await call('getFridgeList')
       const defaultFridgeId = res.defaultFridgeId
@@ -54,7 +56,7 @@ Page({
 
         const expiringItems = await call('getExpiringItems')
         this.setData({
-          loading: false,
+          pageLoading: false,
           hasFridge: true,
           fridges: fridges,
           defaultFridgeId,
@@ -68,12 +70,12 @@ Page({
           })),
         })
       } else {
-        this.setData({ loading: false, hasFridge: false, fridges: [], currentFridge: {} })
+        this.setData({ pageLoading: false, hasFridge: false, fridges: [], currentFridge: {} })
       }
     } catch (e) {
       // 云函数未部署时使用模拟数据
       this.setData({
-        loading: false,
+        pageLoading: false,
         hasFridge: true,
         currentFridge: {
           fridgeId: 'demo_001', name: '客厅冰箱', doorType: 'double',
@@ -145,11 +147,22 @@ Page({
     this.setData({ deleteVisible: true, deleteItemId: itemId, deleteFridgeId: fridgeId })
   },
 
+  onSwipeLock(e: any) {
+    const locked = e.detail.locked
+    if (locked !== this.data.swiping) this.setData({ swiping: locked })
+  },
+
   onDeleteExpiringConfirm() {
-    this.setData({ deleteVisible: false })
-    call('deleteItem', { itemId: this.data.deleteItemId, fridgeId: this.data.deleteFridgeId }).then(() => {
-      this.loadData()
-    }).catch(() => { })
+    this.setData({ deleteVisible: false, pageLoading: true })
+    call('deleteItem', { itemId: this.data.deleteItemId, fridgeId: this.data.deleteFridgeId })
+      .then(() => {
+        wx.showToast({ title: '删除成功', icon: 'success' })
+        return this.loadData(true)
+      })
+      .catch(() => {
+        wx.showToast({ title: '删除失败', icon: 'none' })
+        this.setData({ pageLoading: false })
+      })
   },
 
   onDeleteExpiringCancel() {

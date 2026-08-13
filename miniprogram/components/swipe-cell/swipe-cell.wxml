@@ -1,0 +1,6 @@
+<view class="sc" bind:touchstart="onTouchStart" bind:touchmove="onTouchMove" bind:touchend="onTouchEnd" bind:touchcancel="onTouchEnd">
+  <view id="wrapper" class="sc-wrapper" style="{{wrapperStyle}}">
+    <view class="sc-content"><slot /></view>
+    <view class="sc-right"><slot name="right" /></view>
+  </view>
+</view>

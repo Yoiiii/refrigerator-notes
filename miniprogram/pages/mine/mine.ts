@@ -12,6 +12,7 @@ Page({
     currentTheme: 'warm',
     themes: [] as any[],
     fridges: [] as any[],
+    fridgesLoading: true,
     notifyEnabled: true,
     notifyDays: 3,
     aboutVisible: false,
@@ -19,15 +20,18 @@ Page({
 
   onLoad() {
     this.initThemes()
-    this.loadData()
     this.loadUserInfo()
   },
 
   onShow() {
-    this.loadData()
-    this.loadUserInfo()
     const theme = app.globalData.theme || 'warm'
     this.setData({ currentTheme: theme, theme: theme })
+    this.loadUserInfo()
+    // 仅首次加载，或冰箱数据有变更（新增/删除/编辑）时才刷新列表，避免每次切回都闪骨架
+    // 注意：用 globalData.fridgesReady（常驻）而非页面 data，因 tab 页切回可能被销毁重建导致 data 丢失
+    if (!app.globalData.fridgesReady || app.globalData.homeDataDirty) {
+      this.loadData()
+    }
   },
 
   loadUserInfo() {
@@ -54,15 +58,27 @@ Page({
   },
 
   async loadData() {
+    const self: any = this
+    if (self._fridgeLoading) return
+    self._fridgeLoading = true
+    this.setData({ fridgesLoading: true })
     try {
       const res = await call('getFridgeList')
-      this.setData({ fridges: res?.fridges || [] })
+      const list = res?.fridges || []
+      this.setData({ fridges: list, fridgesLoading: false })
+      app.globalData.fridges = list
+      app.globalData.fridgesReady = true
+      app.globalData.homeDataDirty = false
     } catch (e) {
-      this.setData({
-        fridges: [
-          { fridgeId: 'demo_001', name: '客厅冰箱', doorType: 'double', totalItems: 12 },
-        ],
-      })
+      const list = [
+        { fridgeId: 'demo_001', name: '客厅冰箱', doorType: 'double', totalItems: 12 },
+      ]
+      this.setData({ fridges: list, fridgesLoading: false })
+      app.globalData.fridges = list
+      app.globalData.fridgesReady = true
+      app.globalData.homeDataDirty = false
+    } finally {
+      self._fridgeLoading = false
     }
   },
 

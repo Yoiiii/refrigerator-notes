@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>冰箱笔记 · 功能测试清单</title>
+<style>
+  :root{
+    --brand:#FF9F45; --brand-soft:#FFF3E8; --bg:#FAF8F5; --card:#fff;
+    --text:#1f1f1f; --sub:#8a8a8a; --line:#eee; --green:#00B96B; --red:#E34D59; --yellow:#ED7B2F;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);}
+  .wrap{max-width:860px;margin:0 auto;padding:16px 16px 80px;}
+  header{position:sticky;top:0;z-index:10;background:var(--bg);padding:14px 0 10px;border-bottom:1px solid var(--line);}
+  h1{font-size:20px;margin:0 0 4px;}
+  .meta{font-size:12px;color:var(--sub);}
+  .progress{margin-top:10px;height:10px;background:#eee;border-radius:6px;overflow:hidden;}
+  .progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--brand),#ffb877);transition:width .25s;}
+  .pcount{font-size:13px;margin-top:6px;color:var(--brand);font-weight:600;}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  button.act{font-size:13px;border:1px solid var(--brand);background:var(--brand-soft);color:var(--brand);
+    border-radius:20px;padding:6px 14px;cursor:pointer;}
+  button.act.ghost{background:#fff;color:var(--sub);border-color:var(--line);}
+  .sec{margin-top:22px;}
+  .sec-h{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;margin:0 0 10px;}
+  .sec-h .tag{font-size:11px;font-weight:600;color:#fff;background:var(--brand);border-radius:10px;padding:2px 8px;}
+  .item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;}
+  .item.done{opacity:.55;}
+  .item.done .tt{text-decoration:line-through;}
+  .cb{flex:0 0 22px;margin-top:2px;}
+  .cb input{width:18px;height:18px;accent-color:var(--brand);cursor:pointer;}
+  .body{flex:1;min-width:0;}
+  .tt{font-size:14px;font-weight:600;margin-bottom:4px;}
+  .row{font-size:13px;line-height:1.7;color:#444;}
+  .row b{color:var(--text);font-weight:600;}
+  .badge{display:inline-block;font-size:11px;padding:1px 7px;border-radius:8px;margin-left:6px;vertical-align:middle;}
+  .b-dev{background:#FFF3E8;color:var(--yellow);}
+  .b-real{background:#E8F4FF;color:#2b7de9;}
+  .note{margin-top:12px;}
+  .note textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13px;font-family:inherit;resize:vertical;}
+  .empty{color:var(--sub);font-size:13px;text-align:center;padding:30px 0;}
+  footer{text-align:center;color:var(--sub);font-size:12px;margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🧊 冰箱笔记 · 功能测试清单</h1>
+    <div class="meta">项目：miniprogram-2 ｜ AppID：wx993ca26a9925bc1b ｜ 覆盖 14 个模块</div>
+    <div class="progress"><i id="bar"></i></div>
+    <div class="pcount"><span id="done">0</span> / <span id="total">0</span> 项已通过</div>
+    <div class="bar">
+      <button class="act" id="copyBtn">复制进度与问题</button>
+      <button class="act ghost" id="resetBtn">重置全部勾选</button>
+    </div>
+  </header>
+
+  <div id="content"></div>
+
+  <div class="note">
+    <div class="sec-h">📝 问题记录区 <span class="tag">告诉我这里的内容即可</span></div>
+    <textarea id="issues" placeholder="把测试中遇到的问题贴在这里，例如：『冰箱详情点冷藏区第二层添加物品，进去后分区还是默认第一项』。勾选项会自动保留。"></textarea>
+  </div>
+
+  <footer>进度自动保存在本机浏览器（localStorage）。每次测完一组，把本页截图或问题区文字发给我即可。</footer>
+</div>
+
+<script>
+const DATA = [
+  {mod:"登录与初始化", items:[
+    {t:"自动登录", a:"首次进入小程序", e:"自动调用 login 云函数，无报错进入首页或空状态；主题按服务端返回应用", tag:"dev"},
+    {t:"登录降级", a:"云端未部署/网络异常时进入", e:"使用本地缓存主题与模拟数据（index 的 demo 数据）仍能进入，不白屏崩溃", tag:"dev"},
+    {t:"登录态持久", a:"杀掉小程序重新进入", e:"仍能识别同一微信用户，无需重新授权", tag:"real"},
+  ]},
+  {mod:"首页", items:[
+    {t:"空状态", a:"账号下还没有任何冰箱", e:"显示空冰箱插画 + 『还没有冰箱』+ 『创建冰箱』按钮", tag:"dev"},
+    {t:"默认冰箱卡片", a:"已有冰箱时", e:"显示当前默认冰箱名称、门型、物品总数、临期/过期数", tag:"dev"},
+    {t:"进入冰箱详情", a:"点击冰箱卡片", e:"跳转 fridge 页并带入正确 fridgeId", tag:"dev"},
+    {t:"切换冰箱", a:"点『切换冰箱』", e:"弹出 actionSheet 选其他冰箱；切换后卡片更新，并同步默认冰箱（下次进入仍是它）", tag:"dev"},
+    {t:"临期横幅", a:"有临期/过期物品时", e:"显示『N 件物品需要处理』，点击进入冰箱详情", tag:"dev"},
+    {t:"临期列表与删除", a:"在临期列表左滑某物品", e:"出现删除，确认后删除并刷新列表；只读成员无删除按钮", tag:"dev"},
+    {t:"快捷添加物品", a:"点『添加物品』", e:"进入 item-edit（不带区/层，默认第一项）", tag:"dev"},
+    {t:"管理冰箱", a:"点『管理冰箱』", e:"进入 fridge-settings", tag:"dev"},
+    {t:"下拉刷新", a:"首页下拉", e:"出现刷新动画，数据重新加载", tag:"dev"},
+    {t:"通知铃铛", a:"点右上角铃铛", e:"toast『暂无新通知』（订阅消息为后续能力）", tag:"dev"},
+    {t:"Tab 切换", a:"底部切到『我的』", e:"进入 mine 页；再切回首页", tag:"dev"},
+  ]},
+  {mod:"创建 / 编辑冰箱", items:[
+    {t:"实时预览", a:"在创建页改门型/分区/恒温层", e:"顶部『实时预览』冰箱图随配置实时变化", tag:"dev"},
+    {t:"名称必填", a:"不填名称直接保存", e:"拦截并提示（或保存后列表显示异常，需确认）", tag:"dev"},
+    {t:"门型切换", a:"单开门 / 双开门", e:"预览与保存后详情页布局对应（单列为1区，双列为2区）", tag:"dev"},
+    {t:"图标与图片", a:"选预设图标 / 上传图片", e:"选中态高亮；保存后冰箱卡片显示该图", tag:"dev"},
+    {t:"恒温层", a:"开关恒温层并设名称/层数(1-2)", e:"预览出现恒温区；保存后在详情页显示", tag:"dev"},
+    {t:"分区配置", a:"设分区名称/温度类型(冷藏·冷冻)/层数(1-6)", e:"保存后详情页分区与层数与配置一致", tag:"dev"},
+    {t:"增删分区", a:"『添加分区』/ 分区右上角删除", e:"可新增、可删除分区并能继续保存", tag:"dev"},
+    {t:"重置", a:"点右上『重置』", e:"表单恢复到初始状态", tag:"dev"},
+    {t:"保存新建", a:"填好信息点『保存冰箱』", e:"调用 createFridge，返回首页出现新冰箱且为默认冰箱", tag:"dev"},
+    {t:"编辑已有冰箱", a:"从设置/我的进入创建页(isEdit)", e:"标题显示『编辑冰箱』，预填原配置，保存走 updateFridge", tag:"dev"},
+  ]},
+  {mod:"冰箱详情（层表格）", items:[
+    {t:"冰箱外壳与分区", a:"进入详情页", e:"显示拟物外壳、分区（双开门2列/单开门1列）、恒温层（若开启）", tag:"dev"},
+    {t:"层展开/收起", a:"点击某层", e:"展开显示该层物品列表；再点收起", tag:"dev"},
+    {t:"层状态标签", a:"观察各层", e:"层显示物品数 + 状态标签：全安全=绿、有临期=黄、有过期=红", tag:"dev"},
+    {t:"层内物品", a:"展开后查看", e:"显示缩略图/emoji、名称、过期日期、数量角标", tag:"dev"},
+    {t:"点物品进详情", a:"点层内某物品", e:"跳转 item-detail 并带入 itemId/fridgeId", tag:"dev"},
+    {t:"层内删除物品", a:"左滑层内物品", e:"出现红色删除，确认后删除并刷新", tag:"dev"},
+    {t:"★层内添加物品带参", a:"展开『冷藏区·第二层』，点其内『添加物品』", e:"跳转 item-edit 后分区=冷藏区、层=第二层被自动选中（不是默认第一项）", tag:"dev", star:true},
+    {t:"底部统计栏", a:"查看页底", e:"总数/临期/过期/安全 四数字与物品一致", tag:"dev"},
+    {t:"进入设置", a:"点右上设置图标", e:"进入 fridge-settings", tag:"dev"},
+  ]},
+  {mod:"新增物品", items:[
+    {t:"表单校验", a:"不填名称或保质期直接保存", e:"toast 拦截『请输入物品名称/请选择保质期』", tag:"dev"},
+    {t:"数量步进", a:"调整数量", e:"stepper 范围 1-999，保存后详情显示对应数量", tag:"dev"},
+    {t:"分区/层选择", a:"手动改分区", e:"层列表联动刷新；手动选的区/层保存后位置正确", tag:"dev"},
+    {t:"图标 / 图片", a:"选图标或上传图片(≤3)", e:"图标高亮；图片显示并可删除", tag:"dev"},
+    {t:"保存新增", a:"填好保存", e:"调用 addItem，toast『保存成功』后返回，首页/详情数据刷新", tag:"dev"},
+    {t:"只读成员保存", a:"用只读权限账号新增", e:"云端 write 权限校验失败，toast 报错且不写入", tag:"real"},
+  ]},
+  {mod:"物品详情", items:[
+    {t:"信息展示", a:"进入详情", e:"显示图/emoji、名称、数量角标、位置、保质期、剩余天数(状态标签)、添加/更新时间", tag:"dev"},
+    {t:"编辑保存", a:"点『编辑保存』改名称/数量/保质期", e:"进入编辑态，保存调用 updateItem 并刷新", tag:"dev"},
+    {t:"取消编辑", a:"编辑中点『取消编辑』", e:"退出编辑态，改动不保存", tag:"dev"},
+    {t:"删除物品", a:"点『删除物品』", e:"确认弹窗后删除并返回", tag:"dev"},
+    {t:"只读角色", a:"用只读成员查看", e:"底部无编辑/删除按钮（canEdit=false）", tag:"real"},
+  ]},
+  {mod:"冰箱设置", items:[
+    {t:"信息展示", a:"进入设置", e:"显示名称、门型、恒温层状态", tag:"dev"},
+    {t:"编辑名称入口", a:"点『冰箱名称』", e:"进入 fridge-create 编辑态", tag:"dev"},
+    {t:"成员管理", a:"点『成员管理』", e:"进入 member-manage", tag:"dev"},
+    {t:"分享冰箱", a:"点『分享冰箱』", e:"进入 share-qrcode", tag:"dev"},
+    {t:"删除冰箱", a:"点『删除冰箱』", e:"确认弹窗含『不可恢复』警告，确认后级联删物品+云存储文件并返回首页", tag:"dev"},
+    {t:"加载态", a:"进入设置/数据加载中", e:"显示 loading 而非空白", tag:"dev"},
+  ]},
+  {mod:"成员管理", items:[
+    {t:"成员列表", a:"进入页", e:"列出成员昵称 + 角色标签（所有者/可读写/只读）", tag:"dev"},
+    {t:"所有者操作", a:"以所有者查看", e:"非所有者成员显示『改角色』『移除』按钮", tag:"dev"},
+    {t:"非所有者不可见", a:"以只读/可读写成员查看", e:"不显示改角色/移除按钮，无转让入口", tag:"real"},
+    {t:"改角色", a:"点『改角色』", e:"actionSheet 选择后调用 manageMember 更新角色", tag:"dev"},
+    {t:"移除成员", a:"点『移除』", e:"确认弹窗后移除该成员", tag:"dev"},
+    {t:"转让所有权", a:"点『转让所有权』(成员>1)", e:"选择新所有者，原所有者降为普通成员", tag:"dev"},
+  ]},
+  {mod:"分享二维码", items:[
+    {t:"权限选择", a:"选『只读』/『可读写』", e:"radio 切换，后续生成的码携带对应权限", tag:"dev"},
+    {t:"生成分享码", a:"点『生成分享码』", e:"调用 generateQRCode，显示二维码图片", tag:"dev"},
+    {t:"有效期提示", a:"生成后", e:"显示『有效期7天，扫描即可加入』", tag:"dev"},
+    {t:"保存到相册", a:"点『保存到相册』", e:"二维码保存到手机相册", tag:"real"},
+  ]},
+  {mod:"扫码加入", items:[
+    {t:"扫码解析", a:"用另一微信扫码", e:"scan-result 解析参数，显示加载中→结果", tag:"real"},
+    {t:"加入成功", a:"点『加入冰箱』", e:"调用 joinFridge 按权限建 user_fridge 记录，提示成功", tag:"real"},
+    {t:"重复/无效处理", a:"扫已加入的码 / 无效码", e:"给出对应提示分支（已加入 / 码无效），不报错崩溃", tag:"real"},
+    {t:"返回首页", a:"点『返回首页』", e:"回到首页且新冰箱出现在切换列表", tag:"real"},
+  ]},
+  {mod:"我的", items:[
+    {t:"微信资料", a:"进入我的", e:"显示微信头像与昵称（chooseAvatar/nickname）", tag:"real"},
+    {t:"主题切换", a:"点 4 套主题卡片", e:"全局即时切换主色/背景/圆角，并持久化（updateUserTheme）", tag:"dev"},
+    {t:"冰箱管理", a:"我的页冰箱列表", e:"列出所有冰箱，可点进详情；『创建新冰箱』入口可用", tag:"dev"},
+    {t:"临期提醒开关", a:"切换通知开关", e:"状态保存（本地/服务端）", tag:"dev"},
+    {t:"提前天数", a:"点『提前天数』", e:"可选择提前提醒天数，显示『当前：N天』", tag:"dev"},
+    {t:"关于弹窗", a:"点『关于』", e:"弹出 v1.3.0 版本与隐私说明", tag:"dev"},
+    {t:"Tab 切换", a:"切回首页", e:"正常返回首页", tag:"dev"},
+  ]},
+  {mod:"主题系统（全局）", items:[
+    {t:"4 主题生效", a:"在各页面切换主题", e:"所有页 data-theme 生效，主色/背景/圆角随之变化", tag:"dev"},
+    {t:"状态色稳定", a:"切主题后看层/物品状态色", e:"绿/黄/红状态色不随主题变化，保持功能识别度", tag:"dev"},
+    {t:"重启保持", a:"改主题后杀掉重进", e:"仍显示上次主题（本地缓存 + 服务端 double 保障）", tag:"real"},
+  ]},
+  {mod:"临期提醒（定时 / 订阅）", items:[
+    {t:"定时扫描", a:"云端 checkExpiry 定时触发", e:"每日扫描临期/过期物品（需在云定时配置中确认已开启）", tag:"dev"},
+    {t:"订阅消息", a:"真机授权订阅后到期", e:"收到临期/过期订阅消息，点消息可进对应冰箱", tag:"real"},
+  ]},
+  {mod:"异常与边界", items:[
+    {t:"网络错误提示", a:"断网操作（保存/加载）", e:"toast『网络错误，请重试』，不静默失败", tag:"dev"},
+    {t:"删除均有确认", a:"各处删除（物品/冰箱/成员）", e:"均弹确认 dialog，无直接误删", tag:"dev"},
+    {t:"图片上传失败", a:"上传失败/超限", e:"有错误提示且不影响其他字段保存", tag:"dev"},
+    {t:"最长导航深度", a:"连续多层跳转", e:"导航深度 ≤5，不出现页面栈溢出", tag:"dev"},
+  ]},
+];
+
+const KEY = "fridge_test_checked_v1";
+const KEY_ISSUE = "fridge_test_issues_v1";
+const checked = JSON.parse(localStorage.getItem(KEY) || "{}");
+const content = document.getElementById("content");
+let idSeq = 0;
+
+DATA.forEach((sec, si)=>{
+  const h = document.createElement("div");
+  h.className = "sec";
+  h.innerHTML = `<div class="sec-h">${si+1}. ${sec.mod}<span class="tag">${sec.items.length} 项</span></div>`;
+  content.appendChild(h);
+  sec.items.forEach(it=>{
+    const id = "t"+(++idSeq);
+    const lab = document.createElement("label");
+    lab.className = "item"+(checked[id]?" done":"");
+    const tagHtml = it.star ? `<span class="badge b-dev">★本次重点</span>` : (it.tag==="real"?`<span class="badge b-real">需真机</span>`:`<span class="badge b-dev">模拟器</span>`);
+    lab.innerHTML = `
+      <span class="cb"><input type="checkbox" data-id="${id}" ${checked[id]?"checked":""}></span>
+      <span class="body">
+        <div class="tt">${it.t}${tagHtml}</div>
+        <div class="row"><b>操作：</b>${it.a}</div>
+        <div class="row"><b>预期：</b>${it.e}</div>
+      </span>`;
+    content.appendChild(lab);
+  });
+});
+
+const all = [...document.querySelectorAll('input[type=checkbox]')];
+const totalEl = document.getElementById("total");
+const doneEl = document.getElementById("done");
+const bar = document.getElementById("bar");
+totalEl.textContent = all.length;
+
+function refresh(){
+  let c=0;
+  all.forEach(i=>{ if(i.checked) c++; i.closest(".item").classList.toggle("done", i.checked); });
+  doneEl.textContent = c;
+  bar.style.width = (c/all.length*100)+"%";
+}
+all.forEach(i=> i.addEventListener("change", ()=>{
+  checked[i.dataset.id] = i.checked;
+  localStorage.setItem(KEY, JSON.stringify(checked));
+  refresh();
+}));
+refresh();
+
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  if(!confirm("确定清空所有勾选？")) return;
+  all.forEach(i=>{ i.checked=false; });
+  localStorage.removeItem(KEY);
+  Object.keys(checked).forEach(k=>delete checked[k]);
+  refresh();
+});
+
+document.getElementById("issues").value = localStorage.getItem(KEY_ISSUE) || "";
+document.getElementById("issues").addEventListener("input", e=>{
+  localStorage.setItem(KEY_ISSUE, e.target.value);
+});
+
+document.getElementById("copyBtn").addEventListener("click", ()=>{
+  let txt = "【冰箱笔记 测试进度】\n";
+  txt += `已通过 ${doneEl.textContent}/${all.length}\n\n`;
+  let seq=0; const lines=[];
+  DATA.forEach((sec,si)=>{
+    lines.push(`\n■ ${si+1}. ${sec.mod}`);
+    sec.items.forEach(it=>{
+      seq++; const id="t"+seq; const ok=checked[id]?"✅":"⬜";
+      lines.push(`${ok} ${it.t}`);
+    });
+  });
+  txt += lines.join("\n");
+  const iss = document.getElementById("issues").value.trim();
+  if(iss) txt += "\n\n【问题记录】\n"+iss;
+  navigator.clipboard.writeText(txt).then(()=> alert("已复制进度到剪贴板，发给我即可")).catch(()=>{
+    prompt("复制以下内容：", txt);
+  });
+});
+</script>
+</body>
+</html>

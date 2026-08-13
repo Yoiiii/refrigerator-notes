@@ -50,19 +50,32 @@ Page({
         allZones.push(data.constantZone)
       }
       const zoneNames = allZones.map((z: any) => z.name)
-      // 默认选中第一个分区的第一个层
-      const firstZone = allZones[0]
-      const layerNames = firstZone?.layers?.map((l: any) => l.name) || []
+      // 若从冰箱页点击「添加物品」带入了 zoneId/layerId，则定位到对应分区与层；
+      // 否则默认选中第一个分区的第一个层
+      const presetZoneId = this.data.zoneId
+      const presetLayerId = this.data.layerId
+      let zoneIndex = 0
+      if (presetZoneId) {
+        const idx = allZones.findIndex((z: any) => z.zoneId === presetZoneId)
+        if (idx >= 0) zoneIndex = idx
+      }
+      const targetZone = allZones[zoneIndex]
+      const layerNames = targetZone?.layers?.map((l: any) => l.name) || []
+      let layerIndex = 0
+      if (presetLayerId && targetZone?.layers) {
+        const lidx = targetZone.layers.findIndex((l: any) => l.layerId === presetLayerId)
+        if (lidx >= 0) layerIndex = lidx
+      }
       this.setData({
         zones: allZones,
         zoneNames,
-        zoneIndex: 0,
+        zoneIndex,
         layerNames,
-        layerIndex: 0,
-        selectedZoneName: firstZone?.name || '',
-        selectedLayerName: firstZone?.layers?.[0]?.name || '',
-        zoneId: firstZone?.zoneId || '',
-        layerId: firstZone?.layers?.[0]?.layerId || '',
+        layerIndex,
+        selectedZoneName: targetZone?.name || '',
+        selectedLayerName: targetZone?.layers?.[layerIndex]?.name || '',
+        zoneId: targetZone?.zoneId || '',
+        layerId: targetZone?.layers?.[layerIndex]?.layerId || '',
       })
     } catch (e) {
       console.error('loadFridgeStructure error:', e)

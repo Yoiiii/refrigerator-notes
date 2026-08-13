@@ -47,16 +47,19 @@ Page({
                 (item: any) =>
                   item.zoneId === zone.zoneId && item.layerId === layer.layerId,
               )
-              .map((item: any) => ({
-                ...item,
-                iconEmoji: getIconEmoji(item.icon),
-                expireText:
-                  item.status === "danger"
-                    ? "已过期"
-                    : item.status === "warning"
-                      ? "临期" + item.diffDays + "天"
-                      : "",
-              }));
+              .map((item: any) => {
+                const diffDays = Math.max(0, Math.ceil((new Date(item.expireDate).getTime() - Date.now()) / 86400000))
+                return {
+                  ...item,
+                  iconEmoji: getIconEmoji(item.icon),
+                  expireText:
+                    item.status === "danger"
+                      ? "已过期"
+                      : item.status === "warning"
+                        ? `临期${diffDays}天`
+                        : "",
+                }
+              });
             const layerData = {
               ...layer,
               items: items,

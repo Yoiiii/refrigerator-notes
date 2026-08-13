@@ -51,15 +51,27 @@
   <!-- 冰箱管理 -->
   <view class="card">
     <view class="section-title">冰箱管理</view>
-    <view class="fridge-cell" wx:for="{{fridges}}" wx:key="fridgeId" bind:tap="onGoFridge" data-fridge-id="{{item.fridgeId}}">
-      <image wx:if="{{item.image}}" class="f-icon-img" src="{{item.image}}" mode="aspectFill" />
-      <text wx:else class="f-icon">🧊</text>
-      <view class="f-info">
-        <view class="f-name">{{item.name}}</view>
-        <view class="f-desc">{{item.doorType === 'double' ? '双开门' : '单开门'}} · {{item.totalItems}} 件物品</view>
+    <block wx:if="{{!fridgesLoading}}">
+      <view class="fridge-cell" wx:for="{{fridges}}" wx:key="fridgeId" bind:tap="onGoFridge" data-fridge-id="{{item.fridgeId}}">
+        <image wx:if="{{item.image}}" class="f-icon-img" src="{{item.image}}" mode="aspectFill" />
+        <text wx:else class="f-icon">🧊</text>
+        <view class="f-info">
+          <view class="f-name">{{item.name}}</view>
+          <view class="f-desc">{{item.doorType === 'double' ? '双开门' : '单开门'}} · {{item.totalItems}} 件物品</view>
+        </view>
+        <t-icon name="chevron-right" size="28rpx" color="rgba(0,0,0,0.35)" />
       </view>
-      <t-icon name="chevron-right" size="28rpx" color="rgba(0,0,0,0.35)" />
-    </view>
+    </block>
+    <block wx:else>
+      <view class="sk-row" wx:for="{{[1,2,3]}}" wx:key="*this">
+        <view class="sk-emoji sk-fridge-icon"></view>
+        <view class="sk-lines">
+          <view class="sk-line sk-line-1"></view>
+          <view class="sk-line sk-line-2"></view>
+        </view>
+        <view class="sk-tag sk-fridge-arrow"></view>
+      </view>
+    </block>
     <t-cell title="创建新冰箱" arrow hover bind:tap="onCreateFridge">
       <t-icon slot="left-icon" name="add" size="28rpx" color="var(--td-brand-color)" />
     </t-cell>

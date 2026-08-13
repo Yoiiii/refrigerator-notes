@@ -46,7 +46,7 @@
     "t-upload": "tdesign-miniprogram/upload/upload",
     "t-form": "tdesign-miniprogram/form/form",
     "t-form-item": "tdesign-miniprogram/form-item/form-item",
-    "t-swipe-cell": "tdesign-miniprogram/swipe-cell/swipe-cell",
+    "my-swipe-cell": "components/swipe-cell/swipe-cell",
     "t-collapse": "tdesign-miniprogram/collapse/collapse",
     "t-collapse-panel": "tdesign-miniprogram/collapse-panel/collapse-panel",
     "t-tabs": "tdesign-miniprogram/tabs/tabs",
