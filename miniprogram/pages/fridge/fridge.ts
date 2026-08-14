@@ -8,6 +8,7 @@ Page({
   data: {
     theme: "warm",
     loading: true,
+    refreshing: false,
     fridgeId: "",
     fridgeName: "客厅冰箱",
     fridgeImage: "",
@@ -16,6 +17,7 @@ Page({
     hasConstantZone: false,
     constantZone: null as any,
     zones: [] as any[],
+    displayZones: [] as any[],
     stats: { total: 0, expiring: 0, expired: 0, safe: 0 },
     swipeRight: [{ text: "删除", className: "swipe-delete" }],
     deleteVisible: false,
@@ -24,16 +26,22 @@ Page({
 
   onLoad(options: any) {
     this.setData({ fridgeId: options.fridgeId || "" });
-    this.loadFridgeData();
+    this.loadFridgeData(true);
   },
 
   onShow() {
     this.setData({ theme: app.globalData.theme || "warm" });
-    this.loadFridgeData();
+    // 返回页面（如添加物品后）静默刷新，不闪骨架屏
+    this.loadFridgeData(false);
   },
 
-  async loadFridgeData() {
-    this.setData({ loading: true })
+  async loadFridgeData(showSkeleton = false) {
+    if (showSkeleton) {
+      this.setData({ loading: true })
+    } else {
+      // 静默刷新：内容微微变淡，作为过渡动画的起点
+      this.setData({ refreshing: true })
+    }
     try {
       const data = await call("getFridgeDetail", {
         fridgeId: this.data.fridgeId,
@@ -114,6 +122,14 @@ Page({
           });
         });
 
+        // 单开门：恒温层插入分区中间；双开门：恒温层保持在底部（单独渲染）
+        const isSingle = (data.doorType || "double") === "single";
+        let displayZonesList: any[] = (zones || []).map((z: any) => ({ key: z.zoneId, type: "zone", zone: z }));
+        if (isSingle && data.hasConstantZone && constantZone) {
+          const mid = Math.floor((zones || []).length / 2);
+          displayZonesList.splice(mid, 0, { key: constantZone.zoneId, type: "constant", zone: constantZone });
+        }
+
         this.setData({
           fridgeName: data.name || "冰箱",
           fridgeImage: data.image || "",
@@ -122,13 +138,14 @@ Page({
           hasConstantZone: data.hasConstantZone || false,
           constantZone,
           zones,
+          displayZones: displayZonesList,
           stats: { total, expiring, expired, safe },
         });
       }
     } catch (e) {
       console.error("loadFridgeData error:", e);
     } finally {
-      this.setData({ loading: false });
+      this.setData({ loading: false, refreshing: false });
     }
   },
 
@@ -194,8 +211,10 @@ Page({
     this.setData({ deleteVisible: false });
     call("deleteItem", { itemId: this.data.deleteItemId, fridgeId: this.data.fridgeId })
       .then(() => {
-        app.globalData.homeDataDirty = true;
-        this.loadFridgeData();
+        app.globalData.fridgeListVersion++;
+        wx.showToast({ title: "删除成功", icon: "success" });
+        // 删除后静默刷新，不闪骨架屏
+        this.loadFridgeData(false);
       })
       .catch(() => { });
   },

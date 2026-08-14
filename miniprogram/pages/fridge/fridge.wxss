@@ -1,5 +1,13 @@
 /* 冰箱页样式 */
 
+/* 静默刷新时的淡入过渡（增删物品 / 返回子页） */
+.page-container {
+  transition: opacity 0.22s ease;
+}
+.page-container.is-refreshing {
+  opacity: 0.45;
+}
+
 .fridge-shell {
   margin: 16rpx 24rpx;
   background: linear-gradient(180deg, #e8e4de 0%, #ddd9d2 100%);
@@ -76,6 +84,10 @@
 }
 
 .constant-zone {
+  border-top: 4rpx solid #b0aba4;
+}
+
+.zones-single .zone-col.is-constant {
   border-top: 4rpx solid #b0aba4;
 }
 

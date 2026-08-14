@@ -1,5 +1,6 @@
 // scan-result.ts
 import { call } from '../../utils/cloud'
+import { refreshFridgeLists } from '../../utils/refresh'
 
 const app = getApp<IAppOption>()
 
@@ -41,7 +42,8 @@ Page({
   async verifyJoin() {
     try {
       await call('joinFridge', { fridgeId: this.data.fridgeId, role: this.data.role })
-      app.globalData.homeDataDirty = true
+      app.globalData.fridgeListVersion++
+      refreshFridgeLists()
       this.setData({
         loading: false, resultIcon: '✅', resultTitle: '加入成功',
         resultDesc: `你已成功加入该冰箱`, showGoHome: true,

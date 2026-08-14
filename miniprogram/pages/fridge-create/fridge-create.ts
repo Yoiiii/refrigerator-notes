@@ -1,5 +1,6 @@
 // fridge-create.ts
 import { call } from '../../utils/cloud'
+import { refreshFridgeLists } from '../../utils/refresh'
 import Toast from 'tdesign-miniprogram/toast'
 
 const app = getApp<IAppOption>()
@@ -15,13 +16,14 @@ const PRESET_IMAGES = [
 Page({
   data: {
     theme: 'warm',
-    isEdit: false, fridgeId: '', fridgeName: '客厅冰箱', doorType: 'double',
+    isEdit: false, fridgeId: '', fridgeName: '', doorType: 'double',
     hasConstantZone: false,
     constantZone: {
       zoneId: 'cz1', name: '恒温区', tempType: 'constant',
       layers: [{ layerId: 'cl1', index: 0, name: '恒温层' }]
     } as any,
     zones: [] as any[],
+    previewZones: [] as any[],
     saving: false,
     // 图标/图片 Tab
     activeTab: 'icon',
@@ -41,8 +43,22 @@ Page({
     }
   },
 
+  // 重建实时预览顺序：单开门且开启恒温层时，恒温层置于分区中间；双开门保持在底部
+  rebuildPreview() {
+    const { zones, doorType, hasConstantZone, constantZone } = this.data
+    const list = (zones || []).map((z: any) => ({ key: z.zoneId, type: 'zone', zone: z }))
+    if (doorType === 'single' && hasConstantZone && constantZone) {
+      const mid = Math.floor((zones || []).length / 2)
+      list.splice(mid, 0, { key: constantZone.zoneId, type: 'constant', zone: constantZone })
+    }
+    this.setData({ previewZones: list })
+  },
+
   initDefault() {
     this.setData({
+      // 默认选中第一个预设图标
+      selectedImageIndex: 0,
+      selectedImage: PRESET_IMAGES[0],
       zones: [
         {
           zoneId: 'z1', name: '冷藏区', tempType: 'cold',
@@ -54,6 +70,7 @@ Page({
         },
       ],
     })
+    this.rebuildPreview()
   },
 
   async loadFridge() {
@@ -72,17 +89,18 @@ Page({
           selectedImageIndex: imageIndex,
           images,
         })
+        this.rebuildPreview()
       }
     } catch (e) { }
   },
 
   onBack() { wx.navigateBack() },
-  onReset() { this.initDefault() },
   onNameChange(e: any) { this.setData({ fridgeName: e.detail.value }) },
-  onDoorTypeChange(e: any) { this.setData({ doorType: e.detail.value }) },
-  onConstantZoneSwitch(e: any) { this.setData({ hasConstantZone: e.detail.value }) },
+  onDoorTypeChange(e: any) { this.setData({ doorType: e.detail.value }); this.rebuildPreview() },
+  onConstantZoneSwitch(e: any) { this.setData({ hasConstantZone: e.detail.value }); this.rebuildPreview() },
   onConstantZoneName(e: any) {
     this.setData({ 'constantZone.name': e.detail.value })
+    this.rebuildPreview()
   },
   onConstantZoneLayers(e: any) {
     const count = e.detail.value
@@ -94,15 +112,18 @@ Page({
       cz.layers = cz.layers.slice(0, count)
     }
     this.setData({ constantZone: cz })
+    this.rebuildPreview()
   },
 
   onZoneNameChange(e: any) {
     const zi = e.currentTarget.dataset.zi
     this.setData({ [`zones[${zi}].name`]: e.detail.value })
+    this.rebuildPreview()
   },
   onZoneTempTypeChange(e: any) {
     const zi = e.currentTarget.dataset.zi
     this.setData({ [`zones[${zi}].tempType`]: e.detail.value })
+    this.rebuildPreview()
   },
   onZoneLayersChange(e: any) {
     const zi = e.currentTarget.dataset.zi
@@ -115,6 +136,7 @@ Page({
       }
     } else { zone.layers = zone.layers.slice(0, count) }
     this.setData({ [`zones[${zi}]`]: zone })
+    this.rebuildPreview()
   },
 
   onAddZone() {
@@ -127,6 +149,7 @@ Page({
       layers: [{ layerId: `l${Date.now()}_1`, index: 0, name: '第1层' }, { layerId: `l${Date.now()}_2`, index: 1, name: '第2层' }],
     })
     this.setData({ zones })
+    this.rebuildPreview()
   },
 
   onDeleteZone(e: any) {
@@ -138,6 +161,7 @@ Page({
     }
     zones.splice(zi, 1)
     this.setData({ zones })
+    this.rebuildPreview()
   },
 
   onTabChange(e: any) { this.setData({ activeTab: e.detail.value }) },
@@ -175,8 +199,10 @@ Page({
       } else {
         await call('createFridge', payload)
       }
-      app.globalData.homeDataDirty = true
+      app.globalData.fridgeListVersion++
       Toast({ context: this, message: '保存成功', selector: '#t-toast' })
+      // 主动刷新页面栈里的首页/我的列表（不依赖 onShow 时序）
+      refreshFridgeLists()
       wx.navigateBack()
     } catch (e) {
       this.setData({ saving: false })

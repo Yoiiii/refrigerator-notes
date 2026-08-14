@@ -28,9 +28,13 @@ Page({
     this.setData({ currentTheme: theme, theme: theme })
     this.loadUserInfo()
     // 仅首次加载，或冰箱数据有变更（新增/删除/编辑）时才刷新列表，避免每次切回都闪骨架
-    // 注意：用 globalData.fridgesReady（常驻）而非页面 data，因 tab 页切回可能被销毁重建导致 data 丢失
-    if (!app.globalData.fridgesReady || app.globalData.homeDataDirty) {
+    // 用版本号而非单次消费标志：首页/我的各自记录已见版本，变更时都能独立刷新，互不抢消费
+    if (app.globalData.fridgeListVersion !== app.globalData.mineSeenVersion) {
+      app.globalData.mineSeenVersion = app.globalData.fridgeListVersion
       this.loadData()
+    } else if (this.data.fridges.length === 0 && app.globalData.fridges) {
+      // 页面被销毁重建后本地 data 重置为空，但全局已缓存过数据，直接复用、不闪骨架
+      this.setData({ fridges: app.globalData.fridges, fridgesLoading: false })
     }
   },
 
@@ -68,7 +72,6 @@ Page({
       this.setData({ fridges: list, fridgesLoading: false })
       app.globalData.fridges = list
       app.globalData.fridgesReady = true
-      app.globalData.homeDataDirty = false
     } catch (e) {
       const list = [
         { fridgeId: 'demo_001', name: '客厅冰箱', doorType: 'double', totalItems: 12 },
@@ -76,7 +79,6 @@ Page({
       this.setData({ fridges: list, fridgesLoading: false })
       app.globalData.fridges = list
       app.globalData.fridgesReady = true
-      app.globalData.homeDataDirty = false
     } finally {
       self._fridgeLoading = false
     }
@@ -95,7 +97,7 @@ Page({
 
   onThemeChange(e: any) {
     const theme = e.currentTarget.dataset.theme
-    call('updateUserTheme', { theme }).then(() => {
+    call('updateUserTheme', { theme }, { silent: true }).then(() => {
       app.refreshTheme(theme)
       this.setData({ currentTheme: theme })
       wx.setStorageSync('theme', theme)

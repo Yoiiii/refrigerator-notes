@@ -1,5 +1,6 @@
 // fridge-settings.ts
 import { call } from '../../utils/cloud'
+import { refreshFridgeLists } from '../../utils/refresh'
 
 const app = getApp<IAppOption>()
 
@@ -44,9 +45,11 @@ Page({
 
   onDeleteConfirm() {
     this.setData({ deleteVisible: false })
-    call('deleteFridge', { fridgeId: this.data.fridgeId })
+    call('deleteFridge', { fridgeId: this.data.fridgeId }, { silent: true })
       .then(() => {
-        app.globalData.homeDataDirty = true
+        app.globalData.fridgeListVersion++
+        // 主动刷新页面栈里的首页/我的列表（不依赖 onShow 时序）
+        refreshFridgeLists()
         wx.showToast({ title: '删除成功', icon: 'success' })
         // 等成功提示停留片刻再返回，避免页面卸载时 toast 被同部销毁
         setTimeout(() => {

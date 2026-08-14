@@ -73,7 +73,7 @@ Page({
         name: this.data.item.name, quantity: this.data.item.quantity,
         expireDate: this.data.item.expireDate,
       })
-      app.globalData.homeDataDirty = true
+      app.globalData.fridgeListVersion++
       Toast({ context: this, message: '保存成功', selector: '#t-toast' })
       this.setData({ editing: false, saving: false })
     } catch (e) { this.setData({ saving: false }) }
@@ -87,7 +87,7 @@ Page({
   onDeleteConfirm() {
     this.setData({ deleteVisible: false })
     call('deleteItem', { itemId: this.data.itemId, fridgeId: this.data.fridgeId }).then(() => {
-      app.globalData.homeDataDirty = true
+      app.globalData.fridgeListVersion++
       Toast({ context: this, message: '已删除', selector: '#t-toast' })
       wx.navigateBack()
     }).catch(() => { })

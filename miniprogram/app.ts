@@ -7,10 +7,11 @@ App<IAppOption>({
     theme: 'warm',
     fridges: [] as any[],
     currentFridgeId: '',
-    homeDataDirty: false,
     fridgesReady: false,
+    fridgeListVersion: 0,
+    indexSeenVersion: -1,
+    mineSeenVersion: -1,
   },
-
   onLaunch() {
     // 初始化云开发
     if (!wx.cloud) {

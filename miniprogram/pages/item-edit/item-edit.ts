@@ -87,9 +87,15 @@ Page({
       const data = await call('getFridgeDetail', { fridgeId: this.data.fridgeId })
       const item = (data?.items || []).find((i: any) => i._id === this.data.itemId)
       if (item) {
+        // 图片字段存的是云存储 fileID（cloud:// 开头），旧数据可能是临时 url；
+        // 统一整理成 { fileID, url }，url 直接用 fileID（<image> 原生支持 cloud:// 显示）
+        const images = (item.images || []).map((img: string) => {
+          const isCloud = typeof img === 'string' && img.indexOf('cloud://') === 0
+          return { fileID: isCloud ? img : '', url: img }
+        })
         this.setData({
           itemName: item.name, quantity: item.quantity, expireDate: item.expireDate,
-          images: (item.images || []).map((url: string) => ({ url })),
+          images,
           selectedIcon: item.icon || 'box',
         })
         // 匹配物品的 zone/layer，定位 picker 索引
@@ -162,7 +168,7 @@ Page({
         zoneId: this.data.zoneId, layerId: this.data.layerId,
         name: this.data.itemName, icon: this.data.selectedIcon,
         quantity: this.data.quantity, unit: '件', expireDate: this.data.expireDate,
-        images: this.data.images.map((f: any) => f.url || f.fileID),
+        images: this.data.images.map((f: any) => f.fileID || f.url),
       }
       if (this.data.isEdit) {
         payload.itemId = this.data.itemId
@@ -170,7 +176,7 @@ Page({
       } else {
         await call('addItem', payload)
       }
-      app.globalData.homeDataDirty = true
+      app.globalData.fridgeListVersion++
       Toast({ context: this, message: '保存成功', selector: '#t-toast' })
       setTimeout(() => wx.navigateBack(), 300)
     } catch (e) {

@@ -43,7 +43,7 @@
     "t-action-sheet": "tdesign-miniprogram/action-sheet/action-sheet",
     "t-date-time-picker": "tdesign-miniprogram/date-time-picker/date-time-picker",
     "t-cascader": "tdesign-miniprogram/cascader/cascader",
-    "t-upload": "tdesign-miniprogram/upload/upload",
+
     "t-form": "tdesign-miniprogram/form/form",
     "t-form-item": "tdesign-miniprogram/form-item/form-item",
     "my-swipe-cell": "components/swipe-cell/swipe-cell",

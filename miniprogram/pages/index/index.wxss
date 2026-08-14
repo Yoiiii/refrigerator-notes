@@ -22,6 +22,10 @@
 .empty-emoji {
   font-size: 120rpx;
 }
+.empty-image {
+  width: 150rpx;
+  height: 150rpx;
+}
 .empty-desc {
   font-size: 28rpx;
   color: rgba(0, 0, 0, 0.55);
@@ -222,4 +226,16 @@
 /* 原生页面滚动容器：给底部固定 tab-bar 留出空间 */
 .page-body {
   padding-bottom: calc(140rpx + env(safe-area-inset-bottom));
+  transition: opacity 0.22s ease;
+}
+.page-body.is-fading {
+  opacity: 0.45;
+}
+
+/* 空状态容器同样加淡入过渡 */
+.page-container {
+  transition: opacity 0.22s ease;
+}
+.page-container.is-fading {
+  opacity: 0.45;
 }

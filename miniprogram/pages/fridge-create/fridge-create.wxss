@@ -171,8 +171,3 @@
 .save-btn {
   width: 100%;
 }
-.reset-text {
-  font-size: 28rpx;
-  color: var(--td-brand-color);
-  font-weight: 500;
-}

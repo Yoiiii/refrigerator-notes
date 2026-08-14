@@ -76,7 +76,7 @@
   </view>
 </scroll-view>
 
-<scroll-view wx:else class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
+<scroll-view wx:else class="page-container {{refreshing ? 'is-refreshing' : ''}}" scroll-y enhanced show-scrollbar="{{false}}">
   <!-- 拟物冰箱外壳 -->
   <view class="fridge-shell">
     <view class="fridge-inner">
@@ -141,17 +141,17 @@
 
       <!-- 单开门 -->
       <view class="zones-single" wx:else>
-        <view class="zone-col" wx:for="{{zones}}" wx:key="zoneId">
-          <view class="zone-header {{item.tempType === 'cold' ? 'cold' : 'freeze'}}">
-            {{item.tempType === 'cold' ? '❄' : '❄️'}} {{item.name}}
+        <view class="zone-col {{entry.type === 'constant' ? 'is-constant' : ''}}" wx:for="{{displayZones}}" wx:key="key" wx:for-item="entry">
+          <view class="zone-header {{entry.type === 'constant' ? 'constant' : (entry.zone.tempType === 'cold' ? 'cold' : 'freeze')}}">
+            {{entry.type === 'constant' ? '🌡' : (entry.zone.tempType === 'cold' ? '❄' : '❄️')}} {{entry.zone.name}}
           </view>
           <view class="zone-layers">
             <view
               class="layer-row"
-              wx:for="{{item.layers}}"
+              wx:for="{{entry.zone.layers}}"
               wx:for-item="layer"
               wx:key="layerId"
-              data-zone-id="{{item.zoneId}}"
+              data-zone-id="{{entry.zone.zoneId}}"
               data-layer-id="{{layer.layerId}}"
               bind:tap="onLayerTap"
             >
@@ -176,7 +176,7 @@
                   </view>
                   <view slot="right" class="swipe-delete" data-item-id="{{item._id}}" catch:tap="onDeleteItem">删除</view>
                 </my-swipe-cell>
-                <view class="add-item-row" catch:tap="onAddItemFromLayer" data-zone-id="{{item.zoneId}}" data-layer-id="{{layer.layerId}}">
+                <view class="add-item-row" catch:tap="onAddItemFromLayer" data-zone-id="{{entry.zone.zoneId}}" data-layer-id="{{layer.layerId}}">
                   <t-icon name="add" size="24rpx" color="var(--td-brand-color)" />
                   <text>添加物品</text>
                 </view>
@@ -186,8 +186,8 @@
         </view>
       </view>
 
-      <!-- 恒温层 -->
-      <view class="constant-zone" wx:if="{{hasConstantZone && constantZone}}">
+      <!-- 恒温层（双开门：统一在底部） -->
+      <view class="constant-zone" wx:if="{{doorType === 'double' && hasConstantZone && constantZone}}">
         <view class="zone-header constant">🌡 {{constantZone.name}}</view>
         <view class="zone-layers">
           <view

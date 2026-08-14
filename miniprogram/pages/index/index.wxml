@@ -22,10 +22,10 @@
 </view>
 
 <!-- 空状态：无冰箱（不滚动） -->
-<view class="page-container" wx:if="{{!pageLoading && !hasFridge}}">
+<view class="page-container {{fadeRefreshing ? 'is-fading' : ''}}" wx:if="{{!pageLoading && !hasFridge}}">
   <view class="empty-wrapper">
     <view class="empty-illustration">
-      <text class="empty-emoji">🧊</text>
+      <image class="empty-image" src="{{emptyFridgeImage}}" mode="aspectFit" />
     </view>
     <t-empty description="还没有冰箱" />
     <view class="empty-desc">创建一个冰箱，开始记录食材的存放位置与保质期</view>
@@ -39,7 +39,7 @@
 <!-- 有冰箱状态（TDesign 下拉刷新） -->
 <t-pull-down-refresh wx:else value="{{refreshing}}" bind:refresh="onRefresh" disabled="{{swiping}}" loading-texts="{{['下拉刷新', '松手刷新', '正在刷新']}}">
   <!-- 真实内容 -->
-  <view class="page-body" wx:if="{{!pageLoading}}">
+  <view class="page-body {{fadeRefreshing ? 'is-fading' : ''}}" wx:if="{{!pageLoading}}">
     <!-- 冰箱卡片 -->
     <view class="card fridge-card" bind:tap="onGoFridge" data-fridge-id="{{currentFridge.fridgeId}}">
       <view class="fridge-card-head">

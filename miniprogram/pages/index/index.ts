@@ -9,6 +9,7 @@ Page({
     theme: 'warm',
     pageLoading: true,
     refreshing: false,
+    fadeRefreshing: false,
     swiping: false,
     hasFridge: false,
     currentFridge: {} as any,
@@ -19,16 +20,20 @@ Page({
     deleteVisible: false,
     deleteItemId: '',
     deleteFridgeId: '',
+    // 空状态（无冰箱）中间的默认冰箱图标，与创建冰箱页第一个预设图标保持一致
+    emptyFridgeImage: '/assets/images/refrigerator1.png',
   },
 
   onLoad() {
+    app.globalData.indexSeenVersion = app.globalData.fridgeListVersion
     this.loadData()
   },
 
   onShow() {
-    if (app.globalData.homeDataDirty) {
-      app.globalData.homeDataDirty = false
-      this.loadData()
+    // 冰箱列表数据有变更（新增/删除/编辑冰箱）时版本号会变化，首页据此静默刷新切换列表，避免与"我的"页抢消费同一标志
+    if (app.globalData.fridgeListVersion !== app.globalData.indexSeenVersion) {
+      app.globalData.indexSeenVersion = app.globalData.fridgeListVersion
+      this.loadData(false)
     }
     this.setData({ theme: app.globalData.theme || 'warm'})
   },
@@ -40,37 +45,47 @@ Page({
   },
 
   async loadData(showSkeleton = true) {
-    if (showSkeleton) this.setData({ pageLoading: true })
+    if (showSkeleton) {
+      this.setData({ pageLoading: true })
+    } else {
+      // 静默刷新（增删物品 / 从子页返回）：内容轻微变淡，作为淡入过渡起点
+      this.setData({ fadeRefreshing: true })
+    }
     try {
       const res = await call('getFridgeList')
       const defaultFridgeId = res.defaultFridgeId
       const fridges = res?.fridges || []
 
-      if (fridges.length > 0) {
+      // 先提交冰箱列表，确保「切换冰箱」立即可见新增/删除的冰箱，
+      // 不被后续临期接口的请求结果影响
+      this.setData({ fridges })
 
+      if (fridges.length > 0) {
         let currentFridge = fridges.find((f: any) => f.fridgeId === defaultFridgeId)
         if (!currentFridge) currentFridge = fridges[0]
         if (defaultFridgeId && app.globalData.userInfo) {
           app.globalData.userInfo.defaultFridgeId = defaultFridgeId
         }
 
-        const expiringItems = await call('getExpiringItems')
-        this.setData({
-          pageLoading: false,
-          hasFridge: true,
-          fridges: fridges,
-          defaultFridgeId,
-          currentFridge,
-          expiringItems: (expiringItems || []).map((item: any) => ({
-            ...item,
-            iconEmoji: getIconEmoji(item.icon),
-            status: item.status === 'danger' ? 'danger' : 'warning',
-            statusText: item.statusText || (item.status === 'danger' ? '已过期' : '临期'),
-            swipeRight: item.role === 'readonly' ? [] : this.data.swipeRight,
-          })),
-        })
+        this.setData({ pageLoading: false, hasFridge: true, defaultFridgeId, currentFridge })
+
+        // 临期列表独立请求，失败不影响冰箱列表
+        try {
+          const expiringItems = await call('getExpiringItems')
+          this.setData({
+            expiringItems: (expiringItems || []).map((item: any) => ({
+              ...item,
+              iconEmoji: getIconEmoji(item.icon),
+              status: item.status === 'danger' ? 'danger' : 'warning',
+              statusText: item.statusText || (item.status === 'danger' ? '已过期' : '临期'),
+              swipeRight: item.role === 'readonly' ? [] : this.data.swipeRight,
+            })),
+          })
+        } catch (e) {
+          this.setData({ expiringItems: [] })
+        }
       } else {
-        this.setData({ pageLoading: false, hasFridge: false, fridges: [], currentFridge: {} })
+        this.setData({ pageLoading: false, hasFridge: false, currentFridge: {} })
       }
     } catch (e) {
       // 云函数未部署时使用模拟数据
@@ -87,6 +102,9 @@ Page({
           { _id: 'i3', fridgeId: 'demo_001', fridgeName: '客厅冰箱', name: '速冻饺子', iconEmoji: '🥟', locationText: '客厅冰箱 · 冷冻区·第3层', status: 'warning', statusText: '临期1天', role: 'owner', swipeRight: this.data.swipeRight },
         ],
       })
+    } finally {
+      // 无论成功失败，结束刷新态：复位骨架与淡入标志
+      this.setData({ pageLoading: false, fadeRefreshing: false })
     }
   },
 
@@ -153,15 +171,15 @@ Page({
   },
 
   onDeleteExpiringConfirm() {
-    this.setData({ deleteVisible: false, pageLoading: true })
+    this.setData({ deleteVisible: false })
     call('deleteItem', { itemId: this.data.deleteItemId, fridgeId: this.data.deleteFridgeId })
       .then(() => {
         wx.showToast({ title: '删除成功', icon: 'success' })
-        return this.loadData(true)
+        // 静默刷新（淡入过渡），不闪骨架屏
+        return this.loadData(false)
       })
       .catch(() => {
         wx.showToast({ title: '删除失败', icon: 'none' })
-        this.setData({ pageLoading: false })
       })
   },
 

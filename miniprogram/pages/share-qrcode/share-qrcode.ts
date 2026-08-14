@@ -17,7 +17,7 @@ Page({
   async onGenerate() {
     this.setData({ generating: true })
     try {
-      const data = await call('generateQRCode', { fridgeId: this.data.fridgeId, role: this.data.role })
+      const data = await call('generateQRCode', { fridgeId: this.data.fridgeId, role: this.data.role }, { silent: true })
       if (data && data.url) {
         this.setData({ qrUrl: data.url })
       }

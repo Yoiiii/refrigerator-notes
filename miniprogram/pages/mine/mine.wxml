@@ -42,8 +42,10 @@
           <view class="theme-dot" style="background:{{item.colors[1]}}"></view>
           <view class="theme-dot" style="background:{{item.colors[2]}}"></view>
         </view>
-        <view class="theme-name">{{item.name}}</view>
-        <t-icon wx:if="{{currentTheme === item.key}}" name="check-circle-filled" size="28rpx" color="var(--td-brand-color)" />
+        <view class="theme-name-row">
+          <view class="theme-name">{{item.name}}</view>
+          <t-icon wx:if="{{currentTheme === item.key}}" name="check-circle-filled" size="24rpx" color="var(--td-brand-color)" />
+        </view>
       </view>
     </view>
   </view>

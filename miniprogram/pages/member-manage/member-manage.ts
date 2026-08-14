@@ -49,7 +49,7 @@ Page({
           fridgeId: this.data.fridgeId, action: 'changeRole',
           targetUserId: member.userId, newRole,
         }).then(() => {
-          app.globalData.homeDataDirty = true
+          app.globalData.fridgeListVersion++
           Toast({ context: this, message: '角色已更新', selector: '#t-toast' })
           this.loadMembers()
         }).catch(() => { })
@@ -73,7 +73,7 @@ Page({
     call('manageMember', {
       fridgeId: this.data.fridgeId, action: 'remove', targetUserId: member.userId,
     }).then(() => {
-      app.globalData.homeDataDirty = true
+      app.globalData.fridgeListVersion++
       this.loadMembers()
     }).catch(() => { })
   },
@@ -95,7 +95,7 @@ Page({
         call('manageMember', {
           fridgeId: this.data.fridgeId, action: 'transfer', targetUserId: target.userId,
         }).then(() => {
-          app.globalData.homeDataDirty = true
+          app.globalData.fridgeListVersion++
           Toast({ context: this, message: '所有权已转让', selector: '#t-toast' })
           this.loadMembers()
         }).catch(() => { })

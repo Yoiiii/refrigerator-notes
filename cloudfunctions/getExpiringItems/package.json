@@ -1,1 +1,1 @@
-﻿{"name":"getExpiringItems","version":"1.0.0","dependencies":{"wx-server-sdk":"latest"}}
+{"name":"getExpiringItems","version":"1.0.0","dependencies":{"wx-server-sdk":"latest"}}

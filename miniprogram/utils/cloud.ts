@@ -6,7 +6,7 @@
  * @param data 参数
  * @returns Promise<any>
  */
-export function call(name: string, data: Record<string, any> = {}): Promise<any> {
+export function call(name: string, data: Record<string, any> = {}, opts: { silent?: boolean } = {}): Promise<any> {
   return new Promise((resolve, reject) => {
     wx.cloud.callFunction({
       name,
@@ -16,21 +16,25 @@ export function call(name: string, data: Record<string, any> = {}): Promise<any>
         if (result && result.code === 0) {
           resolve(result.data)
         } else {
-          wx.showToast({
-            title: result?.msg || '操作失败',
-            icon: 'none',
-            duration: 2000,
-          })
+          if (!opts.silent) {
+            wx.showToast({
+              title: result?.msg || '操作失败',
+              icon: 'none',
+              duration: 2000,
+            })
+          }
           reject(result)
         }
       },
       fail: (err) => {
         console.error(`[cloud] ${name} error:`, err)
-        wx.showToast({
-          title: '网络错误，请重试',
-          icon: 'none',
-          duration: 2000,
-        })
+        if (!opts.silent) {
+          wx.showToast({
+            title: '网络错误，请重试',
+            icon: 'none',
+            duration: 2000,
+          })
+        }
         reject(err)
       },
     })
