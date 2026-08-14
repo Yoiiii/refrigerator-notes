@@ -31,6 +31,10 @@ exports.main = async (event) => {
   const fridgeRes = await db.collection('fridges').add({ data: fridgeData })
   const fridgeId = fridgeRes._id
 
+  // 判断是否为用户的首个冰箱：查询已有冰箱关联（须在写入新关联之前）
+  const existingRel = await db.collection('user_fridge').where({ userId: OPENID }).get()
+  const isFirstFridge = existingRel.data.length === 0
+
   // 写入 user_fridge 关联表
   await db.collection('user_fridge').add({
     data: {
@@ -41,12 +45,15 @@ exports.main = async (event) => {
     },
   })
 
-  // 如果用户的 defaultFridgeId 为空，则设置为新创建的冰箱 ID
-  const userRes = await db.collection('users').where({ _openid: OPENID }).get()
-  if (userRes.data.length > 0 && !userRes.data[0].defaultFridgeId) {
-    await db.collection('users').doc(userRes.data[0]._id).update({
-      data: { defaultFridgeId: fridgeId, updatedAt: now },
-    })
+  // 仅当用户此前没有任何冰箱（首个）时，才将新冰箱设为默认。
+  // 已拥有默认/其他冰箱的用户新建冰箱，不会抢占原有默认冰箱。
+  if (isFirstFridge) {
+    const userRes = await db.collection('users').where({ _openid: OPENID }).get()
+    if (userRes.data.length > 0) {
+      await db.collection('users').doc(userRes.data[0]._id).update({
+        data: { defaultFridgeId: fridgeId, updatedAt: now },
+      })
+    }
   }
 
   return { code: 0, data: { fridgeId, ...fridgeData } }
