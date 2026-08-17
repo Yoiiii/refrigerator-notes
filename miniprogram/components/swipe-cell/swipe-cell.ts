@@ -6,6 +6,9 @@
 const THRESHOLD = 0.3
 const MIN_DISTANCE = 10
 
+// 当前处于展开态的单元格实例（模块级共享，用于多开互斥）
+let _activeCell = null
+
 Component({
   options: {
     multipleSlots: true,
@@ -18,6 +21,9 @@ Component({
   lifetimes: {
     ready() {
       this.measure()
+    },
+    detached() {
+      if (_activeCell === this) _activeCell = null
     },
   },
   methods: {
@@ -112,6 +118,25 @@ Component({
       self.setData({
         wrapperStyle: `transform: translate3d(${target}px,0,0); transition: transform .3s;`,
       })
+      // 多开互斥：展开时收起其它已展开项，收起时清空前一个激活项
+      if (target === -rw) {
+        if (_activeCell && _activeCell !== self) _activeCell.closeSelf()
+        _activeCell = self
+      } else if (_activeCell === self) {
+        _activeCell = null
+      }
+      self.unlock()
+    },
+
+    // 被动收起（被其它单元格展开时触发），不改动 _activeCell 的归属
+    closeSelf() {
+      const self = this
+      if (self._offset !== 0) {
+        self._offset = 0
+        self.setData({
+          wrapperStyle: 'transform: translate3d(0,0,0); transition: transform .3s;',
+        })
+      }
       self.unlock()
     },
   },
