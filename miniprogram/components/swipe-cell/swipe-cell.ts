@@ -97,14 +97,16 @@ Component({
         return
       }
       const rw = self.data.rightWidth
-      const startOpen = self._startOffset <= -rw // 起始已是展开态
       let target = 0
-      // 滑动超过阈值则打开，露出右侧操作区
-      if (rw > 0 && -self._offset > rw * THRESHOLD) {
-        target = -rw
-      } else if (startOpen) {
-        // 已展开项未达关闭阈值时保持展开，避免轻微滑动即收起（P2-07）
-        target = -rw
+      if (rw > 0) {
+        const isOpen = self._startOffset <= -rw * 0.5
+        if (isOpen) {
+          // 已展开态：右滑位移超过一半(> -0.5*rw)则收起，否则保持展开
+          target = self._offset > -rw * 0.5 ? 0 : -rw
+        } else {
+          // 未展开态：左滑超过 30% 则展开，否则收起
+          target = self._offset < -rw * THRESHOLD ? -rw : 0
+        }
       }
       self._offset = target
       self.setData({
