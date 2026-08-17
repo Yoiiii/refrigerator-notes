@@ -11,43 +11,50 @@ Component({
 
   methods: {
     async onChoose() {
+      // 并发锁：上传期间忽略重复点击，避免快速连点导致超额/重复选择（P2-15）
+      if (this._uploading) return
       const remain = this.data.max - (this.data.files?.length || 0)
       if (remain <= 0) return
-      let tempFiles: Array<{ tempFilePath: string }> = []
+      this._uploading = true
       try {
-        const res: any = await wx.chooseMedia({
-          count: remain,
-          mediaType: ['image'],
-          sizeType: ['compressed'],
-          sourceType: ['album', 'camera'],
-        })
-        tempFiles = res.tempFiles || []
-      } catch (e) {
-        // 旧基础库回退到 chooseImage
+        let tempFiles: Array<{ tempFilePath: string }> = []
         try {
-          const r2: any = await wx.chooseImage({
+          const res: any = await wx.chooseMedia({
             count: remain,
+            mediaType: ['image'],
             sizeType: ['compressed'],
             sourceType: ['album', 'camera'],
           })
-          tempFiles = (r2.tempFiles || []).map((t: any) => ({ tempFilePath: t.path }))
-        } catch (e2) {
-          return
-        }
-      }
-      const added: any[] = []
-      for (const f of tempFiles) {
-        const ext = (f.tempFilePath.split('.').pop() || 'png').split('?')[0]
-        const cloudPath = `uploads/${Date.now()}_${Math.floor(Math.random() * 1e6)}.${ext}`
-        try {
-          const fileID = await uploadFile(cloudPath, f.tempFilePath)
-          added.push({ fileID, url: fileID })
+          tempFiles = res.tempFiles || []
         } catch (e) {
-          wx.showToast({ title: '上传失败', icon: 'none' })
+          // 旧基础库回退到 chooseImage
+          try {
+            const r2: any = await wx.chooseImage({
+              count: remain,
+              sizeType: ['compressed'],
+              sourceType: ['album', 'camera'],
+            })
+            tempFiles = (r2.tempFiles || []).map((t: any) => ({ tempFilePath: t.path }))
+          } catch (e2) {
+            return
+          }
         }
-      }
-      if (added.length) {
-        this.triggerEvent('change', { files: [...(this.data.files || []), ...added] })
+        const added: any[] = []
+        for (const f of tempFiles) {
+          const ext = (f.tempFilePath.split('.').pop() || 'png').split('?')[0]
+          const cloudPath = `uploads/${Date.now()}_${Math.floor(Math.random() * 1e6)}.${ext}`
+          try {
+            const fileID = await uploadFile(cloudPath, f.tempFilePath)
+            added.push({ fileID, url: fileID })
+          } catch (e) {
+            wx.showToast({ title: '上传失败', icon: 'none' })
+          }
+        }
+        if (added.length) {
+          this.triggerEvent('change', { files: [...(this.data.files || []), ...added] })
+        }
+      } finally {
+        this._uploading = false
       }
     },
 

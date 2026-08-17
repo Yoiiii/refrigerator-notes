@@ -72,8 +72,10 @@ Page({
         // 临期列表独立请求，失败不影响冰箱列表
         try {
           const expiringItems = await call('getExpiringItems')
+          // 保存全量临期项，切换冰箱时按当前冰箱过滤（P2-01）
+          ;(this as any)._allExpiring = expiringItems || []
           this.setData({
-            expiringItems: (expiringItems || []).map((item: any) => ({
+            expiringItems: ((expiringItems || []) as any[]).map((item: any) => ({
               ...item,
               iconEmoji: getIconEmoji(item.icon),
               status: item.status === 'danger' ? 'danger' : 'warning',
@@ -82,6 +84,7 @@ Page({
             })),
           })
         } catch (e) {
+          ;(this as any)._allExpiring = []
           this.setData({ expiringItems: [] })
         }
       } else {
@@ -128,7 +131,18 @@ Page({
       itemList: fridges.map((f: any) => f.name),
       success: (res) => {
         const selected = fridges[res.tapIndex]
-        this.setData({ currentFridge: selected, defaultFridgeId: selected.fridgeId })
+        // 按当前冰箱过滤临期列表，使 banner 计数与列表范围一致（P2-01）
+        const all = (this as any)._allExpiring || []
+        const filtered = (all as any[])
+          .filter((it: any) => it.fridgeId === selected.fridgeId)
+          .map((item: any) => ({
+            ...item,
+            iconEmoji: getIconEmoji(item.icon),
+            status: item.status === 'danger' ? 'danger' : 'warning',
+            statusText: item.statusText || (item.status === 'danger' ? '已过期' : '临期'),
+            swipeRight: item.role === 'readonly' ? [] : this.data.swipeRight,
+          }))
+        this.setData({ currentFridge: selected, defaultFridgeId: selected.fridgeId, expiringItems: filtered })
         // 同步 globalData
         if (app.globalData.userInfo) {
           app.globalData.userInfo.defaultFridgeId = selected.fridgeId

@@ -63,6 +63,10 @@
         </view>
         <t-icon name="chevron-right" size="28rpx" color="rgba(0,0,0,0.35)" />
       </view>
+      <view wx:if="{{fridges.length === 0}}" class="empty-state">
+        <text class="empty-text">暂无冰箱</text>
+        <t-button size="small" theme="default" bind:tap="loadData">点击重试</t-button>
+      </view>
     </block>
     <block wx:else>
       <view class="sk-row" wx:for="{{[1,2,3]}}" wx:key="*this">

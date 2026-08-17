@@ -22,7 +22,7 @@
 </view>
 
 <scroll-view class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
-  <view class="card">
+  <view class="card" wx:if="{{members.length > 0}}">
     <view class="member-card" wx:for="{{members}}" wx:key="userId">
       <t-avatar size="medium" icon="user" />
       <view class="member-info">
@@ -38,6 +38,7 @@
       </view>
     </view>
   </view>
+  <view class="empty-state" wx:else>暂无成员</view>
 
   <view class="card" wx:if="{{isOwner && members.length > 1}}">
     <t-cell title="转让所有权" note="选择新所有者" arrow hover bind:tap="onTransfer" />

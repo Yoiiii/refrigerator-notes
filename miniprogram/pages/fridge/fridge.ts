@@ -61,7 +61,12 @@ Page({
                   item.zoneId === zone.zoneId && item.layerId === layer.layerId,
               )
               .map((item: any) => {
-                const diffDays = Math.max(0, Math.ceil((new Date(item.expireDate).getTime() - Date.now()) / 86400000))
+                // 用本地零点计算临期天数，规避 new Date('YYYY-MM-DD') 的时区偏移与 iOS 解析问题（P2-03）
+                const [ey, em, ed] = item.expireDate.split('-').map(Number)
+                const now = new Date()
+                const expireTs = new Date(ey, em - 1, ed).getTime()
+                const todayTs = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+                const diffDays = Math.max(0, Math.round((expireTs - todayTs) / 86400000))
                 return {
                   ...item,
                   iconEmoji: getIconEmoji(item.icon),

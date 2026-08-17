@@ -12,6 +12,10 @@ exports.main = async (event) => {
 
   // 获取物品信息，准备清理云存储图片
   const item = await db.collection('items').doc(itemId).get()
+  // 校验物品确实属于该冰箱，防止越权删除其它冰箱物品（P2-10）
+  if (!item.data || item.data.fridgeId !== fridgeId) {
+    return { code: -5, msg: '物品不属于该冰箱' }
+  }
   if (item.data && item.data.images && item.data.images.length > 0) {
     try { await cloud.deleteFile({ fileList: item.data.images }) } catch (e) {}
   }

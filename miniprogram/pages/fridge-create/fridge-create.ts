@@ -109,7 +109,7 @@ Page({
   },
   onConstantZoneLayers(e: any) {
     const count = e.detail.value
-    const cz = this.data.constantZone
+    const cz = JSON.parse(JSON.stringify(this.data.constantZone))
     const current = cz.layers.length
     if (count > current) {
       for (let i = current + 1; i <= count; i++) cz.layers.push({ layerId: `cl${i}`, index: i - 1, name: `恒温层${i > 1 ? i : ''}` })
@@ -133,7 +133,7 @@ Page({
   onZoneLayersChange(e: any) {
     const zi = e.currentTarget.dataset.zi
     const count = e.detail.value
-    const zone = this.data.zones[zi]
+    const zone = JSON.parse(JSON.stringify(this.data.zones[zi]))
     const current = zone.layers.length
     if (count > current) {
       for (let i = current + 1; i <= count; i++) {
@@ -145,7 +145,7 @@ Page({
   },
 
   onAddZone() {
-    const zones = this.data.zones
+    const zones = JSON.parse(JSON.stringify(this.data.zones))
     if (zones.length >= 4) { Toast({ context: this, message: '最多4个分区', selector: '#t-toast' }); return }
     const idx = zones.length
     zones.push({
@@ -159,7 +159,7 @@ Page({
 
   onDeleteZone(e: any) {
     const zi = e.currentTarget.dataset.zi
-    const zones = this.data.zones
+    const zones = JSON.parse(JSON.stringify(this.data.zones))
     if (zones.length <= 1) {
       Toast({ context: this, message: '至少保留一个分区', selector: '#t-toast' })
       return

@@ -11,6 +11,27 @@ function toDateStr(date) {
   const d = String(date.getDate()).padStart(2, '0')
   return `${y}-${m}-${d}`
 }
+function dateToNum(s) { return parseInt(String(s).replace(/-/g, ''), 10) }
+function addDaysStr(baseStr, n) {
+  const [y, m, d] = baseStr.split('-').map(Number)
+  const dt = new Date(y, m - 1, d)
+  dt.setDate(dt.getDate() + n)
+  return toDateStr(dt)
+}
+function isExpired(expireDateStr, todayStr) { return dateToNum(expireDateStr) < dateToNum(todayStr) }
+function isWarning(expireDateStr, todayStr, thresholdDays) {
+  const e = dateToNum(expireDateStr)
+  const t = dateToNum(todayStr)
+  const w = dateToNum(addDaysStr(todayStr, thresholdDays))
+  return e >= t && e <= w
+}
+function diffDays(expireDateStr, todayStr) {
+  const [ey, em, ed] = expireDateStr.split('-').map(Number)
+  const [ty, tm, td] = todayStr.split('-').map(Number)
+  const e = new Date(ey, em - 1, ed)
+  const t = new Date(ty, tm - 1, td)
+  return Math.round((e.getTime() - t.getTime()) / 86400000)
+}
 
 exports.main = async () => {
   const { OPENID } = cloud.getWXContext()
@@ -25,10 +46,8 @@ exports.main = async () => {
   if (relations.data.length === 0) return { code: 0, data: [] }
 
   const fridgeIds = relations.data.map((r) => r.fridgeId)
-  const now = new Date()
-  const thresholdDate = new Date(now.getTime() + notifyDays * 24 * 60 * 60 * 1000)
-  const todayStr = toDateStr(now)
-  const thresholdStr = toDateStr(thresholdDate)
+  const todayStr = toDateStr(new Date())
+  const thresholdStr = addDaysStr(todayStr, notifyDays)
 
   // 用字符串比较日期（expireDate 存储的是 YYYY-MM-DD 字符串）
   const items = await db.collection('items')
@@ -75,10 +94,9 @@ exports.main = async () => {
   })
 
   const itemsWithStatus = allItems.map((item) => {
-    const d = new Date(item.expireDate)
     let status = 'warning'
-    if (d < now) status = 'danger'
-    const diffDays = Math.ceil((d.getTime() - now.getTime()) / 86400000)
+    if (isExpired(item.expireDate, todayStr)) status = 'danger'
+    const diffDays = diffDays(item.expireDate, todayStr)
     const statusText = status === 'danger' ? '已过期' : `临期${diffDays}天`
     const zoneLayerText = [zoneMap[item.zoneId], layerMap[item.layerId]].filter(Boolean).join('·')
     const fridgeName = fridgeMap[item.fridgeId] || ''

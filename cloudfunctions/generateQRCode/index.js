@@ -16,8 +16,12 @@ exports.main = async (event) => {
     .where({ userId: OPENID, fridgeId, role: 'owner' }).get()
   if (ownerCheck.data.length === 0) return { code: -2, msg: '仅所有者可生成分享码' }
 
-  // 构造 scene（7天有效期）
-  const scene = `${fridgeId}|${role}|${Date.now()}`
+  // 构造 scene：限制 32 字符（微信 getUnlimited 上限）。
+  // 角色用短码 rw/readwrite、ro/readonly；时间戳用「自纪元起的天数」的 base36（约 3 字符），
+  // 既保留 7 天有效期校验，又避免原 `fridgeId|role|Date.now()` ≈48 字符超限导致真机生成失败。
+  const roleCode = role === 'readwrite' ? 'rw' : 'ro'
+  const dayTs = Math.floor(Date.now() / 86400000).toString(36)
+  const scene = `${fridgeId}|${roleCode}|${dayTs}`
   const result = await cloud.openapi.wxacode.getUnlimited({
     scene,
     page: 'pages/scan-result/scan-result',

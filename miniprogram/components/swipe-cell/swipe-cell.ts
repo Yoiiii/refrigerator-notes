@@ -49,6 +49,12 @@ Component({
       const t = e.touches[0]
       const dx = t.clientX - self._sx
       const dy = t.clientY - self._sy
+      // 右滑操作区宽度尚未测量（首次渲染/布局未完成）时，先测量并返回，
+      // 避免 rightWidth 仍为 0 导致首次滑动无位移（P2-07）
+      if (self.data.rightWidth === 0) {
+        self.measure()
+        return
+      }
       const offsetX = Math.abs(dx)
       const offsetY = Math.abs(dy)
 
@@ -91,9 +97,13 @@ Component({
         return
       }
       const rw = self.data.rightWidth
+      const startOpen = self._startOffset <= -rw // 起始已是展开态
       let target = 0
       // 滑动超过阈值则打开，露出右侧操作区
-      if (rw > 0 && -self._startOffset < rw && -self._offset > rw * THRESHOLD) {
+      if (rw > 0 && -self._offset > rw * THRESHOLD) {
+        target = -rw
+      } else if (startOpen) {
+        // 已展开项未达关闭阈值时保持展开，避免轻微滑动即收起（P2-07）
         target = -rw
       }
       self._offset = target

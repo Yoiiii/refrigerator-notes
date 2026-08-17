@@ -10,6 +10,12 @@ exports.main = async (event) => {
 
   await checkFridgePermission(fridgeId, ['owner', 'readwrite'])
 
+  // 校验物品确实属于该冰箱，防止越权修改其它冰箱物品（P2-10）
+  const itemDoc = await db.collection('items').doc(itemId).get()
+  if (!itemDoc.data || itemDoc.data.fridgeId !== fridgeId) {
+    return { code: -5, msg: '物品不属于该冰箱' }
+  }
+
   const updateData = { updatedAt: db.serverDate() }
   if (name !== undefined) updateData.name = name
   if (icon !== undefined) updateData.icon = icon

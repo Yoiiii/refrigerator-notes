@@ -26,7 +26,7 @@
 
   <scroll-view class="page-container" wx:else scroll-y enhanced show-scrollbar="{{false}}">
   <view class="card">
-    <t-cell title="冰箱名称" note="{{fridgeName}}" arrow hover bind:tap="onEditFridge" />
+    <t-cell wx:if="{{isOwner}}" title="冰箱名称" note="{{fridgeName}}" arrow hover bind:tap="onEditFridge" />
     <t-cell title="门型" note="{{doorTypeText}}" hover />
     <t-cell title="恒温层" note="{{hasConstantZone ? '已开启' : '未开启'}}" hover />
   </view>
@@ -41,7 +41,7 @@
   </view>
 
   <view class="card">
-    <t-cell title="删除冰箱" note="删除后不可恢复" hover bind:tap="onDeleteFridge">
+    <t-cell wx:if="{{isOwner}}" title="删除冰箱" note="删除后不可恢复" hover bind:tap="onDeleteFridge">
       <t-icon slot="left-icon" name="delete" size="28rpx" color="var(--td-error-color)" />
     </t-cell>
   </view>

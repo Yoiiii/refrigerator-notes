@@ -24,6 +24,9 @@
   font-size: 36rpx;
   font-weight: 600;
   color: rgba(0, 0, 0, 0.88);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .user-id {
   font-size: 24rpx;
@@ -113,6 +116,9 @@
   font-size: 30rpx;
   font-weight: 500;
   color: rgba(0, 0, 0, 0.88);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .f-desc {
   font-size: 24rpx;

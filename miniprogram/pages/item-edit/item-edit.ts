@@ -10,6 +10,7 @@ Page({
     theme: 'warm',
     isEdit: false, itemId: '', fridgeId: '',
     itemName: '', quantity: 1, expireDate: '',
+    unit: '件',
     images: [] as any[],
     // 位置选择
     zones: [] as any[],
@@ -28,16 +29,17 @@ Page({
     saving: false,
   },
 
-  onLoad(options: any) {
+  async onLoad(options: any) {
     this.setData({ theme: app.globalData.theme || 'warm' })
     if (options.fridgeId) this.setData({ fridgeId: options.fridgeId })
     if (options.zoneId) this.setData({ zoneId: options.zoneId })
     if (options.layerId) this.setData({ layerId: options.layerId })
+    // 先加载冰箱分区结构，确保定位时 this.data.zones 已就绪，避免与 loadItem 竞态（P1-01）
+    await this.loadFridgeStructure()
     if (options.itemId) {
       this.setData({ isEdit: true, itemId: options.itemId })
       this.loadItem()
     }
-    this.loadFridgeStructure()
   },
 
   /** 加载冰箱分区结构用于位置选择 */
@@ -96,6 +98,7 @@ Page({
         })
         this.setData({
           itemName: item.name, quantity: item.quantity, expireDate: item.expireDate,
+          unit: item.unit || '件',
           images,
           selectedIcon: item.icon || 'box',
         })
@@ -107,8 +110,8 @@ Page({
             return { fileID: isCloud ? img : '', url: img }
           }),
         })
-        // 匹配物品的 zone/layer，定位 picker 索引
-        const zoneIdx = this.data.zoneNames.indexOf(item.zoneId)
+        // 匹配物品的 zone/layer，定位 picker 索引（按 zoneId 而非名称匹配，P1-01）
+        const zoneIdx = this.data.zones.findIndex((z: any) => z.zoneId === item.zoneId)
         if (zoneIdx >= 0) {
           this.setData({ zoneIndex: zoneIdx, zoneId: item.zoneId, selectedZoneName: this.data.zones[zoneIdx]?.name })
           const zone = this.data.zones[zoneIdx]
@@ -173,7 +176,7 @@ Page({
         fridgeId: this.data.fridgeId,
         zoneId: this.data.zoneId, layerId: this.data.layerId,
         name: this.data.itemName, icon: this.data.selectedIcon,
-        quantity: this.data.quantity, unit: '件', expireDate: this.data.expireDate,
+        quantity: this.data.quantity, unit: this.data.unit, expireDate: this.data.expireDate,
         images: this.data.images.map((f: any) => f.fileID || f.url),
       }
       if (this.data.isEdit) {

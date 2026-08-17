@@ -56,7 +56,9 @@ Page({
           app.globalData.fridgeListVersion++
           Toast({ context: this, message: '角色已更新', selector: '#t-toast' })
           this.loadMembers()
-        }).catch(() => { })
+        }).catch(() => {
+          Toast({ context: this, message: '操作失败，请重试', selector: '#t-toast' })
+        })
       }
     })
   },
@@ -79,7 +81,9 @@ Page({
     }).then(() => {
       app.globalData.fridgeListVersion++
       this.loadMembers()
-    }).catch(() => { })
+    }).catch(() => {
+      Toast({ context: this, message: '移除失败，请重试', selector: '#t-toast' })
+    })
   },
 
   onRemoveCancel() {
@@ -102,7 +106,9 @@ Page({
           app.globalData.fridgeListVersion++
           Toast({ context: this, message: '所有权已转让', selector: '#t-toast' })
           this.loadMembers()
-        }).catch(() => { })
+        }).catch(() => {
+          Toast({ context: this, message: '转让失败，请重试', selector: '#t-toast' })
+        })
       }
     })
   },

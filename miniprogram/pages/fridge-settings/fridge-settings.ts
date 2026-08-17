@@ -53,7 +53,13 @@ Page({
         wx.showToast({ title: '删除成功', icon: 'success' })
         // 等成功提示停留片刻再返回，避免页面卸载时 toast 被同部销毁
         setTimeout(() => {
-          wx.navigateBack({ delta: 2 })
+          // 栈深不足 2（冷启动 / 扫码深链直达）时回退无效，改为 reLaunch 回首页（P2-04）
+          const pages = getCurrentPages()
+          if (pages.length > 2) {
+            wx.navigateBack({ delta: 2 })
+          } else {
+            wx.reLaunch({ url: '/pages/index/index' })
+          }
         }, 600)
       })
       .catch(() => {

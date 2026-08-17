@@ -30,5 +30,5 @@ exports.main = async (event) => {
     try { await cloud.deleteFile({ fileList: fileIDs }) } catch (e) { console.error('delete files error:', e) }
   }
 
-  return { code: 0, msg: '删除成功' }
+  return { code: 0, data: { fridgeId } }
 }

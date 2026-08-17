@@ -78,12 +78,10 @@ Page({
       app.globalData.fridges = list
       app.globalData.fridgesReady = true
     } catch (e) {
-      const list = [
-        { fridgeId: 'demo_001', name: '客厅冰箱', doorType: 'double', totalItems: 12 },
-      ]
-      this.setData({ fridges: list, fridgesLoading: false })
-      app.globalData.fridges = list
-      app.globalData.fridgesReady = true
+      // 加载失败：展示空态 + 重试，不注入伪造冰箱，也不误报数据就绪（P1-02）
+      this.setData({ fridges: [], fridgesLoading: false })
+      app.globalData.fridges = []
+      app.globalData.fridgesReady = false
     } finally {
       self._fridgeLoading = false
     }
@@ -123,9 +121,15 @@ Page({
 
   onNoticeSwitch(e: any) {
     const notifyEnabled = e.detail.value
+    const prev = this.data.notifyEnabled
     this.setData({ notifyEnabled })
     Toast({ context: this, message: notifyEnabled ? '已开启' : '已关闭', selector: '#t-toast' })
-    call('updateUserNotify', { notifyEnabled }, { silent: true }).catch(() => {
+    call('updateUserNotify', { notifyEnabled }, { silent: true }).then(() => {
+      // 同步全局，便于其它页读取
+      if (app.globalData.userInfo) app.globalData.userInfo.notifyEnabled = notifyEnabled
+    }).catch(() => {
+      // 失败回滚本地状态，保证 UI 与后端一致（P2-14）
+      this.setData({ notifyEnabled: prev })
       Toast({ context: this, message: '保存失败，请重试', selector: '#t-toast' })
     })
   },
@@ -135,8 +139,12 @@ Page({
       itemList: ['1天', '3天', '5天', '7天'],
       success: (res) => {
         const days = [1, 3, 5, 7][res.tapIndex]
+        const prev = this.data.notifyDays
         this.setData({ notifyDays: days })
-        call('updateUserNotify', { notifyDays: days }, { silent: true }).catch(() => {
+        call('updateUserNotify', { notifyDays: days }, { silent: true }).then(() => {
+          if (app.globalData.userInfo) app.globalData.userInfo.notifyDays = days
+        }).catch(() => {
+          this.setData({ notifyDays: prev })
           Toast({ context: this, message: '保存失败，请重试', selector: '#t-toast' })
         })
       },
