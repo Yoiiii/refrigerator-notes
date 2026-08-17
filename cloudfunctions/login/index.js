@@ -4,6 +4,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 
 exports.main = async (event) => {
+ try {
   const { OPENID } = cloud.getWXContext()
   if (!OPENID) return { code: -1, msg: '登录失败，未获取到 openid' }
 
@@ -43,4 +44,8 @@ exports.main = async (event) => {
     data: { updatedAt: now },
   })
   return { code: 0, data: exist.data[0] }
+ } catch (e) {
+  console.error('login error:', e)
+  return { code: -99, msg: e?.message || '服务器错误' }
+ }
 }

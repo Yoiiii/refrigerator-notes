@@ -23,7 +23,8 @@ App<IAppOption>({
       traceUser: true,
     })
 
-    this.doLogin()
+    // 暴露登录就绪 Promise，供页面 await，避免冷启动竞态读到默认 userInfo（P2-14）
+    ;(this as any).loginReady = this.doLogin()
   },
 
   async doLogin() {

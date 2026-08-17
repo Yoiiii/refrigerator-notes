@@ -91,20 +91,15 @@ Page({
         this.setData({ pageLoading: false, hasFridge: false, currentFridge: {}, expiringItems: [], defaultFridgeId: '' })
       }
     } catch (e) {
-      // 云函数未部署时使用模拟数据
+      // 加载失败：显示空态（沿用用户配置的空页面），不注入伪造冰箱、不污染全局（P1-01）
       this.setData({
         pageLoading: false,
-        hasFridge: true,
-        currentFridge: {
-          fridgeId: 'demo_001', name: '客厅冰箱', doorType: 'double',
-          totalItems: 12, expiringCount: 3, expiredCount: 1,
-        },
-        expiringItems: [
-          { _id: 'i1', fridgeId: 'demo_001', fridgeName: '客厅冰箱', name: '五花肉', iconEmoji: '🥩', locationText: '客厅冰箱 · 冷藏区·第3层', status: 'danger', statusText: '已过期', role: 'owner', swipeRight: this.data.swipeRight },
-          { _id: 'i2', fridgeId: 'demo_001', fridgeName: '客厅冰箱', name: '鸡蛋', iconEmoji: '🥚', locationText: '客厅冰箱 · 冷藏区·第2层', status: 'warning', statusText: '临期2天', role: 'owner', swipeRight: this.data.swipeRight },
-          { _id: 'i3', fridgeId: 'demo_001', fridgeName: '客厅冰箱', name: '速冻饺子', iconEmoji: '🥟', locationText: '客厅冰箱 · 冷冻区·第3层', status: 'warning', statusText: '临期1天', role: 'owner', swipeRight: this.data.swipeRight },
-        ],
+        hasFridge: false,
+        currentFridge: {},
+        expiringItems: [],
+        defaultFridgeId: '',
       })
+      wx.showToast({ title: '加载失败，请稍后重试', icon: 'none' })
     } finally {
       // 无论成功失败，结束刷新态：复位骨架与淡入标志
       this.setData({ pageLoading: false, fadeRefreshing: false })
@@ -168,7 +163,6 @@ Page({
 
   onItemDetail(e: any) {
     const itemId = e.currentTarget.dataset.itemId
-    console.log('e.currentTarget.dataset',e.currentTarget.dataset)
     const fridgeId = e.currentTarget.dataset.fridgeId
     wx.navigateTo({ url: `/pages/item-detail/item-detail?itemId=${itemId}&fridgeId=${fridgeId}` })
   },

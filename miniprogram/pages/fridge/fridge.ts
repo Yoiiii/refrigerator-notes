@@ -180,8 +180,21 @@ Page({
     }
   },
 
-  getLayerStatusTag(items: any[]): string {
-    if (!items.length) return "success";
+  // 计算物品临期文案：已过期 / 临期N天 / 空（安全）。分区层与恒温层共用（P2-02）
+  getExpireText(item: any): string {
+    if (item.status === "danger") return "已过期"
+    if (item.status === "warning") {
+      const [ey, em, ed] = item.expireDate.split("-").map(Number)
+      const now = new Date()
+      const expireTs = new Date(ey, em - 1, ed).getTime()
+      const todayTs = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+      const diffDays = Math.max(0, Math.round((expireTs - todayTs) / 86400000))
+      return `临期${diffDays}天`
+    }
+    return ""
+  },
+
+  getLayerStatusTag(items: any[]): string {    if (!items.length) return "success";
     if (items.some((i: any) => i.status === "danger")) return "danger";
     if (items.some((i: any) => i.status === "warning")) return "warning";
     return "success";

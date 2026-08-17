@@ -21,7 +21,7 @@ exports.main = async (event) => {
   if (icon !== undefined) updateData.icon = icon
   if (quantity !== undefined) updateData.quantity = quantity
   if (unit !== undefined) updateData.unit = unit
-  if (expireDate !== undefined) updateData.expireDate = expireDate
+  if (expireDate !== undefined) { updateData.expireDate = expireDate; updateData.notified = false }
   if (images !== undefined) updateData.images = images
   if (zoneId !== undefined) updateData.zoneId = zoneId
   if (layerId !== undefined) updateData.layerId = layerId

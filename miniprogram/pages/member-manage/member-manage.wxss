@@ -2,6 +2,7 @@
 .member-card { display: flex; align-items: center; padding: 28rpx 32rpx; border-bottom: 1rpx solid rgba(0,0,0,0.04); }
 .member-card:last-child { border-bottom: none; }
 .member-info { flex: 1; margin-left: 24rpx; }
-.member-name { font-size: 30rpx; font-weight: 500; color: rgba(0,0,0,0.88); display: flex; align-items: center; gap: 12rpx; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.member-name { font-size: 30rpx; font-weight: 500; color: rgba(0,0,0,0.88); display: flex; align-items: center; gap: 12rpx; min-width: 0; }
+.member-name-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .member-role { font-size: 24rpx; color: rgba(0,0,0,0.55); margin-top: 4rpx; }
 .member-actions { display: flex; gap: 12rpx; flex-shrink: 0; }

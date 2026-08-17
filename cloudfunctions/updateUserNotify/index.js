@@ -4,6 +4,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 
 exports.main = async (event) => {
+ try {
   const { OPENID } = cloud.getWXContext()
   if (!OPENID) return { code: -1, msg: '未登录' }
 
@@ -25,4 +26,8 @@ exports.main = async (event) => {
   await db.collection('users').doc(user.data[0]._id).update({ data })
 
   return { code: 0, msg: '已保存', data: { notifyDays: data.notifyDays, notifyEnabled: data.notifyEnabled } }
+ } catch (e) {
+  console.error('updateUserNotify error:', e)
+  return { code: -99, msg: e?.message || '服务器错误' }
+ }
 }

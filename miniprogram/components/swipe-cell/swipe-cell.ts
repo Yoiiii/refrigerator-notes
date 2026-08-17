@@ -20,6 +20,7 @@ Component({
   },
   lifetimes: {
     ready() {
+      this._rightWidth = 0
       this.measure()
     },
     detached() {
@@ -32,7 +33,8 @@ Component({
       q.select('.sc-right')
         .boundingClientRect((rect) => {
           if (rect && rect.width) {
-            this.data.rightWidth = rect.width
+            // 测量结果存实例属性，避免直接改 this.data 不触发渲染且易丢失（P2-07）
+            this._rightWidth = rect.width
           }
         })
         .exec()
@@ -40,7 +42,7 @@ Component({
 
     onTouchStart(e) {
       const self = this
-      if (self.data.rightWidth === 0) self.measure()
+      if (!self._rightWidth) self.measure()
       const t = e.touches[0]
       self._sx = t.clientX
       self._sy = t.clientY
@@ -57,7 +59,7 @@ Component({
       const dy = t.clientY - self._sy
       // 右滑操作区宽度尚未测量（首次渲染/布局未完成）时，先测量并返回，
       // 避免 rightWidth 仍为 0 导致首次滑动无位移（P2-07）
-      if (self.data.rightWidth === 0) {
+      if (!self._rightWidth) {
         self.measure()
         return
       }
@@ -102,7 +104,7 @@ Component({
         self.unlock()
         return
       }
-      const rw = self.data.rightWidth
+      const rw = self._rightWidth || 0
       let target = 0
       if (rw > 0) {
         const isOpen = self._startOffset <= -rw * 0.5

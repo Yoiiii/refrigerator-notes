@@ -9,7 +9,14 @@ Page({
 
   onLoad(options: any) {
     this.setData({ fridgeId: options.fridgeId || '', theme: app.globalData.theme || 'warm' })
+    this._inited = false
     this.loadFridge()
+  },
+
+  // 从「编辑冰箱 / 成员管理」返回后刷新名称与 owner 状态（P2-04 / P2-10）
+  onShow() {
+    if (this._inited) this.loadFridge()
+    this._inited = true
   },
 
   async loadFridge() {

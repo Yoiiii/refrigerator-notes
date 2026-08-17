@@ -26,6 +26,7 @@ function isWarning(expireDateStr, todayStr, thresholdDays) {
 }
 
 exports.main = async () => {
+ try {
   const { OPENID } = cloud.getWXContext()
   if (!OPENID) return { code: -1, msg: '未登录' }
 
@@ -46,10 +47,13 @@ exports.main = async () => {
   // 统计每个冰箱的物品数
   const result = await Promise.all(
     fridges.data.map(async (f) => {
-      const items = await db.collection('items').where({ fridgeId: f._id }).get()
+      const items = await db.collection('items').where({ fridgeId: f._id }).limit(1000).get()
       const todayStr = toDateStr(new Date())
-      const expiringCount = items.data.filter((i) => isWarning(i.expireDate, todayStr, 3)).length
+      // 横幅阈值与 getExpiringItems 统一使用用户 notifyDays，避免与临期列表项数不一致（P2-03）
+      const expiringCount = items.data.filter((i) => isWarning(i.expireDate, todayStr, notifyDays)).length
       const expiredCount = items.data.filter((i) => isExpired(i.expireDate, todayStr)).length
+      // 物品总数用 count，避免 .get() 默认 100 条上限导致失真（P2-16）
+      const totalRes = await db.collection('items').where({ fridgeId: f._id }).count()
       const relation = relations.data.find((r) => r.fridgeId === f._id)
       return {
         fridgeId: f._id,
@@ -58,7 +62,7 @@ exports.main = async () => {
         hasConstantZone: f.hasConstantZone,
         zones: f.zones,
         image: f.image || '',
-        totalItems: items.data.length,
+        totalItems: totalRes.total,
         expiringCount,
         expiredCount,
         role: relation ? relation.role : 'readonly',
@@ -67,4 +71,8 @@ exports.main = async () => {
   )
 
   return { code: 0, data: { defaultFridgeId, notifyDays, notifyEnabled, fridges: result } }
+ } catch (e) {
+  console.error('getFridgeList error:', e)
+  return { code: -99, msg: e?.message || '服务器错误' }
+ }
 }

@@ -2,7 +2,7 @@
 <t-dialog
   visible="{{aboutVisible}}"
   title="关于"
-  content="冰箱笔记 v1.3.0\n\n帮助您记录冰箱内物品存放位置与保质期，减少因遗忘导致的食品过期浪费。\n\n我们重视您的隐私，不会收集任何敏感信息。"
+  content="{{aboutContent}}"
   confirm-btn="知道了"
   close-btn="{{true}}"
   bind:confirm="onAboutClose"

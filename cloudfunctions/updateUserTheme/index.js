@@ -4,6 +4,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 
 exports.main = async (event) => {
+ try {
   const { OPENID } = cloud.getWXContext()
   if (!OPENID) return { code: -1, msg: '未登录' }
 
@@ -19,4 +20,8 @@ exports.main = async (event) => {
   })
 
   return { code: 0, data: { theme } }
+ } catch (e) {
+  console.error('updateUserTheme error:', e)
+  return { code: -99, msg: e?.message || '服务器错误' }
+ }
 }

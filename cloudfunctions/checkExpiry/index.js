@@ -12,6 +12,7 @@ function toDateStr(date) {
 }
 
 exports.main = async () => {
+ try {
   const now = new Date()
   const todayStr = toDateStr(now)
 
@@ -58,6 +59,8 @@ exports.main = async () => {
       byFridge[item.fridgeId].push(item)
     })
 
+    // 仅对发送成功的分组标记已通知，失败分组保留 notified:false 并累加 retryCount，避免提醒永久丢失（P1-03）
+    const successIds = []
     for (const [fridgeId, fridgeItems] of Object.entries(byFridge)) {
       const firstItem = fridgeItems[0]
       const diffDays = Math.ceil((new Date(firstItem.expireDate) - now) / 86400000)
@@ -73,19 +76,29 @@ exports.main = async () => {
             thing3: { value: `${fridgeItems.length} 件物品临期` },
           },
         })
+        successIds.push(...fridgeItems.map((i) => i._id))
       } catch (e) {
         console.error('send msg fail:', e)
+        // 发送失败：保留未通知状态并累加重试次数（待确认：需替换真实 templateId 才能实际送达）
+        const failIds = fridgeItems.map((i) => i._id)
+        await db.collection('items')
+          .where({ _id: _.in(failIds) })
+          .update({ data: { retryCount: _.inc(1) } })
       }
     }
 
-    // 标记已通知
-    const ids = items.data.map((i) => i._id)
-    await db.collection('items')
-      .where({ _id: _.in(ids) })
-      .update({ data: { notified: true } })
+    if (successIds.length) {
+      await db.collection('items')
+        .where({ _id: _.in(successIds) })
+        .update({ data: { notified: true, retryCount: 0 } })
+    }
 
-    totalNotified += ids.length
+    totalNotified += successIds.length
   }
 
   return { code: 0, notified: totalNotified }
+ } catch (e) {
+  console.error('checkExpiry error:', e)
+  return { code: -99, msg: e?.message || '服务器错误' }
+ }
 }

@@ -16,16 +16,27 @@ Page({
     notifyEnabled: true,
     notifyDays: 3,
     aboutVisible: false,
+    aboutContent: '',
   },
 
   onLoad() {
     this.initThemes()
+    // 关于弹窗内容用真实换行（WXML 静态属性不解析 \n），交由 t-dialog 按行渲染（P2-15）
+    this.setData({
+      aboutContent:
+        '冰箱笔记 v1.3.0\n\n帮助您记录冰箱内物品存放位置与保质期，减少因遗忘导致的食品过期浪费。\n\n我们重视您的隐私，不会收集任何敏感信息。',
+    })
     this.loadUserInfo()
   },
 
-  onShow() {
+  async onShow() {
     const theme = app.globalData.theme || 'warm'
     this.setData({ currentTheme: theme, theme: theme })
+    // 等待登录就绪，避免冷启动时 userInfo/通知设置读到默认值（P2-14）
+    const appAny: any = app
+    if (appAny.loginReady && typeof appAny.loginReady.then === 'function') {
+      try { await appAny.loginReady } catch (e) {}
+    }
     this.loadUserInfo()
     // 仅首次加载，或冰箱数据有变更（新增/删除/编辑）时才刷新列表，避免每次切回都闪骨架
     // 用版本号而非单次消费标志：首页/我的各自记录已见版本，变更时都能独立刷新，互不抢消费
@@ -46,6 +57,9 @@ Page({
           nickname: ui.nickname,
           avatar: ui.avatarUrl || '',
         },
+        // 重新进入「我的」时回显通知设置，避免被默认值覆盖（P2-08）
+        notifyDays: ui.notifyDays || this.data.notifyDays,
+        notifyEnabled: ui.notifyEnabled !== undefined ? ui.notifyEnabled : this.data.notifyEnabled,
       })
     }
   },
@@ -77,6 +91,11 @@ Page({
       })
       app.globalData.fridges = list
       app.globalData.fridgesReady = true
+      // 把通知设置缓存到全局，便于重新进入「我的」时回显（P2-08）
+      if (app.globalData.userInfo) {
+        app.globalData.userInfo.notifyDays = res?.notifyDays || 3
+        app.globalData.userInfo.notifyEnabled = res?.notifyEnabled !== false
+      }
     } catch (e) {
       // 加载失败：展示空态 + 重试，不注入伪造冰箱，也不误报数据就绪（P1-02）
       this.setData({ fridges: [], fridgesLoading: false })

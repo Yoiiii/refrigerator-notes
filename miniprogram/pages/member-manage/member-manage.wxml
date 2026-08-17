@@ -10,8 +10,6 @@
   bind:cancel="onRemoveCancel"
   bind:close="onRemoveCancel"
 />
-<t-action-sheet id="t-action-sheet" />
-
 <view class="theme-root" data-theme="{{theme}}">
 
 <view class="nav-bar">
@@ -27,7 +25,7 @@
       <t-avatar size="medium" icon="user" />
       <view class="member-info">
         <view class="member-name">
-          {{item.nickname || '微信用户'}}
+          <text class="member-name-text">{{item.nickname || '微信用户'}}</text>
           <t-tag wx:if="{{item.role === 'owner'}}" theme="warning" size="small">所有者</t-tag>
         </view>
         <view class="member-role">{{item.roleText}}</view>
@@ -38,7 +36,15 @@
       </view>
     </view>
   </view>
-  <view class="empty-state" wx:else>暂无成员</view>
+  <view class="empty-state" wx:else>
+    <block wx:if="{{loadFailed}}">
+      <text class="empty-text">成员加载失败</text>
+      <t-button size="small" theme="default" bind:tap="onRetry">点击重试</t-button>
+    </block>
+    <block wx:else>
+      <text class="empty-text">暂无成员</text>
+    </block>
+  </view>
 
   <view class="card" wx:if="{{isOwner && members.length > 1}}">
     <t-cell title="转让所有权" note="选择新所有者" arrow hover bind:tap="onTransfer" />
