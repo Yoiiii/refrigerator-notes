@@ -27,6 +27,8 @@
     <view class="empty-illustration">
       <image class="empty-image" src="{{emptyFridgeImage}}" mode="aspectFit" />
     </view>
+    <t-empty description="还没有冰箱" />
+    <view class="empty-desc">创建一个冰箱，开始记录食材的存放位置与保质期</view>
     <t-button theme="primary" size="large" class="empty-btn" bind:tap="onCreateFridge">
       <t-icon name="add" slot="icon" />
       创建冰箱

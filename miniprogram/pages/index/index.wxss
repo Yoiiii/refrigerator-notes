@@ -8,7 +8,7 @@
   padding: 160rpx 80rpx 80rpx;
   text-align: center;
 }
-.empty-illustration {
+/* .empty-illustration {
   width: 260rpx;
   height: 260rpx;
   border-radius: 50%;
@@ -18,13 +18,14 @@
   justify-content: center;
   margin-bottom: 40rpx;
   box-shadow: 0 16rpx 48rpx rgba(255, 159, 69, 0.12);
-}
+} */
 .empty-emoji {
   font-size: 120rpx;
 }
 .empty-image {
-  width: 150rpx;
-  height: 150rpx;
+  width: 250rpx;
+  height:250rpx;
+  border-radius: 50%;
 }
 .empty-desc {
   font-size: 28rpx;
