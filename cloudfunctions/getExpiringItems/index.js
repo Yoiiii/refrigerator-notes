@@ -96,13 +96,13 @@ exports.main = async () => {
   const itemsWithStatus = allItems.map((item) => {
     let status = 'warning'
     if (isExpired(item.expireDate, todayStr)) status = 'danger'
-    const diffDays = diffDays(item.expireDate, todayStr)
-    const statusText = status === 'danger' ? '已过期' : `临期${diffDays}天`
+    const diffDaysValue = diffDays(item.expireDate, todayStr)
+    const statusText = status === 'danger' ? '已过期' : `临期${diffDaysValue}天`
     const zoneLayerText = [zoneMap[item.zoneId], layerMap[item.layerId]].filter(Boolean).join('·')
     const fridgeName = fridgeMap[item.fridgeId] || ''
     const locationText = [fridgeName, zoneLayerText].filter(Boolean).join(' · ')
     const role = roleMap[item.fridgeId] || 'readonly'
-    return { ...item, status, statusText, diffDays, locationText, fridgeName, role }
+    return { ...item, status, statusText, diffDays: diffDaysValue, locationText, fridgeName, role }
   })
 
   return { code: 0, data: itemsWithStatus }
