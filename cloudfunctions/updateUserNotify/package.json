@@ -1,0 +1,8 @@
+{
+  "name": "updateUserNotify",
+  "version": "1.0.0",
+  "description": "更新用户临期提醒设置",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

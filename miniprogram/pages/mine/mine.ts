@@ -69,7 +69,12 @@ Page({
     try {
       const res = await call('getFridgeList')
       const list = res?.fridges || []
-      this.setData({ fridges: list, fridgesLoading: false })
+      this.setData({
+        fridges: list,
+        fridgesLoading: false,
+        notifyDays: res?.notifyDays || 3,
+        notifyEnabled: res?.notifyEnabled !== false,
+      })
       app.globalData.fridges = list
       app.globalData.fridgesReady = true
     } catch (e) {
@@ -117,8 +122,12 @@ Page({
   },
 
   onNoticeSwitch(e: any) {
-    this.setData({ notifyEnabled: e.detail.value })
-    Toast({ context: this, message: e.detail.value ? '已开启' : '已关闭', selector: '#t-toast' })
+    const notifyEnabled = e.detail.value
+    this.setData({ notifyEnabled })
+    Toast({ context: this, message: notifyEnabled ? '已开启' : '已关闭', selector: '#t-toast' })
+    call('updateUserNotify', { notifyEnabled }, { silent: true }).catch(() => {
+      Toast({ context: this, message: '保存失败，请重试', selector: '#t-toast' })
+    })
   },
 
   onNoticeDays() {
@@ -127,6 +136,9 @@ Page({
       success: (res) => {
         const days = [1, 3, 5, 7][res.tapIndex]
         this.setData({ notifyDays: days })
+        call('updateUserNotify', { notifyDays: days }, { silent: true }).catch(() => {
+          Toast({ context: this, message: '保存失败，请重试', selector: '#t-toast' })
+        })
       },
     })
   },

@@ -1,5 +1,5 @@
 // item-detail.ts
-import { call } from '../../utils/cloud'
+import { call, resolveCloudImages } from '../../utils/cloud'
 import { getIconEmoji } from '../../utils/icons'
 import Toast from 'tdesign-miniprogram/toast'
 
@@ -12,6 +12,7 @@ Page({
     item: {} as any,
     editing: false, saving: false,
     canEdit: true,
+    loadError: false,
     deleteVisible: false,
   },
 
@@ -27,9 +28,13 @@ Page({
         fridgeId: this.data.fridgeId,
       })
       if (data) {
+        // 云存储图片 fileID 转 https 临时链接，确保正常渲染（P2-07）
+        const rawImages: string[] = data.images || []
+        const resolved = await resolveCloudImages(rawImages)
         this.setData({
           item: {
             ...data,
+            images: resolved,
             iconEmoji: getIconEmoji(data.icon),
             statusTag: data.statusTag || 'success',
             statusText: data.statusText || '安全',
@@ -37,17 +42,21 @@ Page({
           },
           fridgeId: data.fridgeId || this.data.fridgeId,
           canEdit: !!data.canEdit,
+          loadError: false,
         })
       }
     } catch (e) {
+      // 加载失败：用真实 itemId 占位、明确标注加载失败，禁用编辑/删除，避免对假数据误操作
       this.setData({
-        canEdit: true,
+        canEdit: false,
+        loadError: true,
         item: {
-          _id: this.data.itemId, name: '鲜牛奶', iconEmoji: '🥛', quantity: 2, unit: '瓶',
-          expireDate: '2026-08-15', statusTag: 'success', statusText: '安全',
-          locationText: '冷藏区·第1层', createdAt: '2026-08-01', updatedAt: '2026-08-05',
+          _id: this.data.itemId, name: '加载失败', iconEmoji: '📦', quantity: 0, unit: '',
+          expireDate: '', statusTag: 'default', statusText: '加载失败',
+          locationText: '—', createdAt: '—', updatedAt: '—',
         },
       })
+      Toast({ context: this, message: '加载失败，请返回重试', selector: '#t-toast' })
     }
   },
 
@@ -62,7 +71,7 @@ Page({
   onCancelEdit() { this.setData({ editing: false }) },
   onNameChange(e: any) { this.setData({ 'item.name': e.detail.value }) },
   onQuantityChange(e: any) { this.setData({ 'item.quantity': e.detail.value }) },
-  onDatePicker() { wx.showToast({ title: '选择日期', icon: 'none' }) },
+  onDatePicker(e: any) { this.setData({ 'item.expireDate': e.detail.value }) },
 
   async onSave() {
     if (!this.data.canEdit) return

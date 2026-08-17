@@ -22,6 +22,12 @@
 </view>
 
 <scroll-view class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
+  <!-- 加载失败提示 -->
+  <view class="error-banner" wx:if="{{loadError}}">
+    <t-icon name="info-circle" size="32rpx" color="#fa5151" />
+    <text>物品信息加载失败，请返回重试</text>
+  </view>
+
   <!-- 头部 -->
   <view class="card detail-header">
     <view class="detail-thumb">
@@ -55,10 +61,12 @@
     </view>
     <view class="form-cell">
       <text class="cell-label">保质期</text>
-      <view class="picker-val" bind:tap="onDatePicker">
-        <text>{{item.expireDate || '请选择'}}</text>
-        <t-icon name="chevron-right" size="28rpx" color="rgba(0,0,0,0.35)" />
-      </view>
+      <picker mode="date" value="{{item.expireDate}}" start="2026-01-01" end="2030-12-31" bind:change="onDatePicker">
+        <view class="picker-val">
+          <text>{{item.expireDate || '请选择'}}</text>
+          <t-icon name="chevron-right" size="28rpx" color="rgba(0,0,0,0.35)" />
+        </view>
+      </picker>
     </view>
   </view>
 </scroll-view>

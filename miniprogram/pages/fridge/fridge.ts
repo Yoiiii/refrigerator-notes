@@ -1,5 +1,5 @@
 // fridge.ts
-import { call } from "../../utils/cloud";
+import { call, getTempFileURLs } from "../../utils/cloud";
 import { getIconEmoji } from "../../utils/icons";
 
 const app = getApp<IAppOption>();
@@ -26,12 +26,17 @@ Page({
 
   onLoad(options: any) {
     this.setData({ fridgeId: options.fridgeId || "" });
+    ;(this as any)._firstShow = true;
     this.loadFridgeData(true);
   },
 
   onShow() {
     this.setData({ theme: app.globalData.theme || "warm" });
-    // 返回页面（如添加物品后）静默刷新，不闪骨架屏
+    // 首屏由 onLoad 已发起请求，避免与 onShow 并发双发；仅当从子页返回（非首次）才静默刷新
+    if ((this as any)._firstShow) {
+      (this as any)._firstShow = false;
+      return;
+    }
     this.loadFridgeData(false);
   },
 
@@ -130,9 +135,30 @@ Page({
           displayZonesList.splice(mid, 0, { key: constantZone.zoneId, type: "constant", zone: constantZone });
         }
 
+        // 解析云存储图片 fileID -> https 临时链接，确保 t-image 可正常渲染（P2-07）
+        const allItems: any[] = [];
+        zones.forEach((z: any) => (z.layers || []).forEach((l: any) => allItems.push(...(l.items || []))));
+        if (constantZone) constantZone.layers.forEach((l: any) => allItems.push(...(l.items || [])));
+        const cloudIds: string[] = [];
+        allItems.forEach((it: any) => (it.images || []).forEach((img: any) => {
+          if (typeof img === "string" && img.indexOf("cloud://") === 0) cloudIds.push(img);
+        }));
+        let fridgeImage = data.image || "";
+        if (cloudIds.length) {
+          const map = await getTempFileURLs(Array.from(new Set(cloudIds)));
+          allItems.forEach((it: any) => {
+            it.images = (it.images || []).map((img: any) =>
+              (typeof img === "string" && img.indexOf("cloud://") === 0) ? (map[img] || img) : img);
+          });
+        }
+        if (typeof fridgeImage === "string" && fridgeImage.indexOf("cloud://") === 0) {
+          const m = await getTempFileURLs([fridgeImage]);
+          fridgeImage = m[fridgeImage] || fridgeImage;
+        }
+
         this.setData({
           fridgeName: data.name || "冰箱",
-          fridgeImage: data.image || "",
+          fridgeImage,
           doorType: data.doorType || "double",
           doorTypeText: data.doorType === "double" ? "双开门" : "单开门",
           hasConstantZone: data.hasConstantZone || false,
@@ -185,16 +211,18 @@ Page({
 
   onLayerTap(e: any) {
     const { zoneId, layerId } = e.currentTarget.dataset;
-    const toggle = (list: any[]) =>
-      list.forEach((l: any) => {
-        if (l.layerId === layerId) l.expanded = !l.expanded;
+    const patch: Record<string, any> = {};
+    this.data.zones.forEach((z: any, zi: number) => {
+      (z.layers || []).forEach((l: any, li: number) => {
+        if (l.layerId === layerId) patch[`zones[${zi}].layers[${li}].expanded`] = !l.expanded;
       });
-    this.data.zones.forEach((z: any) => toggle(z.layers));
-    if (this.data.constantZone) toggle(this.data.constantZone.layers);
-    this.setData({
-      zones: this.data.zones,
-      constantZone: this.data.constantZone,
     });
+    if (this.data.constantZone) {
+      this.data.constantZone.layers.forEach((l: any, li: number) => {
+        if (l.layerId === layerId) patch[`constantZone.layers[${li}].expanded`] = !l.expanded;
+      });
+    }
+    this.setData(patch);
   },
 
   onItemDetail(e: any) {

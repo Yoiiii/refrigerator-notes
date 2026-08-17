@@ -85,7 +85,7 @@ Page({
           this.setData({ expiringItems: [] })
         }
       } else {
-        this.setData({ pageLoading: false, hasFridge: false, currentFridge: {} })
+        this.setData({ pageLoading: false, hasFridge: false, currentFridge: {}, expiringItems: [], defaultFridgeId: '' })
       }
     } catch (e) {
       // 云函数未部署时使用模拟数据

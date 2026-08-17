@@ -1,5 +1,6 @@
 {
   "navigationStyle": "custom",
   "usingComponents": {
+    "my-upload": "/components/upload/upload"
   }
 }

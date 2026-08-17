@@ -18,12 +18,16 @@ Page({
       const data = await call('manageMember', { fridgeId: this.data.fridgeId, action: 'list' })
       if (data) {
         const roleMap: Record<string, string> = { owner: '全部权限', readwrite: '可读写', readonly: '只读' }
+        const myMember = data.find((m: any) => m.isCurrentUser)
         this.setData({
           members: data.map((m: any) => ({ ...m, roleText: roleMap[m.role] || m.role })),
-          isOwner: data.some((m: any) => m.role === 'owner'),
+          // isOwner 表示「当前登录用户是否为 owner」，而非「列表里是否有 owner」
+          isOwner: !!(myMember && myMember.role === 'owner'),
         })
       }
-    } catch (e) { }
+    } catch (e) {
+      Toast({ context: this, message: '成员加载失败，请重试', selector: '#t-toast' })
+    }
   },
 
   onBack() { wx.navigateBack() },

@@ -27,11 +27,30 @@ Page({
     this.setData({ generating: false })
   },
 
-  onSaveQR() {
-    wx.saveImageToPhotosAlbum({
-      filePath: this.data.qrUrl,
-      success: () => { Toast({ context: this, message: '已保存到相册', selector: '#t-toast' }) },
-      fail: () => { Toast({ context: this, message: '保存失败', selector: '#t-toast' }) },
-    })
+  async onSaveQR() {
+    const url = this.data.qrUrl
+    if (!url) return
+    try {
+      // 云存储临时链接需先下载到本地临时文件，才能 saveImageToPhotosAlbum
+      const dl = await wx.downloadFile({ url })
+      if (dl.statusCode !== 200) {
+        Toast({ context: this, message: '下载失败，请重试', selector: '#t-toast' })
+        return
+      }
+      await wx.saveImageToPhotosAlbum({ filePath: dl.tempFilePath })
+      Toast({ context: this, message: '已保存到相册', selector: '#t-toast' })
+    } catch (e: any) {
+      // 用户拒绝相册授权时引导去设置页开启
+      if (e && /auth deny|authorize|album/i.test(e.errMsg || '')) {
+        wx.showModal({
+          title: '需要相册权限',
+          content: '保存图片需要您授权相册，是否前往设置开启？',
+          confirmText: '去设置',
+          success: (r) => { if (r.confirm) wx.openSetting() },
+        })
+      } else {
+        Toast({ context: this, message: '保存失败', selector: '#t-toast' })
+      }
+    }
   },
 })

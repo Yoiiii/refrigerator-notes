@@ -58,7 +58,7 @@
     </t-tabs>
 
     <view class="tab-content" wx:if="{{activeTab === 'image'}}">
-      <t-upload mediaType="{{['image']}}" max="{{3}}" files="{{images}}" bind:add="onUploadAdd" bind:remove="onUploadRemove" />
+      <my-upload files="{{images}}" max="{{3}}" bind:change="onUploadChange" />
     </view>
 
     <view class="tab-content icon-panel" wx:if="{{activeTab === 'icon'}}">

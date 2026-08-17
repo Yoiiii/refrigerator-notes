@@ -16,30 +16,24 @@
     <view class="preview-header">📐 实时预览</view>
     <view class="preview-body">
       <view class="preview-fridge-shell">
-        <view class="preview-fridge-inner">
-          <view class="preview-zones" wx:if="{{doorType === 'double'}}">
-            <view class="preview-zone cold" wx:for="{{zones}}" wx:key="zoneId">
-              <text class="pz-title">{{item.tempType === 'cold' ? '❄' : '❄️'}} {{item.name}}</text>
+      <view class="preview-fridge-inner">
+        <view class="preview-zones-single">
+          <block wx:for="{{previewZones}}" wx:key="key" wx:for-item="entry">
+            <view class="preview-zone cold" wx:if="{{entry.type === 'zone'}}">
+              <text class="pz-title">{{entry.zone.tempType === 'cold' ? '❄' : '❄️'}} {{entry.zone.name}}</text>
               <view class="pz-layers">
-                <view class="pz-layer" wx:for="{{item.layers}}" wx:key="layerId">{{item.name}}</view>
+                <view class="pz-layer" wx:for="{{entry.zone.layers}}" wx:for-item="layer" wx:key="layerId">{{layer.name}}</view>
               </view>
             </view>
-          </view>
-          <view class="preview-zones-single" wx:else>
-            <view class="preview-zone cold" wx:for="{{zones}}" wx:key="zoneId">
-              <text class="pz-title">{{item.tempType === 'cold' ? '❄' : '❄️'}} {{item.name}}</text>
+            <view class="preview-zone constant" wx:else>
+              <text class="pz-title">🌡 {{entry.zone.name}}</text>
               <view class="pz-layers">
-                <view class="pz-layer" wx:for="{{item.layers}}" wx:key="layerId">{{item.name}}</view>
+                <view class="pz-layer" wx:for="{{entry.zone.layers}}" wx:for-item="layer" wx:key="layerId">{{layer.name}}</view>
               </view>
             </view>
-          </view>
-          <view class="preview-zone constant" wx:if="{{hasConstantZone}}">
-            <text class="pz-title">🌡 {{constantZone.name}}</text>
-            <view class="pz-layers">
-              <view class="pz-layer" wx:for="{{constantZone.layers}}" wx:key="layerId">{{item.name}}</view>
-            </view>
-          </view>
+          </block>
         </view>
+      </view>
       </view>
     </view>
   </view>
@@ -79,7 +73,7 @@
     </view>
 
     <view class="tab-content" wx:if="{{activeTab === 'image'}}">
-      <t-upload mediaType="{{['image']}}" max="{{1}}" files="{{images}}" bind:add="onUploadAdd" bind:remove="onUploadRemove" />
+      <my-upload files="{{images}}" max="{{1}}" bind:change="onUploadChange" />
     </view>
   </view>
 

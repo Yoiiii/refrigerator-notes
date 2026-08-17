@@ -25,18 +25,18 @@ exports.main = async (event) => {
     width: 430,
   })
 
-//   // 上传到云存储
-//   const upload = await cloud.uploadFile({
-//     cloudPath: `qrcodes/${fridgeId}_${Date.now()}.png`,
-//     fileContent: result.buffer,
-//   })
+  // 上传到云存储
+  const upload = await cloud.uploadFile({
+    cloudPath: `qrcodes/${fridgeId}_${Date.now()}.png`,
+    fileContent: result.buffer,
+  })
 
-//   const urlResult = await cloud.getTempFileURL({ fileList: [upload.fileID] })
-//   return {
-//     code: 0,
-//     data: {
-//       fileID: upload.fileID,
-//       url: urlResult.fileList[0].tempFileURL,
-//     },
-//   }
+  const urlResult = await cloud.getTempFileURL({ fileList: [upload.fileID] })
+  return {
+    code: 0,
+    data: {
+      fileID: upload.fileID,
+      url: urlResult.fileList[0].tempFileURL,
+    },
+  }
 }

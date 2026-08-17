@@ -1,0 +1,9 @@
+<view class="upload-grid">
+  <view class="upload-item" wx:for="{{files}}" wx:key="fileID" wx:for-item="f" wx:for-index="i">
+    <image class="upload-img" src="{{f.url || f.fileID}}" mode="aspectFill" data-index="{{i}}" bind:tap="onPreview" />
+    <view class="upload-del" data-index="{{i}}" bind:tap="onRemove">×</view>
+  </view>
+  <view class="upload-item upload-add" wx:if="{{files.length < max}}" bind:tap="onChoose">
+    <text class="upload-add-icon">+</text>
+  </view>
+</view>

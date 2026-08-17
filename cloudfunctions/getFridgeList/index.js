@@ -7,13 +7,16 @@ exports.main = async () => {
   const { OPENID } = cloud.getWXContext()
   if (!OPENID) return { code: -1, msg: '未登录' }
 
-  // 获取用户信息（含 defaultFridgeId）
+  // 获取用户信息（含 defaultFridgeId 与通知设置）
   const userRes = await db.collection('users').where({ _openid: OPENID }).get()
-  const defaultFridgeId = userRes.data.length > 0 ? (userRes.data[0].defaultFridgeId || '') : ''
+  const userInfo = userRes.data.length > 0 ? userRes.data[0] : null
+  const defaultFridgeId = userInfo ? (userInfo.defaultFridgeId || '') : ''
+  const notifyDays = userInfo ? (userInfo.notifyDays || 3) : 3
+  const notifyEnabled = userInfo ? (userInfo.notifyEnabled !== false) : true
 
   // 通过 user_fridge 关联表查询用户所有冰箱
   const relations = await db.collection('user_fridge').where({ userId: OPENID }).get()
-  if (relations.data.length === 0) return { code: 0, data: { defaultFridgeId, fridges: [] } }
+  if (relations.data.length === 0) return { code: 0, data: { defaultFridgeId, notifyDays, notifyEnabled, fridges: [] } }
 
   const fridgeIds = relations.data.map((r) => r.fridgeId)
   const fridges = await db.collection('fridges').where({ _id: db.command.in(fridgeIds) }).get()
@@ -45,5 +48,5 @@ exports.main = async () => {
     }),
   )
 
-  return { code: 0, data: { defaultFridgeId, fridges: result } }
+  return { code: 0, data: { defaultFridgeId, notifyDays, notifyEnabled, fridges: result } }
 }

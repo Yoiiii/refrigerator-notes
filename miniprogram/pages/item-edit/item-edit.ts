@@ -1,5 +1,5 @@
 // item-edit.ts
-import { call, uploadFile } from '../../utils/cloud'
+import { call, resolveCloudImages } from '../../utils/cloud'
 import { ICON_CATEGORIES } from '../../utils/icons'
 import Toast from 'tdesign-miniprogram/toast'
 
@@ -89,7 +89,8 @@ Page({
       if (item) {
         // 图片字段存的是云存储 fileID（cloud:// 开头），旧数据可能是临时 url；
         // 统一整理成 { fileID, url }，url 直接用 fileID（<image> 原生支持 cloud:// 显示）
-        const images = (item.images || []).map((img: string) => {
+        const rawImages: string[] = item.images || []
+        const images = rawImages.map((img: string) => {
           const isCloud = typeof img === 'string' && img.indexOf('cloud://') === 0
           return { fileID: isCloud ? img : '', url: img }
         })
@@ -97,6 +98,14 @@ Page({
           itemName: item.name, quantity: item.quantity, expireDate: item.expireDate,
           images,
           selectedIcon: item.icon || 'box',
+        })
+        // 把云存储 fileID 转成 https 临时链接，确保原生/组件图片均可正常渲染（P2-07）
+        const resolved = await resolveCloudImages(rawImages)
+        this.setData({
+          images: resolved.map((img: string) => {
+            const isCloud = typeof img === 'string' && img.indexOf('cloud://') === 0
+            return { fileID: isCloud ? img : '', url: img }
+          }),
         })
         // 匹配物品的 zone/layer，定位 picker 索引
         const zoneIdx = this.data.zoneNames.indexOf(item.zoneId)
@@ -117,10 +126,7 @@ Page({
   onDateChange(e: any) { this.setData({ expireDate: e.detail.value }) },
   onTabChange(e: any) { this.setData({ activeTab: e.detail.value }) },
 
-  onUploadAdd(e: any) {
-    this.setData({ images: e.detail.files })
-  },
-  onUploadRemove(e: any) {
+  onUploadChange(e: any) {
     this.setData({ images: e.detail.files })
   },
 

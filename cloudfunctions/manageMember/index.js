@@ -40,6 +40,7 @@ exports.main = async (event) => {
   }
 
   if (action === 'list') {
+    const { OPENID } = cloud.getWXContext()
     const members = await db.collection('user_fridge')
       .where({ fridgeId }).get()
     const userIds = members.data.map((m) => m.userId)
@@ -47,7 +48,7 @@ exports.main = async (event) => {
       .where({ _openid: db.command.in(userIds) }).get()
     const result = members.data.map((m) => {
       const u = users.data.find((u) => u._openid === m.userId)
-      return { ...m, nickname: u?.nickname || '微信用户', avatarUrl: u?.avatarUrl || '' }
+      return { ...m, nickname: u?.nickname || '微信用户', avatarUrl: u?.avatarUrl || '', isCurrentUser: m.userId === OPENID }
     })
     return { code: 0, data: result }
   }

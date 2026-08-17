@@ -43,13 +43,18 @@ Page({
     }
   },
 
-  // 重建实时预览顺序：单开门且开启恒温层时，恒温层置于分区中间；双开门保持在底部
+  // 重建实时预览顺序：与详情页一致
+  // 单开门且开启恒温层时，恒温层置于分区中间；双开门恒温层保持在底部
   rebuildPreview() {
     const { zones, doorType, hasConstantZone, constantZone } = this.data
     const list = (zones || []).map((z: any) => ({ key: z.zoneId, type: 'zone', zone: z }))
-    if (doorType === 'single' && hasConstantZone && constantZone) {
-      const mid = Math.floor((zones || []).length / 2)
-      list.splice(mid, 0, { key: constantZone.zoneId, type: 'constant', zone: constantZone })
+    if (hasConstantZone && constantZone) {
+      if (doorType === 'single') {
+        const mid = Math.floor((zones || []).length / 2)
+        list.splice(mid, 0, { key: constantZone.zoneId, type: 'constant', zone: constantZone })
+      } else {
+        list.push({ key: constantZone.zoneId, type: 'constant', zone: constantZone })
+      }
     }
     this.setData({ previewZones: list })
   },
@@ -175,10 +180,7 @@ Page({
     })
   },
 
-  onUploadAdd(e: any) {
-    this.setData({ images: e.detail.files, selectedImageIndex: -1 })
-  },
-  onUploadRemove(e: any) {
+  onUploadChange(e: any) {
     this.setData({ images: e.detail.files, selectedImageIndex: -1 })
   },
 
