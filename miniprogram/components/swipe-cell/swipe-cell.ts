@@ -42,7 +42,8 @@ Component({
 
     onTouchStart(e) {
       const self = this
-      if (!self._rightWidth) self.measure()
+      // 提前（异步）测量右侧操作区宽度，避免首次 move 时 _rightWidth 仍是 0 导致无法左滑
+      self.measure()
       const t = e.touches[0]
       self._sx = t.clientX
       self._sy = t.clientY
@@ -82,8 +83,11 @@ Component({
       // 纵向滑动交给页面滚动，只在横向滑动时处理左滑
       if (self._dir !== 'horizontal') return
 
+      const rw = self._rightWidth || 0
       let offset = self._startOffset + dx
-      offset = Math.min(Math.max(offset, -self.data.rightWidth), 0)
+      // 注意：位移上限必须用实例属性 _rightWidth（P2-07 改为实例属性后，
+      // 误用 self.data.rightWidth 会恒为 0，把左滑负位移钳回 0 导致左滑失效）
+      offset = Math.min(Math.max(offset, -rw), 0)
       self._offset = offset
       self.setData({
         wrapperStyle: `transform: translate3d(${offset}px,0,0); transition: none;`,

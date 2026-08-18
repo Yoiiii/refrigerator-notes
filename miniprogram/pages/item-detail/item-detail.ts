@@ -12,6 +12,7 @@ Page({
     item: {} as any,
     editing: false, saving: false,
     canEdit: true,
+    loading: true,
     loadError: false,
     deleteVisible: false,
   },
@@ -22,6 +23,7 @@ Page({
   },
 
   async loadItem() {
+    this.setData({ loading: true })
     try {
       const data = await call('getItemDetail', {
         itemId: this.data.itemId,
@@ -43,6 +45,7 @@ Page({
           fridgeId: data.fridgeId || this.data.fridgeId,
           canEdit: !!data.canEdit,
           loadError: false,
+          loading: false,
         })
       }
     } catch (e) {
@@ -50,6 +53,7 @@ Page({
       this.setData({
         canEdit: false,
         loadError: true,
+        loading: false,
         item: {
           _id: this.data.itemId, name: '加载失败', iconEmoji: '📦', quantity: 0, unit: '',
           expireDate: '', statusTag: 'default', statusText: '加载失败',

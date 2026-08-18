@@ -28,6 +28,28 @@
     <text>物品信息加载失败，请返回重试</text>
   </view>
 
+  <!-- 骨架屏：数据加载完成前展示，避免空白闪烁 -->
+  <block wx:if="{{loading && !loadError}}">
+    <view class="card detail-header">
+      <view class="sk-thumb"></view>
+      <view class="sk-meta">
+        <view class="sk-line sk-line-1"></view>
+        <view class="sk-line sk-line-2"></view>
+      </view>
+    </view>
+    <view class="card">
+      <view class="sk-row"><view class="sk-line sk-line-1"></view></view>
+      <view class="sk-row"><view class="sk-line sk-line-1"></view></view>
+      <view class="sk-row"><view class="sk-line sk-line-1"></view></view>
+      <view class="sk-row"><view class="sk-line sk-line-2"></view></view>
+      <view class="sk-row"><view class="sk-line sk-line-1"></view></view>
+      <view class="sk-row"><view class="sk-line sk-line-2"></view></view>
+    </view>
+  </block>
+
+  <!-- 真实内容：加载完成且未出错时展示 -->
+  <block wx:elif="{{!loadError}}">
+
   <!-- 头部 -->
   <view class="card detail-header">
     <view class="detail-thumb">
@@ -69,6 +91,7 @@
       </picker>
     </view>
   </view>
+  </block>
 </scroll-view>
 
 <view class="bottom-bar" wx:if="{{canEdit}}">
