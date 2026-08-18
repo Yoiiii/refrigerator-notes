@@ -22,7 +22,7 @@
 <scroll-view class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
   <view class="card" wx:if="{{members.length > 0}}">
     <view class="member-card" wx:for="{{members}}" wx:key="userId">
-      <t-avatar size="medium" icon="user" />
+      <t-avatar size="medium" image="{{item.avatarUrl || ''}}" icon="{{item.avatarUrl ? '' : 'user'}}" />
       <view class="member-info">
         <view class="member-name">
           <text class="member-name-text">{{item.nickname || '微信用户'}}</text>

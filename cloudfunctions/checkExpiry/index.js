@@ -61,25 +61,31 @@ exports.main = async () => {
 
     // 仅对发送成功的分组标记已通知，失败分组保留 notified:false 并累加 retryCount，避免提醒永久丢失（P1-03）
     const successIds = []
+    const TEMPLATE_ID = '6x2llq5TwIj-EkeFnpDi2M6rmBNc5-a-wke0wl6bk8E'
     for (const [fridgeId, fridgeItems] of Object.entries(byFridge)) {
       const firstItem = fridgeItems[0]
-      const diffDays = Math.ceil((new Date(firstItem.expireDate) - now) / 86400000)
+      // thing 类字段限 20 个字符（按字符截断更直观，避免小程序端显示被截断）
+      const thingLimit = (s) => (s || '').slice(0, 18)
+      const location = [
+        firstItem.fridgeName || '冰箱',
+        firstItem.locationText || firstItem.layerName || firstItem.zoneName || '',
+      ].filter(Boolean).join(' · ')
 
       try {
         await cloud.openapi.subscribeMessage.send({
           touser: user._openid,
-          templateId: 'YOUR_TEMPLATE_ID',
+          templateId: TEMPLATE_ID,
           page: `pages/fridge/fridge?fridgeId=${fridgeId}`,
           data: {
-            thing1: { value: firstItem.name },
-            number2: { value: diffDays },
-            thing3: { value: `${fridgeItems.length} 件物品临期` },
+            thing1: { value: thingLimit(firstItem.name) },
+            date3: { value: firstItem.expireDate },
+            thing4: { value: thingLimit(location) },
           },
         })
         successIds.push(...fridgeItems.map((i) => i._id))
       } catch (e) {
         console.error('send msg fail:', e)
-        // 发送失败：保留未通知状态并累加重试次数（待确认：需替换真实 templateId 才能实际送达）
+        // 发送失败：保留未通知状态并累加重试次数
         const failIds = fridgeItems.map((i) => i._id)
         await db.collection('items')
           .where({ _id: _.in(failIds) })

@@ -16,14 +16,15 @@
 </view>
 
 <scroll-view class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
-  <!-- 用户信息 -->
-  <view class="user-card">
+  <!-- 用户信息：点击授权获取微信头像昵称（P2-13） -->
+  <view class="user-card" bind:tap="onGetUserProfile">
     <image class="user-avatar" wx:if="{{userInfo.avatar}}" src="{{userInfo.avatar}}" mode="aspectFill" />
     <view class="user-avatar" wx:else>👤</view>
     <view class="user-meta">
       <view class="user-name">{{userInfo.nickname || '微信用户'}}</view>
-      <view class="user-id">已授权微信登录</view>
+      <view class="user-id">{{userInfo.avatar && userInfo.nickname ? '已授权微信登录' : '点击获取微信头像昵称'}}</view>
     </view>
+    <t-icon name="chevron-right" size="28rpx" color="rgba(0,0,0,0.25)" />
   </view>
 
   <!-- 外观设置 / 主题切换 -->

@@ -55,13 +55,35 @@ Page({
       this.setData({
         userInfo: {
           nickname: ui.nickname,
-          avatar: ui.avatarUrl || '',
+          avatar: ui.avatarUrl || ui.avatar || '',
         },
         // 重新进入「我的」时回显通知设置，避免被默认值覆盖（P2-08）
         notifyDays: ui.notifyDays || this.data.notifyDays,
         notifyEnabled: ui.notifyEnabled !== undefined ? ui.notifyEnabled : this.data.notifyEnabled,
       })
     }
+  },
+
+  // 获取微信头像昵称并同步到云端（P2-13）
+  onGetUserProfile() {
+    wx.getUserProfile({
+      desc: '用于在「我的」页面展示头像昵称',
+      success: (res) => {
+        const { nickName, avatarUrl } = res.userInfo
+        const ui = app.globalData.userInfo || {}
+        ui.nickname = nickName
+        ui.avatarUrl = avatarUrl
+        app.globalData.userInfo = ui
+        this.setData({
+          userInfo: { nickname: nickName, avatar: avatarUrl },
+        })
+        // 同步到云端用户表
+        call('login', { nickname: nickName, avatarUrl }, { silent: true }).catch(() => {})
+      },
+      fail: () => {
+        Toast({ context: this, message: '获取头像昵称失败，请允许授权', selector: '#t-toast' })
+      },
+    })
   },
 
   initThemes() {

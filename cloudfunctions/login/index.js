@@ -40,10 +40,14 @@ exports.main = async (event) => {
     }
   }
 
-  await db.collection('users').doc(exist.data[0]._id).update({
-    data: { updatedAt: now },
-  })
-  return { code: 0, data: exist.data[0] }
+  const updateData = { updatedAt: now }
+  if (event.nickname !== undefined && event.nickname) updateData.nickname = event.nickname
+  if (event.avatarUrl !== undefined) updateData.avatarUrl = event.avatarUrl
+  await db.collection('users').doc(exist.data[0]._id).update({ data: updateData })
+  // 返回更新后的用户数据，避免前端使用缓存旧值
+  const updatedUser = { ...exist.data[0], ...updateData }
+  delete updatedUser.updatedAt
+  return { code: 0, data: updatedUser }
  } catch (e) {
   console.error('login error:', e)
   return { code: -99, msg: e?.message || '服务器错误' }
