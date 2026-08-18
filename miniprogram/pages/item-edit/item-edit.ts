@@ -1,5 +1,5 @@
 // item-edit.ts
-import { call, resolveCloudImages } from '../../utils/cloud'
+import { call, uploadFile, deleteFile, resolveCloudImages } from '../../utils/cloud'
 import { ICON_CATEGORIES } from '../../utils/icons'
 import Toast from 'tdesign-miniprogram/toast'
 
@@ -97,7 +97,7 @@ Page({
         const rawImages: string[] = item.images || []
         const images = rawImages.map((img: string) => {
           const isCloud = typeof img === 'string' && img.indexOf('cloud://') === 0
-          return { fileID: isCloud ? img : '', url: img }
+          return { fileID: isCloud ? img : '', url: img, type: 'image' }
         })
         this.setData({
           itemName: item.name, quantity: item.quantity, expireDate: item.expireDate,
@@ -110,7 +110,7 @@ Page({
         this.setData({
           images: resolved.map((img: string) => {
             const isCloud = typeof img === 'string' && img.indexOf('cloud://') === 0
-            return { fileID: isCloud ? img : '', url: img }
+            return { fileID: isCloud ? img : '', url: img, type: 'image' }
           }),
         })
         // 匹配物品的 zone/layer，定位 picker 索引（按 zoneId 而非名称匹配，P1-01）
@@ -132,8 +132,46 @@ Page({
   onDateChange(e: any) { this.setData({ expireDate: e.detail.value }) },
   onTabChange(e: any) { this.setData({ activeTab: e.detail.value }) },
 
-  onUploadChange(e: any) {
-    this.setData({ images: e.detail.files })
+  async onUploadAdd(e: any) {
+    const selected: any[] = (e.detail && e.detail.files) || []
+    if (!selected.length || this._uploading) return
+    this._uploading = true
+    wx.showLoading({ title: '上传中', mask: true })
+    try {
+      const uploaded: any[] = []
+      for (const f of selected) {
+        const localPath = f.url || f.tempFilePath || f.path
+        if (!localPath) continue
+        const ext = (localPath.split('.').pop() || 'png').split('?')[0]
+        const cloudPath = `uploads/${Date.now()}_${Math.floor(Math.random() * 1e6)}.${ext}`
+        try {
+          const fileID = await uploadFile(cloudPath, localPath)
+          const resolvedUrl = (await resolveCloudImages([fileID]))[0] || fileID
+          uploaded.push({ fileID, url: resolvedUrl, type: 'image' })
+        } catch (err) {
+          console.error('upload item image error:', err)
+          wx.showToast({ title: '上传失败', icon: 'none' })
+        }
+      }
+      if (uploaded.length) {
+        this.setData({ images: [...this.data.images, ...uploaded].slice(0, 3) })
+      }
+    } finally {
+      wx.hideLoading()
+      this._uploading = false
+    }
+  },
+
+  onUploadRemove(e: any) {
+    const index = e.detail && e.detail.index
+    if (index === undefined) return
+    const images = this.data.images.slice()
+    const removed = images[index]
+    images.splice(index, 1)
+    this.setData({ images })
+    if (removed && removed.fileID) {
+      deleteFile([removed.fileID]).catch(() => { })
+    }
   },
 
   onIconSelect(e: any) {

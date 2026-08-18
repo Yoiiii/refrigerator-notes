@@ -1,5 +1,5 @@
 // fridge-create.ts
-import { call } from '../../utils/cloud'
+import { call, uploadFile, deleteFile, resolveCloudImages } from '../../utils/cloud'
 import { refreshFridgeLists } from '../../utils/refresh'
 import Toast from 'tdesign-miniprogram/toast'
 
@@ -84,7 +84,12 @@ Page({
       if (data) {
         const image = data.image || ''
         const imageIndex = image ? PRESET_IMAGES.indexOf(image) : -1
-        const images = image && imageIndex === -1 ? [{ url: image }] : []
+        let images: any[] = []
+        if (image && imageIndex === -1) {
+          const isCloud = image.indexOf('cloud://') === 0
+          const resolvedUrl = isCloud ? (await resolveCloudImages([image]))[0] || image : image
+          images = [{ fileID: isCloud ? image : '', url: resolvedUrl, type: 'image' }]
+        }
         this.setData({
           fridgeName: data.name, doorType: data.doorType,
           hasConstantZone: data.hasConstantZone || false,
@@ -180,8 +185,46 @@ Page({
     })
   },
 
-  onUploadChange(e: any) {
-    this.setData({ images: e.detail.files, selectedImageIndex: -1 })
+  async onUploadAdd(e: any) {
+    const selected: any[] = (e.detail && e.detail.files) || []
+    if (!selected.length || this._uploading) return
+    this._uploading = true
+    wx.showLoading({ title: '上传中', mask: true })
+    try {
+      const f = selected[0]
+      const localPath = f.url || f.tempFilePath || f.path
+      if (localPath) {
+        const ext = (localPath.split('.').pop() || 'png').split('?')[0]
+        const cloudPath = `fridge_icons/${Date.now()}_${Math.floor(Math.random() * 1e6)}.${ext}`
+        try {
+          const fileID = await uploadFile(cloudPath, localPath)
+          const resolvedUrl = (await resolveCloudImages([fileID]))[0] || fileID
+          this.setData({
+            images: [{ fileID, url: resolvedUrl, type: 'image' }],
+            selectedImage: '',
+            selectedImageIndex: -1,
+          })
+        } catch (err) {
+          console.error('upload fridge image error:', err)
+          wx.showToast({ title: '上传失败', icon: 'none' })
+        }
+      }
+    } finally {
+      wx.hideLoading()
+      this._uploading = false
+    }
+  },
+
+  onUploadRemove(e: any) {
+    const index = e.detail && e.detail.index
+    if (index === undefined) return
+    const images = this.data.images.slice()
+    const removed = images[index]
+    images.splice(index, 1)
+    this.setData({ images })
+    if (removed && removed.fileID) {
+      deleteFile([removed.fileID]).catch(() => { })
+    }
   },
 
   async onSave() {
@@ -194,7 +237,7 @@ Page({
         hasConstantZone: this.data.hasConstantZone,
         constantZone: this.data.hasConstantZone ? this.data.constantZone : undefined,
         zones: this.data.zones,
-        image: this.data.images[0]?.url || this.data.images[0]?.fileID || this.data.selectedImage || '',
+        image: this.data.images[0]?.fileID || this.data.images[0]?.url || this.data.selectedImage || '',
       }
       if (this.data.isEdit) {
         await call('updateFridge', { fridgeId: this.data.fridgeId, ...payload })

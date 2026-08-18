@@ -1,5 +1,6 @@
 {
   "cloud": true,
+  "__usePrivacyCheck__": true,
   "pages": [
     "pages/index/index",
     "pages/fridge/fridge",
@@ -26,6 +27,7 @@
     "t-cell-group": "tdesign-miniprogram/cell-group/cell-group",
     "t-input": "tdesign-miniprogram/input/input",
     "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-upload": "tdesign-miniprogram/upload/upload",
     "t-toast": "tdesign-miniprogram/toast/toast",
     "t-dialog": "tdesign-miniprogram/dialog/dialog",
     "t-tab-bar": "tdesign-miniprogram/tab-bar/tab-bar",
@@ -43,7 +45,6 @@
     "t-action-sheet": "tdesign-miniprogram/action-sheet/action-sheet",
     "t-date-time-picker": "tdesign-miniprogram/date-time-picker/date-time-picker",
     "t-cascader": "tdesign-miniprogram/cascader/cascader",
-
     "t-form": "tdesign-miniprogram/form/form",
     "t-form-item": "tdesign-miniprogram/form-item/form-item",
     "my-swipe-cell": "components/swipe-cell/swipe-cell",
