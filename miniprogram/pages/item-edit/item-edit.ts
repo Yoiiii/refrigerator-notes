@@ -5,6 +5,9 @@ import Toast from 'tdesign-miniprogram/toast'
 
 const app = getApp<IAppOption>()
 
+// 临期提醒订阅消息模板 ID（与 checkExpiry 云函数保持一致）
+const EXPIRY_TEMPLATE_ID = '6x2llq5TwIj-EkeFnpDi2M6rmBNc5-a-wke0wl6bk8E'
+
 Page({
   data: {
     theme: 'warm',
@@ -170,6 +173,15 @@ Page({
   async onSave() {
     if (!this.data.itemName) { Toast({ context: this, message: '请输入物品名称', selector: '#t-toast' }); return }
     if (!this.data.expireDate) { Toast({ context: this, message: '请选择保质期', selector: '#t-toast' }); return }
+    // 顺带申请临期提醒订阅授权：必须在用户点击手势内同步发起（首个 await 之前），否则微信会拒绝弹窗
+    const notifyEnabled = app.globalData.userInfo?.notifyEnabled
+    if (notifyEnabled !== false) {
+      wx.requestSubscribeMessage({
+        tmplIds: [EXPIRY_TEMPLATE_ID],
+        success: () => {},
+        fail: () => {},
+      })
+    }
     this.setData({ saving: true })
     try {
       const payload: any = {
