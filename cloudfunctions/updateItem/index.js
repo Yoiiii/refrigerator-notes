@@ -8,7 +8,11 @@ exports.main = async (event) => {
   const { itemId, fridgeId, name, icon, quantity, unit, expireDate, images, zoneId, layerId } = event
   if (!itemId || !fridgeId) return { code: -2, msg: '缺少必要参数' }
 
-  await checkFridgePermission(fridgeId, ['owner', 'readwrite'])
+  try {
+    await checkFridgePermission(fridgeId, ['owner', 'readwrite'])
+  } catch (err) {
+    return { code: err.code || -1, msg: err.msg || '无权限操作' }
+  }
 
   // 校验物品确实属于该冰箱，防止越权修改其它冰箱物品（P2-10）
   const itemDoc = await db.collection('items').doc(itemId).get()

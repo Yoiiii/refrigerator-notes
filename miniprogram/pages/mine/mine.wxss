@@ -139,3 +139,28 @@
   height: 28rpx;
   border-radius: 6rpx;
 }
+
+/* P2-06：头像选择按钮（重置 button 默认样式） */
+.user-avatar-btn {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  line-height: normal;
+  width: 128rpx;
+  height: 128rpx;
+  flex-shrink: 0;
+}
+.user-avatar-btn::after {
+  border: none;
+}
+.user-name-input {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.88);
+  width: 100%;
+}
+.user-name-ph {
+  color: rgba(0, 0, 0, 0.35);
+  font-weight: 400;
+}

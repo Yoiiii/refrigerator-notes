@@ -62,9 +62,9 @@ All database access goes through cloud functions — **clients never connect dir
 | `login` | Get/upsert user record, return theme preference |
 | `createFridge` / `updateFridge` / `deleteFridge` | Fridge CRUD (create also inserts `user_fridge`; delete cascades items + files) |
 | `getFridgeList` / `getFridgeDetail` | Query fridges with item counts and expiry status |
-| `getDefaultFridge` / `updateDefaultFridge` | User's default fridge preference |
+| `updateDefaultFridge` | User's default fridge preference |
 | `addItem` / `updateItem` / `deleteItem` | Item CRUD with write-permission check |
-| `getItemsByLayer` / `getExpiringItems` | Item queries with expiry status computed server-side |
+| `getExpiringItems` | Item queries with expiry status computed server-side |
 | `generateQRCode` | Generate `wxacode.getUnlimited` QR code, upload to cloud storage |
 | `joinFridge` | Process scanned QR → validate → create `user_fridge` record |
 | `manageMember` | Change role / remove member / transfer ownership (owner only) |

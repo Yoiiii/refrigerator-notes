@@ -16,15 +16,24 @@
 </view>
 
 <scroll-view class="page-container" scroll-y enhanced show-scrollbar="{{false}}">
-  <!-- 用户信息：点击授权获取微信头像昵称（P2-13） -->
-  <view class="user-card" bind:tap="onGetUserProfile">
-    <image class="user-avatar" wx:if="{{userInfo.avatar}}" src="{{userInfo.avatar}}" mode="aspectFill" />
-    <view class="user-avatar" wx:else>👤</view>
+  <!-- 用户信息：选择头像 + 填写昵称（P2-06 替代已废弃的 getUserProfile） -->
+  <view class="user-card">
+    <button class="user-avatar-btn" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+      <image class="user-avatar" wx:if="{{userInfo.avatar}}" src="{{userInfo.avatar}}" mode="aspectFill" />
+      <view class="user-avatar" wx:else>👤</view>
+    </button>
     <view class="user-meta">
-      <view class="user-name">{{userInfo.nickname || '微信用户'}}</view>
-      <view class="user-id">{{userInfo.avatar && userInfo.nickname ? '已授权微信登录' : '点击获取微信头像昵称'}}</view>
+      <input
+        class="user-name-input"
+        type="nickname"
+        placeholder="点击填写昵称"
+        placeholder-class="user-name-ph"
+        value="{{userInfo.nickname}}"
+        bind:change="onNicknameInput"
+        bind:blur="onNicknameInput"
+      />
+      <view class="user-id">{{userInfo.avatar && userInfo.nickname && userInfo.nickname !== '微信用户' ? '头像昵称已设置' : '点击头像与昵称完成设置'}}</view>
     </view>
-    <t-icon name="chevron-right" size="28rpx" color="rgba(0,0,0,0.25)" />
   </view>
 
   <!-- 外观设置 / 主题切换 -->

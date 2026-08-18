@@ -64,26 +64,27 @@ Page({
     }
   },
 
-  // 获取微信头像昵称并同步到云端（P2-13）
-  onGetUserProfile() {
-    wx.getUserProfile({
-      desc: '用于在「我的」页面展示头像昵称',
-      success: (res) => {
-        const { nickName, avatarUrl } = res.userInfo
-        const ui = app.globalData.userInfo || {}
-        ui.nickname = nickName
-        ui.avatarUrl = avatarUrl
-        app.globalData.userInfo = ui
-        this.setData({
-          userInfo: { nickname: nickName, avatar: avatarUrl },
-        })
-        // 同步到云端用户表
-        call('login', { nickname: nickName, avatarUrl }, { silent: true }).catch(() => {})
-      },
-      fail: () => {
-        Toast({ context: this, message: '获取头像昵称失败，请允许授权', selector: '#t-toast' })
-      },
-    })
+  // 选择微信头像并同步到云端（P2-06：替代已废弃的 getUserProfile）
+  onChooseAvatar(e: any) {
+    const avatarUrl = e.detail?.avatarUrl
+    if (!avatarUrl) return
+    const ui = app.globalData.userInfo || {}
+    ui.avatarUrl = avatarUrl
+    ui.avatar = avatarUrl
+    app.globalData.userInfo = ui
+    this.setData({ userInfo: { nickname: ui.nickname || '微信用户', avatar: avatarUrl } })
+    call('login', { avatarUrl }, { silent: true }).catch(() => {})
+  },
+
+  // 填写昵称并同步到云端（type=nickname 输入框由微信提供一键填充）
+  onNicknameInput(e: any) {
+    const nickname = (e.detail?.value || '').trim()
+    if (!nickname) return
+    const ui = app.globalData.userInfo || {}
+    ui.nickname = nickname
+    app.globalData.userInfo = ui
+    this.setData({ 'userInfo.nickname': nickname })
+    call('login', { nickname }, { silent: true }).catch(() => {})
   },
 
   initThemes() {

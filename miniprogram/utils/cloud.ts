@@ -6,36 +6,57 @@
  * @param data 参数
  * @returns Promise<any>
  */
-export function call(name: string, data: Record<string, any> = {}, opts: { silent?: boolean } = {}): Promise<any> {
+export function call(name: string, data: Record<string, any> = {}, opts: { silent?: boolean; timeout?: number } = {}): Promise<any> {
+  // 超时控制：默认 15s，避免弱网/云函数卡死时永久 pending（P2-01）
+  const timeout = opts.timeout ?? 15000
   return new Promise((resolve, reject) => {
+    let settled = false
+    const timer = setTimeout(() => {
+      if (settled) return
+      settled = true
+      if (!opts.silent) {
+        wx.showToast({ title: '请求超时，请重试', icon: 'none', duration: 2000 })
+      }
+      reject(new Error('request timeout'))
+    }, timeout)
+    const finish = (fn: () => void) => {
+      if (settled) return
+      settled = true
+      clearTimeout(timer)
+      fn()
+    }
     wx.cloud.callFunction({
       name,
       data,
       success: (res) => {
-        const result = res.result as any
-        if (result && result.code === 0) {
-          resolve(result.data)
-        } else {
+        finish(() => {
+          const result = res.result as any
+          if (result && result.code === 0) {
+            resolve(result.data)
+          } else {
+            if (!opts.silent) {
+              wx.showToast({
+                title: result?.msg || '操作失败',
+                icon: 'none',
+                duration: 2000,
+              })
+            }
+            reject(result)
+          }
+        })
+      },
+      fail: (err) => {
+        finish(() => {
+          console.error(`[cloud] ${name} error:`, err)
           if (!opts.silent) {
             wx.showToast({
-              title: result?.msg || '操作失败',
+              title: '网络错误，请重试',
               icon: 'none',
               duration: 2000,
             })
           }
-          reject(result)
-        }
-      },
-      fail: (err) => {
-        console.error(`[cloud] ${name} error:`, err)
-        if (!opts.silent) {
-          wx.showToast({
-            title: '网络错误，请重试',
-            icon: 'none',
-            duration: 2000,
-          })
-        }
-        reject(err)
+          reject(err)
+        })
       },
     })
   })

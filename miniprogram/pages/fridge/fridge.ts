@@ -22,6 +22,8 @@ Page({
     swipeRight: [{ text: "删除", className: "swipe-delete" }],
     deleteVisible: false,
     deleteItemId: "",
+    role: "",
+    loadError: false,
   },
 
   onLoad(options: any) {
@@ -47,6 +49,7 @@ Page({
       // 静默刷新：内容微微变淡，作为过渡动画的起点
       this.setData({ refreshing: true })
     }
+    this.setData({ loadError: false })
     try {
       const data = await call("getFridgeDetail", {
         fridgeId: this.data.fridgeId,
@@ -163,6 +166,7 @@ Page({
 
         this.setData({
           fridgeName: data.name || "冰箱",
+          role: data.role || "",
           fridgeImage,
           doorType: data.doorType || "double",
           doorTypeText: data.doorType === "double" ? "双开门" : "单开门",
@@ -175,6 +179,8 @@ Page({
       }
     } catch (e) {
       console.error("loadFridgeData error:", e);
+      this.setData({ loadError: true });
+      wx.showToast({ title: "加载失败，请重试", icon: "none" });
     } finally {
       this.setData({ loading: false, refreshing: false });
     }
@@ -267,5 +273,9 @@ Page({
 
   onDeleteCancel() {
     this.setData({ deleteVisible: false });
+  },
+
+  onRetry() {
+    this.loadFridgeData(true);
   },
 });

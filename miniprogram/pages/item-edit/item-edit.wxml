@@ -19,7 +19,7 @@
     </view>
     <view class="form-cell">
       <text class="cell-label">保质期</text>
-      <picker mode="date" value="{{expireDate}}" start="2026-01-01" end="2030-12-31" bind:change="onDateChange">
+      <picker mode="date" value="{{expireDate}}" start="{{minDate}}" end="{{maxDate}}" bind:change="onDateChange">
         <view class="picker-val">
           <text>{{expireDate || '请选择日期'}}</text>
           <t-icon name="chevron-right" size="28rpx" color="rgba(0,0,0,0.35)" />

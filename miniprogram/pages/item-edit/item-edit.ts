@@ -30,10 +30,18 @@ Page({
     selectedIcon: 'milk',
     iconCategories: ICON_CATEGORIES,
     saving: false,
+    minDate: '',
+    maxDate: '',
   },
 
   async onLoad(options: any) {
     this.setData({ theme: app.globalData.theme || 'warm' })
+    // 保质期 picker 动态范围：今天 ~ 今天+5 年（P2-05），替代写死的 2026-2030
+    const now = new Date()
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+    const maxDate = `${now.getFullYear() + 5}-12-31`
+    this.setData({ minDate: today, maxDate })
     if (options.fridgeId) this.setData({ fridgeId: options.fridgeId })
     if (options.zoneId) this.setData({ zoneId: options.zoneId })
     if (options.layerId) this.setData({ layerId: options.layerId })
@@ -213,14 +221,18 @@ Page({
     if (!this.data.expireDate) { Toast({ context: this, message: '请选择保质期', selector: '#t-toast' }); return }
     // 顺带申请临期提醒订阅授权：必须在用户点击手势内同步发起（首个 await 之前），否则微信会拒绝弹窗
     const notifyEnabled = app.globalData.userInfo?.notifyEnabled
-    if (notifyEnabled !== false) {
+    // 订阅授权去重：同一设备仅主动询问一次，避免每次保存都弹窗（P2-07）
+    const subscribeAsked = wx.getStorageSync('expirySubscribeAsked')
+    if (notifyEnabled !== false && !subscribeAsked) {
       wx.requestSubscribeMessage({
         tmplIds: [EXPIRY_TEMPLATE_ID],
         success: (res: any) => {
+          wx.setStorageSync('expirySubscribeAsked', true)
           // res[模板ID] 取值：accept=允许 / reject=用户拒绝 / ban=模板被封禁或非法（此时不会弹窗）
           console.log('[subscribe] 授权结果:', res, '本模板:', res?.[EXPIRY_TEMPLATE_ID])
         },
         fail: (err: any) => {
+          wx.setStorageSync('expirySubscribeAsked', true)
           // 真机不弹窗多半是这里报错（如 errCode 20001 模板ID未在小程序后台登记）
           console.error('[subscribe] 授权失败:', err)
           Toast({ context: this, message: `订阅授权失败 ${err?.errCode || ''}`, selector: '#t-toast' })

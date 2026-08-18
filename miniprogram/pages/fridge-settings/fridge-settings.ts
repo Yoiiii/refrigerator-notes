@@ -57,6 +57,10 @@ Page({
         app.globalData.fridgeListVersion++
         // 主动刷新页面栈里的首页/我的列表（不依赖 onShow 时序）
         refreshFridgeLists()
+        // 若删除的是默认冰箱，清理全局默认标记（云函数已同步清 defaultFridgeId）
+        if (app.globalData.userInfo && app.globalData.userInfo.defaultFridgeId === this.data.fridgeId) {
+          app.globalData.userInfo.defaultFridgeId = ''
+        }
         wx.showToast({ title: '删除成功', icon: 'success' })
         // 等成功提示停留片刻再返回，避免页面卸载时 toast 被同部销毁
         setTimeout(() => {

@@ -74,7 +74,14 @@
     <view class="stats-item"><view class="sk-block" style="width:70rpx;height:36rpx;margin:0 auto 10rpx"></view><view class="sk-block" style="width:50rpx;height:20rpx;margin:0 auto"></view></view>
     <view class="stats-item"><view class="sk-block" style="width:70rpx;height:36rpx;margin:0 auto 10rpx"></view><view class="sk-block" style="width:50rpx;height:20rpx;margin:0 auto"></view></view>
   </view>
-</scroll-view>
+  </scroll-view>
+
+<!-- 加载失败：空态 + 重试（P1-01） -->
+<view wx:elif="{{loadError}}" style="padding:160rpx 40rpx;text-align:center;">
+  <view style="font-size:80rpx;margin-bottom:24rpx;">😕</view>
+  <view style="font-size:30rpx;color:rgba(0,0,0,0.6);margin-bottom:40rpx;">冰箱数据加载失败</view>
+  <t-button theme="primary" size="medium" bind:tap="onRetry">重新加载</t-button>
+</view>
 
 <scroll-view wx:else class="page-container {{refreshing ? 'is-refreshing' : ''}}" scroll-y enhanced show-scrollbar="{{false}}">
   <!-- 拟物冰箱外壳 -->
@@ -127,9 +134,9 @@
                     </view>
                     <t-badge count="{{item.quantity}}" size="small" />
                   </view>
-                  <view slot="right" class="swipe-delete" data-item-id="{{item._id}}" catch:tap="onDeleteItem">删除</view>
+                  <view slot="right" class="swipe-delete" wx:if="{{role !== 'readonly'}}" data-item-id="{{item._id}}" catch:tap="onDeleteItem">删除</view>
                 </my-swipe-cell>
-                <view class="add-item-row" catch:tap="onAddItemFromLayer" data-zone-id="{{item.zoneId}}" data-layer-id="{{layer.layerId}}">
+                <view class="add-item-row" wx:if="{{role !== 'readonly'}}" catch:tap="onAddItemFromLayer" data-zone-id="{{item.zoneId}}" data-layer-id="{{layer.layerId}}">
                   <t-icon name="add" size="24rpx" color="var(--td-brand-color)" />
                   <text>添加物品</text>
                 </view>
@@ -174,9 +181,9 @@
                     </view>
                     <t-badge count="{{item.quantity}}" size="small" />
                   </view>
-                  <view slot="right" class="swipe-delete" data-item-id="{{item._id}}" catch:tap="onDeleteItem">删除</view>
+                  <view slot="right" class="swipe-delete" wx:if="{{role !== 'readonly'}}" data-item-id="{{item._id}}" catch:tap="onDeleteItem">删除</view>
                 </my-swipe-cell>
-                <view class="add-item-row" catch:tap="onAddItemFromLayer" data-zone-id="{{entry.zone.zoneId}}" data-layer-id="{{layer.layerId}}">
+                <view class="add-item-row" wx:if="{{role !== 'readonly'}}" catch:tap="onAddItemFromLayer" data-zone-id="{{entry.zone.zoneId}}" data-layer-id="{{layer.layerId}}">
                   <t-icon name="add" size="24rpx" color="var(--td-brand-color)" />
                   <text>添加物品</text>
                 </view>
@@ -218,7 +225,7 @@
                   </view>
                   <t-badge count="{{item.quantity}}" size="small" />
                 </view>
-                <view slot="right" class="swipe-delete" data-item-id="{{item._id}}" catch:tap="onDeleteItem">删除</view>
+                <view slot="right" class="swipe-delete" wx:if="{{role !== 'readonly'}}" data-item-id="{{item._id}}" catch:tap="onDeleteItem">删除</view>
               </my-swipe-cell>
               <view class="add-item-row" catch:tap="onAddItemFromLayer" data-zone-id="{{constantZone.zoneId}}" data-layer-id="{{layer.layerId}}">
                 <t-icon name="add" size="24rpx" color="var(--td-brand-color)" />

@@ -10,7 +10,11 @@ exports.main = async (event) => {
     return { code: -2, msg: '缺少必要参数' }
   }
 
-  await checkFridgePermission(fridgeId, ['owner', 'readwrite'])
+  try {
+    await checkFridgePermission(fridgeId, ['owner', 'readwrite'])
+  } catch (err) {
+    return { code: err.code || -1, msg: err.msg || '无权限操作' }
+  }
 
   const { OPENID } = cloud.getWXContext()
   const now = db.serverDate()

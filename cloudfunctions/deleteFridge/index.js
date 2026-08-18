@@ -8,7 +8,18 @@ exports.main = async (event) => {
   const { fridgeId } = event
   if (!fridgeId) return { code: -2, msg: '缺少 fridgeId' }
 
-  await checkFridgePermission(fridgeId, ['owner'])
+  let openid
+  try {
+    ({ openid } = await checkFridgePermission(fridgeId, ['owner']))
+  } catch (err) {
+    return { code: err.code || -1, msg: err.msg || '无权限操作' }
+  }
+
+  // 清理默认冰箱标记，避免 users.defaultFridgeId 悬空（P2-04）
+  const userRes = await db.collection('users').where({ _openid: openid }).get()
+  if (userRes.data.length > 0 && userRes.data[0].defaultFridgeId === fridgeId) {
+    await db.collection('users').doc(userRes.data[0]._id).update({ data: { defaultFridgeId: '' } })
+  }
 
   // 收集所有物品图片
   const items = await db.collection('items').where({ fridgeId }).get()
