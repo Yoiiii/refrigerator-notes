@@ -6,7 +6,7 @@ import Toast from 'tdesign-miniprogram/toast'
 const app = getApp<IAppOption>()
 
 // 临期提醒订阅消息模板 ID（与 checkExpiry 云函数保持一致）
-const EXPIRY_TEMPLATE_ID = '6x2llq5TwIj-EkeFnpDi2M6rmBNc5-a-wke0wl6bk8E'
+const EXPIRY_TEMPLATE_ID = '6x2llq5Twlj-EkeFnpDi2M6rmBNc5-a-wke0wl6bk8E'
 
 Page({
   data: {

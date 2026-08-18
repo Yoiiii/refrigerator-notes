@@ -61,7 +61,7 @@ exports.main = async () => {
 
     // 仅对发送成功的分组标记已通知，失败分组保留 notified:false 并累加 retryCount，避免提醒永久丢失（P1-03）
     const successIds = []
-    const TEMPLATE_ID = '6x2llq5TwIj-EkeFnpDi2M6rmBNc5-a-wke0wl6bk8E'
+    const TEMPLATE_ID = '6x2llq5Twlj-EkeFnpDi2M6rmBNc5-a-wke0wl6bk8E'
     for (const [fridgeId, fridgeItems] of Object.entries(byFridge)) {
       const firstItem = fridgeItems[0]
       // thing 类字段限 20 个字符（按字符截断更直观，避免小程序端显示被截断）
