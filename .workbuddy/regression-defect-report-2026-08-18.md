@@ -310,16 +310,18 @@ this.setData({ /* …原有… */ role: data.role })
 | P2-08 | 每次保存都弹订阅授权 | `item-edit.ts` `onSave` 加 `expirySubscribeAsked` 本地标记（`wx.setStorageSync`），同设备仅弹一次 | 代码走查 |
 | P2-13 | 删除默认冰箱后 `defaultFridgeId` 悬空 | `deleteFridge` 删除前清理 `users.defaultFridgeId`（按 `checkFridgePermission` 返回的 openid 定位）；`fridge-settings.ts` 删除成功后同步清空 `globalData.userInfo.defaultFridgeId` | `node --check` |
 
-### 6.2 仍待修复（本轮未覆盖 / 超出本次范围）
+### 6.2 原待修复项（已于 2026-08-18 晚补充修复，commit `da1b14c`）
 
-| 报告 ID | 缺陷 | 说明 |
-|---------|------|------|
-| P2-02 | 删除失败 `onDeleteConfirm` catch 为空 | 用户本次未要求；建议 `.catch` 补「删除失败」toast（`deleteItem` 已结构化返回，前端现在能取到 msg） |
-| P2-05 | 分享二维码 `scene` 恰 32 字符上限 | 临界风险，当前标准 `_id` 可用；建议缩短编码留余量（非紧急） |
-| P2-09 | `downloadFile` 云存储域名白名单 | 依赖真机 + MP 后台确认 |
-| P2-10 | 冰箱设置页加载失败无错误态 | 建议加错误 banner/重试 |
-| P2-11 | 临期文案「临期0天」措辞 | 建议今天到期显示「今天到期」 |
-| P2-12 | 预设图标 `wx:key="index"` 反模式 | 低优，建议用图片路径作 key |
+| 报告 ID | 缺陷 | 修复位置 |
+|---------|------|----------|
+| P2-02 | 删除失败 `onDeleteConfirm` catch 为空 | `fridge.ts` `.catch` 补 `wx.showToast({title:'删除失败，请重试'})` |
+| P2-05 | 分享二维码 `scene` 恰 32 字符上限 | `generateQRCode` 去掉 `\|` 分隔符（定长 fridgeId24+role2+dayTs，约 30 字符），加 `>32` 护栏返回明确错误；`scan-result` 解码端 `indexOf('\|')!==-1` 分支向后兼容旧 `\|` 格式 |
+| P2-09 | `downloadFile` 云存储域名白名单 | `share-qrcode.ts` `onSaveQR` catch 细分：相册授权→引导设置页；下载/域名失败→提示「检查网络或域名白名单」 |
+| P2-10 | 冰箱设置页加载失败无错误态 | `fridge-settings.ts` catch 置 `loadError`+toast；`fridge-settings.wxml` 增 `wx:elif="{{loadError}}"` 错误 banner + 重新加载（内联样式与冰箱页一致） |
+| P2-11 | 临期文案「临期0天」措辞 | `fridge.ts` `getExpireText` 与 `getExpiringItems` 云函数 `diffDays===0` 时显示「今天到期」（与 `getItemDetail` 一致） |
+| P2-12 | 预设图标 `wx:key="index"` 反模式 | `fridge-create.wxml` 改 `wx:key="*this"`（字符串数组用元素值即图片路径作 key） |
+
+> 至此报告所列 **P1×2 + P2×13 全部闭环**。注：`docs/prd-*.md` 仍描述旧 `scene` 格式（`fridgeId|role|Date.now()`），属历史设计文档，未同步更新（编码已实际改短，不影响功能）。
 
 ### 6.3 备注
 - 报告「覆盖概览」表写「P2: 10」，但本清单实际列出 P2-01~P2-13 共 13 项（含本轮已修复 7 项、待修复 6 项），系原报告计数误差，以本节明细为准。

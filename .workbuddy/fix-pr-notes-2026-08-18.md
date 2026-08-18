@@ -69,4 +69,21 @@
 ---
 
 ## 四、未包含（待后续）
-P2-02（删除失败 catch 补 toast）、P2-05（二维码 scene 余量）、P2-09（downloadFile 域名白名单）、P2-10（设置页错误态）、P2-11（临期0天文案）、P2-12（wx:key 反模式）本轮未修复，详见回归报告「六、6.2」。
+~~P2-02（删除失败 catch 补 toast）、P2-05（二维码 scene 余量）、P2-09（downloadFile 域名白名单）、P2-10（设置页错误态）、P2-11（临期0天文案）、P2-12（wx:key 反模式）本轮未修复，详见回归报告「六、6.2」。~~
+
+> 上述 6 项已在 **第二轮修复（commit `da1b14c`）** 全部闭环，详见下文第五节。
+
+---
+
+## 五、第二轮补充修复（commit `da1b14c`，2026-08-18 晚）
+
+| 报告 ID | 缺陷 | 修复位置 | 部署注意 |
+|---------|------|----------|----------|
+| P2-02 | 删除失败无声 | `fridge.ts` `onDeleteConfirm` `.catch` 补 `wx.showToast({title:'删除失败，请重试'})` | 前端编译即生效 |
+| P2-05 | 二维码 scene 余量 | `generateQRCode` 去掉 `\|` 分隔符（定长 fridgeId24+role2+dayTs≈30 字符），加 `>32` 护栏；`scan-result` 解码端兼容旧 `\|` 格式 | **云函数需重新上传部署**；旧 `\|` 格式二维码 7 天内仍可被识别 |
+| P2-09 | 保存二维码错误提示 | `share-qrcode.ts` `onSaveQR` catch 细分：相册授权→引导设置页；下载/域名失败→「检查网络或域名白名单」 | 前端编译即生效 |
+| P2-10 | 设置页错误态 | `fridge-settings.ts` catch 置 `loadError`+toast；`fridge-settings.wxml` 增 `wx:elif="{{loadError}}"` 错误 banner + 重新加载 | 前端编译即生效 |
+| P2-11 | 临期0天→今天到期 | `fridge.ts` `getExpireText` 与 `getExpiringItems` 云函数 `diffDays===0` 改「今天到期」 | **`getExpiringItems` 需重新上传部署** |
+| P2-12 | wx:key 反模式 | `fridge-create.wxml` 预设图标 `wx:key="index"` → `wx:key="*this"` | 前端编译即生效 |
+
+**验证**：2 个云函数 `node --check` 通过；`scan-result` 解码逻辑走查（新/旧格式分支覆盖）。
