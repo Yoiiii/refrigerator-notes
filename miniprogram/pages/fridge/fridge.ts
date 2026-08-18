@@ -195,7 +195,7 @@ Page({
       const expireTs = new Date(ey, em - 1, ed).getTime()
       const todayTs = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
       const diffDays = Math.max(0, Math.round((expireTs - todayTs) / 86400000))
-      return `临期${diffDays}天`
+      return diffDays === 0 ? "今天到期" : `临期${diffDays}天`
     }
     return ""
   },
@@ -268,7 +268,9 @@ Page({
         // 删除后静默刷新，不闪骨架屏
         this.loadFridgeData(false);
       })
-      .catch(() => { });
+      .catch(() => {
+        wx.showToast({ title: '删除失败，请重试', icon: 'none' })
+      });
   },
 
   onDeleteCancel() {

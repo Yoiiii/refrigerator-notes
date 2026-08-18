@@ -60,7 +60,7 @@
         <view
           class="preset-item {{selectedImageIndex === index ? 'selected' : ''}}"
           wx:for="{{presetImages}}"
-          wx:key="index"
+          wx:key="*this"
           data-index="{{index}}"
           bind:tap="onSelectPresetImage"
         >

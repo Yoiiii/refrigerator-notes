@@ -24,6 +24,12 @@
     <text class="loading-text">加载中...</text>
   </view>
 
+  <view class="error-banner" wx:elif="{{loadError}}" style="padding:160rpx 40rpx;text-align:center;">
+    <t-icon name="error-circle" size="48rpx" color="var(--td-error-color)" />
+    <text class="error-text" style="display:block;margin:16rpx 0;color:rgba(0,0,0,0.55);">加载失败</text>
+    <t-button size="small" theme="default" bind:tap="onRetry">重新加载</t-button>
+  </view>
+
   <scroll-view class="page-container" wx:else scroll-y enhanced show-scrollbar="{{false}}">
   <view class="card">
     <t-cell wx:if="{{isOwner}}" title="冰箱名称" note="{{fridgeName}}" arrow hover bind:tap="onEditFridge" />

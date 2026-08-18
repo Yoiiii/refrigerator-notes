@@ -5,7 +5,7 @@ import { refreshFridgeLists } from '../../utils/refresh'
 const app = getApp<IAppOption>()
 
 Page({
-  data: { theme: 'warm', loading: true, fridgeId: '', fridgeName: '', doorTypeText: '', hasConstantZone: false, isOwner: false, deleteVisible: false },
+  data: { theme: 'warm', loading: true, loadError: false, fridgeId: '', fridgeName: '', doorTypeText: '', hasConstantZone: false, isOwner: false, deleteVisible: false },
 
   onLoad(options: any) {
     this.setData({ fridgeId: options.fridgeId || '', theme: app.globalData.theme || 'warm' })
@@ -25,6 +25,7 @@ Page({
       if (data) {
         this.setData({
           loading: false,
+          loadError: false,
           fridgeName: data.name,
           doorTypeText: data.doorType === 'double' ? '双开门' : '单开门',
           hasConstantZone: data.hasConstantZone || false,
@@ -32,8 +33,13 @@ Page({
         })
       }
     } catch (e) {
-      this.setData({ loading: false })
+      this.setData({ loading: false, loadError: true })
+      wx.showToast({ title: '加载失败，请重试', icon: 'none' })
     }
+  },
+
+  onRetry() {
+    this.loadFridge()
   },
 
   onBack() { wx.navigateBack() },

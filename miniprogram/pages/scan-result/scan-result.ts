@@ -17,13 +17,26 @@ Page({
     this.setData({ theme: app.globalData.theme || 'warm' })
     const scene = decodeURIComponent(options.scene || '')
     if (scene) {
-      const parts = scene.split('|')
-      const fridgeId = parts[0]
+      let fridgeId = ''
+      let roleCode = ''
+      let dayTs = ''
+      if (scene.indexOf('|') !== -1) {
+        // 旧格式：fridgeId|role|dayTs
+        const parts = scene.split('|')
+        fridgeId = parts[0]
+        roleCode = parts[1]
+        dayTs = parts[2]
+      } else {
+        // 新格式（无分隔符，定长）：fridgeId(24) + roleCode(2) + dayTs(base36)
+        fridgeId = scene.slice(0, 24)
+        roleCode = scene.slice(24, 26)
+        dayTs = scene.slice(26)
+      }
       // 短角色码解码：rw→readwrite，ro→readonly（与 generateQRCode 对应）
       const roleMap: Record<string, string> = { rw: 'readwrite', ro: 'readonly' }
-      const role = roleMap[parts[1]] || 'readonly'
+      const role = roleMap[roleCode] || 'readonly'
       // 时间戳为「自纪元起天数」的 base36，还原为毫秒
-      const timestamp = parseInt(parts[2] || '', 36) * 86400000
+      const timestamp = parseInt(dayTs || '', 36) * 86400000
       // 7天有效期
       if (!timestamp || Date.now() - timestamp > 7 * 24 * 60 * 60 * 1000) {
         this.setData({

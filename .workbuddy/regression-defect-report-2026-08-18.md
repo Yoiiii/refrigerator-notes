@@ -289,3 +289,38 @@ this.setData({ /* …原有… */ role: data.role })
 - **本轮基于代码推断的约定**：组件白名单、主题系统、`{code:0,data}` 契约均与 `CLAUDE.md`/`PRD` 一致，未发现违规使用 `t-card`/`t-list`/`t-select` 或直连数据库。
 
 > 结论：未发现 P0 阻断性缺陷（无白屏/崩溃/数据丢失/鉴权缺失）。鉴权链（`checkFridgePermission` + 物品归属校验 + `manageMember` owner 守卫/事务）完整可靠；前后端数据契约一致。建议优先修复 **P1-01 / P1-02**（冰箱页异常反馈与只读权限 UI 一致性），其余为体验与可维护性改进项。
+
+---
+
+## 六、修复状态跟踪（2026-08-18 晚，commit `14f2a6f`）
+
+> 以下为针对本报告缺陷的实际修复落地情况。**修复仅 commit 不 push**；4 个写入类云函数（`addItem`/`updateItem`/`deleteItem`/`deleteFridge`）改动需用户在微信开发者工具**手动上传部署**后方生效，前端改动编译即见。
+
+### 6.1 已修复（本轮）
+
+| 报告 ID | 缺陷 | 修复位置 | 验证方式 |
+|---------|------|----------|----------|
+| P1-01 | 冰箱详情加载失败无反馈 | `pages/fridge/fridge.ts` `loadFridgeData` catch 置 `loadError`+toast；`fridge.wxml` 增 `wx:elif="{{loadError}}"` 空态与「重新加载」 | 代码走查 + `node --check` |
+| P1-02 | 只读成员可见无效删除按钮 | `fridge.ts` 把 `role` 存入 data；`fridge.wxml` 删除/添加按钮三处均加 `wx:if="{{role !== 'readonly'}}"` | 代码走查 |
+| P2-01 | `call()` 无超时 | `utils/cloud.ts` 用 `Promise + setTimeout` 包装，默认 15s（可 `opts.timeout` 覆盖），超时给「请求超时，请重试」 | 代码走查 |
+| P2-03 | 保质期 picker 写死 2026~2030 | `item-edit.ts` `onLoad` 算 `minDate=今天`/`maxDate=今天+5年`；`item-edit.wxml` `start`/`end` 改绑动态值 | 代码走查 |
+| P2-04 | `getUserProfile` 已废弃 | `mine.ts` 改 `onChooseAvatar`(button `open-type="chooseAvatar"`)+`onNicknameInput`(input `type="nickname"`)，分别同步云端 `login`；`mine.wxml`/`mine.wxss` 配套 | 代码走查 |
+| P2-06 | 写入类云函数未捕获权限抛错 | `addItem`/`updateItem`/`deleteItem`/`deleteFridge` 用 `try/catch` 包裹 `checkFridgePermission`，返回 `{code: err.code||-1, msg}` | `node --check` 4 个云函数 |
+| P2-07 | 死代码云函数 | 已删除 `cloudfunctions/getItemsByLayer`、`getDefaultFridge`（grep 确认前端 0 调用）；同步清理 `CLAUDE.md` 表格引用 | `rm -rf` + grep 复核 |
+| P2-08 | 每次保存都弹订阅授权 | `item-edit.ts` `onSave` 加 `expirySubscribeAsked` 本地标记（`wx.setStorageSync`），同设备仅弹一次 | 代码走查 |
+| P2-13 | 删除默认冰箱后 `defaultFridgeId` 悬空 | `deleteFridge` 删除前清理 `users.defaultFridgeId`（按 `checkFridgePermission` 返回的 openid 定位）；`fridge-settings.ts` 删除成功后同步清空 `globalData.userInfo.defaultFridgeId` | `node --check` |
+
+### 6.2 仍待修复（本轮未覆盖 / 超出本次范围）
+
+| 报告 ID | 缺陷 | 说明 |
+|---------|------|------|
+| P2-02 | 删除失败 `onDeleteConfirm` catch 为空 | 用户本次未要求；建议 `.catch` 补「删除失败」toast（`deleteItem` 已结构化返回，前端现在能取到 msg） |
+| P2-05 | 分享二维码 `scene` 恰 32 字符上限 | 临界风险，当前标准 `_id` 可用；建议缩短编码留余量（非紧急） |
+| P2-09 | `downloadFile` 云存储域名白名单 | 依赖真机 + MP 后台确认 |
+| P2-10 | 冰箱设置页加载失败无错误态 | 建议加错误 banner/重试 |
+| P2-11 | 临期文案「临期0天」措辞 | 建议今天到期显示「今天到期」 |
+| P2-12 | 预设图标 `wx:key="index"` 反模式 | 低优，建议用图片路径作 key |
+
+### 6.3 备注
+- 报告「覆盖概览」表写「P2: 10」，但本清单实际列出 P2-01~P2-13 共 13 项（含本轮已修复 7 项、待修复 6 项），系原报告计数误差，以本节明细为准。
+- 静态走查无法验证运行时表现，已修复项的真机/真机回归建议纳入后续测试（尤其 `mine` 头像昵称需基础库支持 `chooseAvatar`，旧版回退灰色头像+「微信用户」属预期）。

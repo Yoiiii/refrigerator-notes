@@ -40,14 +40,18 @@ Page({
       await wx.saveImageToPhotosAlbum({ filePath: dl.tempFilePath })
       Toast({ context: this, message: '已保存到相册', selector: '#t-toast' })
     } catch (e: any) {
+      const errMsg = (e && e.errMsg) || ''
       // 用户拒绝相册授权时引导去设置页开启
-      if (e && /auth deny|authorize|album/i.test(e.errMsg || '')) {
+      if (/auth deny|authorize|album/i.test(errMsg)) {
         wx.showModal({
           title: '需要相册权限',
           content: '保存图片需要您授权相册，是否前往设置开启？',
           confirmText: '去设置',
           success: (r) => { if (r.confirm) wx.openSetting() },
         })
+      } else if (/download|url|fail|domain/i.test(errMsg)) {
+        // 多为 downloadFile 合法域名白名单未配置（云存储域名需在 MP 后台 downloadFile 合法域名内）
+        Toast({ context: this, message: '下载失败，请检查网络或域名白名单', selector: '#t-toast' })
       } else {
         Toast({ context: this, message: '保存失败', selector: '#t-toast' })
       }
