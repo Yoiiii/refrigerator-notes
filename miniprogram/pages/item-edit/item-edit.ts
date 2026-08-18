@@ -178,8 +178,15 @@ Page({
     if (notifyEnabled !== false) {
       wx.requestSubscribeMessage({
         tmplIds: [EXPIRY_TEMPLATE_ID],
-        success: () => {},
-        fail: () => {},
+        success: (res: any) => {
+          // res[模板ID] 取值：accept=允许 / reject=用户拒绝 / ban=模板被封禁或非法（此时不会弹窗）
+          console.log('[subscribe] 授权结果:', res, '本模板:', res?.[EXPIRY_TEMPLATE_ID])
+        },
+        fail: (err: any) => {
+          // 真机不弹窗多半是这里报错（如 errCode 20001 模板ID未在小程序后台登记）
+          console.error('[subscribe] 授权失败:', err)
+          Toast({ context: this, message: `订阅授权失败 ${err?.errCode || ''}`, selector: '#t-toast' })
+        },
       })
     }
     this.setData({ saving: true })
